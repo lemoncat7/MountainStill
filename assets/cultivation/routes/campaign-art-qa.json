@@ -1,0 +1,55 @@
+{
+  "all_checks_passed": true,
+  "routes": {
+    "creek_bridge": {
+      "rgba_2080x280": true,
+      "genuine_clear_alpha": true,
+      "no_gap_at_foot_line": true,
+      "baseline_min_alpha": 252,
+      "clear_alpha_fraction": 0.430611,
+      "halves_are_not_mirrored": true,
+      "halves_are_not_repeated": true,
+      "visual_review": "Inspected full panorama and light-background composite; original asymmetric landmarks, clear sky cutout, level continuous foot lane."
+    },
+    "cloud_slope": {
+      "rgba_2080x280": true,
+      "genuine_clear_alpha": true,
+      "no_gap_at_foot_line": true,
+      "baseline_min_alpha": 249,
+      "clear_alpha_fraction": 0.468846,
+      "halves_are_not_mirrored": true,
+      "halves_are_not_repeated": true,
+      "visual_review": "Inspected full panorama and light-background composite; original asymmetric landmarks, clear sky cutout, level continuous foot lane."
+    },
+    "ember_ruins": {
+      "rgba_2080x280": true,
+      "genuine_clear_alpha": true,
+      "no_gap_at_foot_line": true,
+      "baseline_min_alpha": 250,
+      "clear_alpha_fraction": 0.419921,
+      "halves_are_not_mirrored": true,
+      "halves_are_not_repeated": true,
+      "visual_review": "Inspected full panorama and light-background composite; original asymmetric landmarks, clear sky cutout, level continuous foot lane."
+    },
+    "moon_marsh": {
+      "rgba_2080x280": true,
+      "genuine_clear_alpha": true,
+      "no_gap_at_foot_line": true,
+      "baseline_min_alpha": 242,
+      "clear_alpha_fraction": 0.523621,
+      "halves_are_not_mirrored": true,
+      "halves_are_not_repeated": true,
+      "visual_review": "Inspected full panorama and light-background composite; original asymmetric landmarks, clear sky cutout, level continuous foot lane."
+    },
+    "summit_gate": {
+      "rgba_2080x280": true,
+      "genuine_clear_alpha": true,
+      "no_gap_at_foot_line": true,
+      "baseline_min_alpha": 250,
+      "clear_alpha_fraction": 0.39114,
+      "halves_are_not_mirrored": true,
+      "halves_are_not_repeated": true,
+      "visual_review": "Inspected full panorama and light-background composite; original asymmetric landmarks, clear sky cutout, level continuous foot lane."
+    }
+  }
+}

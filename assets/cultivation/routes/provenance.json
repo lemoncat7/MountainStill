@@ -1,0 +1,84 @@
+{
+  "created_utc": "2026-10-19T10:04:00Z",
+  "generator": "OpenAI built-in image_gen tool",
+  "original_art": true,
+  "style_reference": "assets/cultivation/sanctuary-diorama.png",
+  "style_reference_scope": "Original project art used only for matching rendering style; all environments and creature species newly generated.",
+  "prompts": "sources/generation-prompts.json",
+  "sources": [
+    {
+      "path": "assets/cultivation/routes/sources/bamboo_panorama-source.png",
+      "sha256": "6c8d30ad1a7166226d9d66020525aec7bdc9d45b5f657a3713e4f90153f2b11b",
+      "dimensions": [
+        2176,
+        723
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "assets/cultivation/routes/sources/bamboo_pass-source.png",
+      "sha256": "6f8314ede807fc0e071e8d5af5dd58b7d560de1646cf036cf127ec41bae15d3a",
+      "dimensions": [
+        2180,
+        721
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/routes/sources/cloud_slope-source.png",
+      "sha256": "e26d580afea38f119a7b4e047f42737e1dcd97a5caa104d3e758c542ce5a5fe9",
+      "dimensions": [
+        2059,
+        764
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/routes/sources/creek_bridge-source.png",
+      "sha256": "bfcecaab3bc76ca8effaf10578ffa7c5a3c46197a14974eb4c8b8d9776a104cf",
+      "dimensions": [
+        2188,
+        718
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "pipeline": "tools/route_prepare_assets.py",
+  "pipeline_operations": [
+    "rectangular crop",
+    "LANCZOS resize",
+    "transparent-canvas placement for sprites"
+  ],
+  "preserves_generated_alpha": true,
+  "no_programmatic_background_removal": true,
+  "runtime_metadata": "metadata.json",
+  "updated_utc": "2026-10-19T10:27:00Z",
+  "pipelines_in_order": [
+    "tools/route_prepare_assets.py",
+    "tools/route_prepare_scroll_boss.py",
+    "tools/route_prepare_additional_art.py",
+    "tools/route_prepare_cloud_panorama.py"
+  ],
+  "scroll_preparation": "Each generated route is paired with its exact horizontal reflection, no painting or blending. The 2080px strip has exactly matching RGBA at both internal and wrap boundaries. Side scenery should render behind actors.",
+  "scroll_metadata": "scroll-metadata.json",
+  "additional_prompts": [
+    "sources/bamboo-panorama-prompt.txt"
+  ],
+  "finite_panorama": "bamboo_pass_panorama.png is original non-mirrored art for the finite 940px route journey. It is not claimed to be an infinite seamless tile."
+}

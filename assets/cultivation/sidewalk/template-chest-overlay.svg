@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288" height="448" viewBox="0 0 288 448">
+<style>text{font:10px sans-serif;fill:#12a5a0;paint-order:stroke;stroke:white;stroke-width:2px}path,circle,line,rect{vector-effect:non-scaling-stroke}</style>
+<rect x="0.5" y="0.5" width="287" height="447" fill="none" stroke="#12a5a0" stroke-dasharray="4 4"/>
+<path d="M129.00000 8.00000h14 M136.00000 1.00000v14" stroke="#12a5a0" fill="none"/>
+<circle cx="136.00000" cy="8.00000" r="3" fill="none" stroke="#12a5a0"/>
+<text x="146.00000" y="12.00000">neck</text>
+<path d="M55.15385 176.00000h14 M62.15385 169.00000v14" stroke="#12a5a0" fill="none"/>
+<circle cx="62.15385" cy="176.00000" r="3" fill="none" stroke="#12a5a0"/>
+<text x="72.15385" y="166.00000">armhole</text>
+<path d="M129.00000 380.00000h14 M136.00000 373.00000v14" stroke="#12a5a0" fill="none"/>
+<circle cx="136.00000" cy="380.00000" r="3" fill="none" stroke="#12a5a0"/>
+<text x="146.00000" y="370.00000">waist</text>
+</svg>

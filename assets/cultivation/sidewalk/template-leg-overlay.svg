@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210" height="501" viewBox="0 0 210 501">
+<style>text{font:10px sans-serif;fill:#12a5a0;paint-order:stroke;stroke:white;stroke-width:2px}path,circle,line,rect{vector-effect:non-scaling-stroke}</style>
+<rect x="0.5" y="0.5" width="209" height="500" fill="none" stroke="#12a5a0" stroke-dasharray="4 4"/>
+<rect x="55.77778" y="418" width="48" height="19" fill="#f0bc4680"/>
+<path d="M95.00000 20.00000h14 M102.00000 13.00000v14" stroke="#12a5a0" fill="none"/>
+<circle cx="102.00000" cy="20.00000" r="3" fill="none" stroke="#12a5a0"/>
+<text x="112.00000" y="12.00000">hip</text>
+<path d="M95.00000 255.55556h14 M102.00000 248.55556v14" stroke="#12a5a0" fill="none"/>
+<circle cx="102.00000" cy="255.55556" r="3" fill="none" stroke="#12a5a0"/>
+<text x="112.00000" y="245.55556">knee</text>
+<path d="M72.77778 426.00000h14 M79.77778 419.00000v14" stroke="#12a5a0" fill="none"/>
+<circle cx="79.77778" cy="426.00000" r="3" fill="none" stroke="#12a5a0"/>
+<text x="89.77778" y="416.00000">cuff</text>
+<path d="M72.77778 446.66667h14 M79.77778 439.66667v14" stroke="#12a5a0" fill="none"/>
+<circle cx="79.77778" cy="446.66667" r="3" fill="none" stroke="#12a5a0"/>
+<text x="89.77778" y="436.66667">ankle</text>
+</svg>

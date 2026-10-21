@@ -1,0 +1,404 @@
+{
+  "routes": {
+    "bamboo_pass": {
+      "size": [
+        1040,
+        280
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "upper_center_fraction_alpha_lte16": 1.0,
+      "foot_lane_pixels_opaque": true
+    },
+    "creek_bridge": {
+      "size": [
+        1040,
+        280
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "upper_center_fraction_alpha_lte16": 1.0,
+      "foot_lane_pixels_opaque": true
+    },
+    "cloud_slope": {
+      "size": [
+        1040,
+        280
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "upper_center_fraction_alpha_lte16": 1.0,
+      "foot_lane_pixels_opaque": true
+    }
+  },
+  "beasts": {
+    "bamboo_pass_idle": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        22,
+        42,
+        234,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "2e9c1a905222c11dee86d39b9945e7cb86704168e6cbc6378c2c8e0aca494211"
+    },
+    "bamboo_pass_attack": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        87,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "a9f0e9acdea55249c53dd183231561572a31178b5aa218a7422e57bf4092dcfd"
+    },
+    "creek_bridge_idle": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        33,
+        40,
+        223,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "fc85edced6ad75649d2237c2561d4fa5290f20c53e0202d7f2a6a80c23ec6ce5"
+    },
+    "creek_bridge_attack": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        65,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "628fd7cdd4db18c72365311324b038897b96ef0e70688b437519c5e5b64022f5"
+    },
+    "cloud_slope_idle": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        25,
+        54,
+        231,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "4b3d19e3b53f5b502e69bc24533d53a7646be4e9363b00c700193e1bd12fb010"
+    },
+    "cloud_slope_attack": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        34,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "b370bbe817ae69476c31dcba7f79d0a0dfe9ef2fa57961facd7f34a04b3ea025"
+    },
+    "bamboo_pass_boss_idle": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        38,
+        71,
+        218,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "edb18ad9e4830932fce3ad190596aaaac9b70d9f037efd17f48bbd3e8693dade"
+    },
+    "bamboo_pass_boss_windup": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        44,
+        118,
+        211,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "8f2670d01f39e70e8fe49dc7720af0c336b293caea15f2324b276468e4a0f005"
+    },
+    "bamboo_pass_boss_attack": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        116,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "55005c73e916e4d9c66ffc93bbc8361b58e4ae8173c577681fd14caf1c03009f"
+    },
+    "creek_bridge_boss_idle": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        30,
+        61,
+        227,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "75c7d93a9239459153403b70d761a52e504f4fd4bce009b79015e0189030a707"
+    },
+    "creek_bridge_boss_windup": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        45,
+        78,
+        211,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "a795cf6beb857570975df10ca409876895ed27bfa301c7b10d8a6c45077bdb08"
+    },
+    "creek_bridge_boss_attack": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        83,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "6ce94e7fc5413b3af04da58e84afbbf6e8b2b003ddf9e200997cbb55017b3f41"
+    },
+    "bamboo_pass_windup": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        28,
+        88,
+        227,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "69d9bd1aac1049f1f9553a951fbec57e4c9f2c3719a9f00be79fca665141bcf6"
+    },
+    "cloud_slope_boss_idle": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        38,
+        49,
+        218,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "82b0a2d44915affa5ccbcf0f9ca91a2c924f8e8e087762b42c45128833caee2c"
+    },
+    "cloud_slope_boss_windup": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        30,
+        73,
+        226,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "101252a64ceca710cf0acaf5d97d7a45e6fdb6dd0e7a05c3b37701d8ad8bdd75"
+    },
+    "cloud_slope_boss_attack": {
+      "size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        112,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "max_foot_alpha_row": 231,
+      "distinct_png_sha256": "83d5797fde675611d22ddec7143369556ee8b18a8646809272196927ebda4887"
+    }
+  },
+  "pass": true,
+  "scroll": {
+    "method": "Forward tile + exact horizontal reflection; repeat full 2080px strip",
+    "tile_size": [
+      1040,
+      280
+    ],
+    "strip_size": [
+      2080,
+      280
+    ],
+    "ground_baseline": 246,
+    "renderer_note": "Draw strip at natural logical size 2080x280, offset -fmod(scroll_distance,2080), repeat next strip at +2080. Or alternate normal/mirror 1040px tiles. All scenery should render behind actor and enemies.",
+    "routes": {
+      "bamboo_pass": {
+        "strip": "bamboo_pass_scroll.png",
+        "mirrored_tile": "bamboo_pass_mirror.png",
+        "interior_join_rgba_max_difference": 0,
+        "wrap_join_rgba_max_difference": 0,
+        "entire_foot_row_opaque": true
+      },
+      "creek_bridge": {
+        "strip": "creek_bridge_scroll.png",
+        "mirrored_tile": "creek_bridge_mirror.png",
+        "interior_join_rgba_max_difference": 0,
+        "wrap_join_rgba_max_difference": 0,
+        "entire_foot_row_opaque": true
+      },
+      "cloud_slope": {
+        "strip": "cloud_slope_scroll.png",
+        "mirrored_tile": "cloud_slope_mirror.png",
+        "interior_join_rgba_max_difference": 0,
+        "wrap_join_rgba_max_difference": 0,
+        "entire_foot_row_opaque": true
+      }
+    }
+  },
+  "props": {
+    "opportunity_cairn": {
+      "size": [
+        128,
+        128
+      ],
+      "ground_anchor": [
+        64,
+        116
+      ],
+      "alpha_bbox": [
+        12,
+        8,
+        116,
+        116
+      ],
+      "sha256": "8be3379429b7c1beaaad1f66a07f0e03abd7233ac7c4e05fd16a9b76c6c3daa7"
+    }
+  },
+  "finite_panorama": {
+    "path": "assets/cultivation/routes/bamboo_pass_panorama.png",
+    "size": [
+      2080,
+      280
+    ],
+    "entire_foot_row_opaque": true,
+    "recommended_run_offset": [
+      0,
+      940
+    ],
+    "max_offset_for_1040_viewport": 1040,
+    "wrap_seam_claimed": false
+  },
+  "first_bamboo_boss_unchanged": true
+}

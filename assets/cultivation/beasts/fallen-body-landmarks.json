@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "measurement": "New imagegen fallen boss poses. Transparent 1254 px source copied unchanged. Canonical import uses significant-alpha crop (alpha >= 4), uniform resampling to 236 px maximum width, and ground bottom at y=232. No anisotropic scale, sprite rotation or body distortion. Skull landmarks are manually estimated anatomical boxes in source pixels, excluding ornaments. Head diameter is square root of box area. Reference diameter comes from original boss idle body-landmarks.json. Renderer should use this metadata for uniform calibration; low pose is baked into the illustration. Final native-transition registration uses the unchanged primary torso landmark, not the smaller projected closed-face box. This prevents the folded face/mane projection from enlarging the whole body; all rescaling remains uniform.",
+  "poses": {
+    "bamboo_pass_boss_authored_fallen_v7": {
+      "filename": "bamboo_pass_boss_authored_fallen_v7.png",
+      "source_filename": "sources/bamboo_pass_boss_authored_fallen_v7_source.png",
+      "canvas_size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        101,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "head_landmark": [
+        26.884552845528454,
+        192.1382113821138,
+        75.81138211382114,
+        228.78536585365853
+      ],
+      "head_diameter": 42.34417397940379,
+      "reference_head_diameter": 61.49797,
+      "source_canvas_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        0,
+        17,
+        1254,
+        1254
+      ],
+      "source_significant_alpha_bbox": [
+        15,
+        341,
+        1245,
+        1026
+      ],
+      "source_head_landmark": [
+        103,
+        816,
+        358,
+        1007
+      ],
+      "source_head_diameter": 220.6920931977401,
+      "source_ground_anchor": [
+        630.0,
+        1026
+      ],
+      "import_uniform_scale": 0.191869918699187,
+      "visual_notes": "Moss boss: pale tan face, antlers, spiral armor, green circular emblem, bamboo and flowers preserved. Eyes closed, chin resting at ground, body and folded paws grounded. Head measurement excludes antlers, foliage and mane.",
+      "body_registration": {
+        "landmark": "round green side-shell medallion outer diameter",
+        "diameter": 34.0,
+        "reference_diameter": 32.573502302899044,
+        "reference_pose": "bamboo_pass_boss_authored_crouch",
+        "reference_pose_diameter": 42.0,
+        "measurement_note": "Manual canonical-pixel measurement of the same stable body ornament or torso panel. Resting head/neck projection differs, so face-box calibration is not used for overall scale."
+      }
+    },
+    "cloud_slope_boss_authored_fallen_v7": {
+      "filename": "cloud_slope_boss_authored_fallen_v7.png",
+      "source_filename": "sources/cloud_slope_boss_authored_fallen_v7_source.png",
+      "canvas_size": [
+        256,
+        256
+      ],
+      "alpha_bbox": [
+        10,
+        151,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "head_landmark": [
+        28.016778523489933,
+        201.09060402684563,
+        68.80201342281879,
+        223.85906040268458
+      ],
+      "head_diameter": 30.473215150090617,
+      "reference_head_diameter": 49.1935,
+      "source_canvas_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        33,
+        103,
+        1254,
+        1226
+      ],
+      "source_significant_alpha_bbox": [
+        52,
+        577,
+        1244,
+        986
+      ],
+      "source_head_landmark": [
+        143,
+        830,
+        349,
+        945
+      ],
+      "source_head_diameter": 153.9155612665594,
+      "source_ground_anchor": [
+        648.0,
+        986
+      ],
+      "import_uniform_scale": 0.19798657718120805,
+      "visual_notes": "Cloud crane boss: cream/gold plumage, crown, lilac cheek/tail curls and blue-gray wing preserved. Closed eyes, beak/head near ground, folded low neck, feet tucked under settled wing. Head measurement excludes beak, crown and ornamental plumes.",
+      "body_registration": {
+        "landmark": "folded primary wing / torso panel longitudinal width, excluding tail and neck",
+        "diameter": 102.0,
+        "reference_diameter": 97.11183973963783,
+        "reference_pose": "cloud_slope_boss_authored_peck",
+        "reference_pose_diameter": 91.0,
+        "measurement_note": "Manual canonical-pixel measurement of the same stable body ornament or torso panel. Resting head/neck projection differs, so face-box calibration is not used for overall scale."
+      }
+    }
+  }
+}

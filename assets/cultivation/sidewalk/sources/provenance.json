@@ -1,0 +1,39 @@
+{
+  "created_utc": "2026-10-19",
+  "generator": "OpenAI built-in image_gen.imagegen",
+  "original_asset": true,
+  "reference": "assets/cultivation/equipment/base.png",
+  "prompt_file": "base-prompt.txt",
+  "source_file": "base-cutout-atlas.png",
+  "source_sha256": "6338c2d7f8c2ecfad218d5e684b9c1ee6e27312d5bce49ce32cedf8fd252f303",
+  "processing": "alpha-preserving rectangular crop only",
+  "runtime_parts": [
+    "../head.png",
+    "../torso.png",
+    "../arm.png",
+    "../leg.png"
+  ],
+  "equipment": {
+    "generator": "OpenAI built-in image_gen.imagegen",
+    "source_file": "equipment-side-atlas.png",
+    "source_sha256": "78436aecfc218d81a823112f14e944dbf77b293a1831197258de12164d642250",
+    "prompt_file": "equipment-prompt.txt",
+    "references": [
+      "base-cutout-atlas.png",
+      "../../equipment/sources/equipment-atlas.png"
+    ],
+    "processing": "Alpha-preserving crops; garment pieces resized and placed on matching rig canvases; no repainting or preset replacement",
+    "runtime_parts": [
+      "head_pin",
+      "head_crown",
+      "chest_blue",
+      "chest_jade",
+      "sleeve_blue",
+      "sleeve_jade",
+      "legs_blue",
+      "legs_jade",
+      "feet_cloth",
+      "feet_boots"
+    ]
+  }
+}

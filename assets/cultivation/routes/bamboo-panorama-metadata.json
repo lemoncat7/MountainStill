@@ -1,0 +1,22 @@
+{
+  "source": "sources/bamboo_panorama-source.png",
+  "source_size": [
+    2176,
+    723
+  ],
+  "runtime_size": [
+    2080,
+    280
+  ],
+  "ground_baseline": 246,
+  "source_sha256": "6c8d30ad1a7166226d9d66020525aec7bdc9d45b5f657a3713e4f90153f2b11b",
+  "generation": "Original built-in image_gen panorama; no copied or mirrored clumps",
+  "postprocessing": "LANCZOS canvas resize only; source alpha retained",
+  "max_camera_offset_for_1040_viewport": 1040,
+  "recommended_run_offset": [
+    0,
+    940
+  ],
+  "not_infinite_seamless_tile": true,
+  "integration": "Use this as a single finite horizontal panorama; clamp scroll offset to [0,1040]. No wrap is needed for the current 940px run. Keep existing mirrored strips as fallback for unlimited loops."
+}

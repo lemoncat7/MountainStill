@@ -1,0 +1,726 @@
+{
+  "version": 1,
+  "measurement": "Face/skull anatomical area-equivalent diameter measured in the original256px pose image. Excludes projectile, wings, crest, antlers, flame, foliage and mane; ground anchor preserves existing planted baseline. Natural crouch and flight height remain authored.",
+  "poses": {
+    "bamboo_pass_idle": {
+      "alpha_bbox": [
+        22,
+        42,
+        234,
+        232
+      ],
+      "head_landmark": [
+        25,
+        116,
+        105,
+        192
+      ],
+      "head_diameter": 77.97435,
+      "reference_head_diameter": 77.97435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "bamboo_pass_windup": {
+      "alpha_bbox": [
+        28,
+        88,
+        227,
+        232
+      ],
+      "head_landmark": [
+        29,
+        155,
+        103,
+        218
+      ],
+      "head_diameter": 68.27884,
+      "reference_head_diameter": 77.97435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "bamboo_pass_attack": {
+      "alpha_bbox": [
+        10,
+        87,
+        246,
+        232
+      ],
+      "head_landmark": [
+        44,
+        130,
+        118,
+        195
+      ],
+      "head_diameter": 69.35416,
+      "reference_head_diameter": 77.97435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "bamboo_pass_boss_idle": {
+      "alpha_bbox": [
+        38,
+        71,
+        218,
+        232
+      ],
+      "head_landmark": [
+        39,
+        128,
+        101,
+        189
+      ],
+      "head_diameter": 61.49797,
+      "reference_head_diameter": 61.49797,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "bamboo_pass_boss_windup": {
+      "alpha_bbox": [
+        44,
+        118,
+        211,
+        232
+      ],
+      "head_landmark": [
+        45,
+        166,
+        101,
+        218
+      ],
+      "head_diameter": 53.96295,
+      "reference_head_diameter": 61.49797,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "bamboo_pass_boss_attack": {
+      "alpha_bbox": [
+        10,
+        116,
+        246,
+        232
+      ],
+      "head_landmark": [
+        47,
+        154,
+        107,
+        207
+      ],
+      "head_diameter": 56.39149,
+      "reference_head_diameter": 61.49797,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "creek_bridge_idle": {
+      "alpha_bbox": [
+        33,
+        40,
+        223,
+        232
+      ],
+      "head_landmark": [
+        47,
+        99,
+        124,
+        166
+      ],
+      "head_diameter": 71.82618,
+      "reference_head_diameter": 71.82618,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "creek_bridge_windup": {
+      "alpha_bbox": [
+        24,
+        50,
+        232,
+        232
+      ],
+      "head_landmark": [
+        27,
+        111,
+        108,
+        183
+      ],
+      "head_diameter": 76.36753,
+      "reference_head_diameter": 71.82618,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "creek_bridge_attack": {
+      "alpha_bbox": [
+        10,
+        65,
+        246,
+        232
+      ],
+      "head_landmark": [
+        52,
+        110,
+        124,
+        174
+      ],
+      "head_diameter": 67.88225,
+      "reference_head_diameter": 71.82618,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "creek_bridge_boss_idle": {
+      "alpha_bbox": [
+        30,
+        61,
+        227,
+        232
+      ],
+      "head_landmark": [
+        58,
+        113,
+        117,
+        164
+      ],
+      "head_diameter": 54.85435,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "creek_bridge_boss_windup": {
+      "alpha_bbox": [
+        45,
+        78,
+        211,
+        232
+      ],
+      "head_landmark": [
+        60,
+        119,
+        116,
+        169
+      ],
+      "head_diameter": 52.91503,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "creek_bridge_boss_attack": {
+      "alpha_bbox": [
+        10,
+        83,
+        246,
+        232
+      ],
+      "head_landmark": [
+        105,
+        120,
+        161,
+        165
+      ],
+      "head_diameter": 50.1996,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "cloud_slope_idle": {
+      "alpha_bbox": [
+        25,
+        54,
+        231,
+        232
+      ],
+      "head_landmark": [
+        42,
+        95,
+        107,
+        162
+      ],
+      "head_diameter": 65.99242,
+      "reference_head_diameter": 65.99242,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "cloud_slope_windup": {
+      "alpha_bbox": [
+        24,
+        90,
+        232,
+        232
+      ],
+      "head_landmark": [
+        43,
+        124,
+        100,
+        180
+      ],
+      "head_diameter": 56.49779,
+      "reference_head_diameter": 65.99242,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "cloud_slope_attack": {
+      "alpha_bbox": [
+        10,
+        34,
+        246,
+        232
+      ],
+      "head_landmark": [
+        39,
+        110,
+        98,
+        169
+      ],
+      "head_diameter": 59.0,
+      "reference_head_diameter": 65.99242,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "cloud_slope_boss_idle": {
+      "alpha_bbox": [
+        38,
+        49,
+        218,
+        232
+      ],
+      "head_landmark": [
+        49,
+        79,
+        104,
+        123
+      ],
+      "head_diameter": 49.1935,
+      "reference_head_diameter": 49.1935,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "cloud_slope_boss_windup": {
+      "alpha_bbox": [
+        30,
+        73,
+        226,
+        232
+      ],
+      "head_landmark": [
+        67,
+        100,
+        121,
+        146
+      ],
+      "head_diameter": 49.83974,
+      "reference_head_diameter": 49.1935,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "cloud_slope_boss_attack": {
+      "alpha_bbox": [
+        10,
+        112,
+        246,
+        232
+      ],
+      "head_landmark": [
+        34,
+        163,
+        81,
+        194
+      ],
+      "head_diameter": 38.17067,
+      "reference_head_diameter": 49.1935,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "ember_ruins_idle": {
+      "alpha_bbox": [
+        33,
+        89,
+        223,
+        232
+      ],
+      "head_landmark": [
+        43,
+        128,
+        101,
+        180
+      ],
+      "head_diameter": 54.91812,
+      "reference_head_diameter": 54.91812,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "ember_ruins_windup": {
+      "alpha_bbox": [
+        30,
+        122,
+        226,
+        232
+      ],
+      "head_landmark": [
+        39,
+        159,
+        93,
+        207
+      ],
+      "head_diameter": 50.91169,
+      "reference_head_diameter": 54.91812,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "ember_ruins_attack": {
+      "alpha_bbox": [
+        10,
+        115,
+        246,
+        232
+      ],
+      "head_landmark": [
+        79,
+        144,
+        128,
+        186
+      ],
+      "head_diameter": 45.36518,
+      "reference_head_diameter": 54.91812,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "ember_ruins_boss_idle": {
+      "alpha_bbox": [
+        28,
+        57,
+        228,
+        232
+      ],
+      "head_landmark": [
+        32,
+        118,
+        87,
+        167
+      ],
+      "head_diameter": 51.91339,
+      "reference_head_diameter": 51.91339,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "ember_ruins_boss_windup": {
+      "alpha_bbox": [
+        24,
+        81,
+        232,
+        232
+      ],
+      "head_landmark": [
+        52,
+        136,
+        106,
+        184
+      ],
+      "head_diameter": 50.91169,
+      "reference_head_diameter": 51.91339,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "ember_ruins_boss_attack": {
+      "alpha_bbox": [
+        10,
+        89,
+        246,
+        232
+      ],
+      "head_landmark": [
+        67,
+        132,
+        116,
+        174
+      ],
+      "head_diameter": 45.36518,
+      "reference_head_diameter": 51.91339,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "moon_marsh_idle": {
+      "alpha_bbox": [
+        34,
+        28,
+        222,
+        232
+      ],
+      "head_landmark": [
+        36,
+        117,
+        104,
+        172
+      ],
+      "head_diameter": 61.15554,
+      "reference_head_diameter": 61.15554,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "moon_marsh_windup": {
+      "alpha_bbox": [
+        51,
+        28,
+        205,
+        232
+      ],
+      "head_landmark": [
+        58,
+        116,
+        119,
+        173
+      ],
+      "head_diameter": 58.96609,
+      "reference_head_diameter": 61.15554,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "moon_marsh_attack": {
+      "alpha_bbox": [
+        10,
+        108,
+        246,
+        232
+      ],
+      "head_landmark": [
+        62,
+        153,
+        119,
+        200
+      ],
+      "head_diameter": 51.75906,
+      "reference_head_diameter": 61.15554,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "moon_marsh_boss_idle": {
+      "alpha_bbox": [
+        30,
+        28,
+        225,
+        232
+      ],
+      "head_landmark": [
+        43,
+        100,
+        102,
+        151
+      ],
+      "head_diameter": 54.85435,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "moon_marsh_boss_windup": {
+      "alpha_bbox": [
+        29,
+        28,
+        227,
+        232
+      ],
+      "head_landmark": [
+        48,
+        116,
+        107,
+        166
+      ],
+      "head_diameter": 54.3139,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "moon_marsh_boss_attack": {
+      "alpha_bbox": [
+        10,
+        102,
+        246,
+        232
+      ],
+      "head_landmark": [
+        78,
+        147,
+        131,
+        190
+      ],
+      "head_diameter": 47.73887,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "summit_gate_idle": {
+      "alpha_bbox": [
+        33,
+        51,
+        223,
+        232
+      ],
+      "head_landmark": [
+        36,
+        109,
+        92,
+        155
+      ],
+      "head_diameter": 50.75431,
+      "reference_head_diameter": 50.75431,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "summit_gate_windup": {
+      "alpha_bbox": [
+        30,
+        103,
+        226,
+        232
+      ],
+      "head_landmark": [
+        38,
+        156,
+        93,
+        199
+      ],
+      "head_diameter": 48.63127,
+      "reference_head_diameter": 50.75431,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "summit_gate_attack": {
+      "alpha_bbox": [
+        10,
+        71,
+        246,
+        232
+      ],
+      "head_landmark": [
+        50,
+        117,
+        100,
+        160
+      ],
+      "head_diameter": 46.36809,
+      "reference_head_diameter": 50.75431,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "summit_gate_boss_idle": {
+      "alpha_bbox": [
+        28,
+        28,
+        228,
+        232
+      ],
+      "head_landmark": [
+        56,
+        93,
+        111,
+        139
+      ],
+      "head_diameter": 50.29911,
+      "reference_head_diameter": 50.29911,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "summit_gate_boss_windup": {
+      "alpha_bbox": [
+        24,
+        60,
+        232,
+        232
+      ],
+      "head_landmark": [
+        55,
+        141,
+        108,
+        188
+      ],
+      "head_diameter": 49.90992,
+      "reference_head_diameter": 50.29911,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    },
+    "summit_gate_boss_attack": {
+      "alpha_bbox": [
+        10,
+        68,
+        246,
+        232
+      ],
+      "head_landmark": [
+        71,
+        140,
+        125,
+        184
+      ],
+      "head_diameter": 48.74423,
+      "reference_head_diameter": 50.29911,
+      "ground_anchor": [
+        128,
+        232
+      ]
+    }
+  }
+}

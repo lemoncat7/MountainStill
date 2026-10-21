@@ -1,0 +1,176 @@
+{
+  "created_utc": "2026-10-19T10:04:00Z",
+  "generator": "OpenAI built-in image_gen tool",
+  "original_art": true,
+  "style_reference": "assets/cultivation/encounters/fox_idle.png",
+  "style_reference_scope": "Original project art used only for matching rendering style; all environments and creature species newly generated.",
+  "prompts": "sources/generation-prompts.json",
+  "sources": [
+    {
+      "path": "assets/cultivation/beasts/sources/bamboo-boss-source.png",
+      "sha256": "289d0b5bb2e6ea79d5d26918d357c6bac7ab4f4bdda6079c335761d374c70e26",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/bamboo_normal-source.png",
+      "sha256": "d9f11e456222630ff7de3f569ab3c37da620d20e754b23f7f90661a758a9d5be",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/cloud_attack-source.png",
+      "sha256": "fc587b4b695b758c83be2eb650ae98e95223e4d262a881948df9e152c7fab54c",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/cloud_idle-source.png",
+      "sha256": "38cd2a471997076e5275beef9154665e9c6bc7f8dac1dfb82fa64293a5df06bb",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/cloud_slope-boss-source.png",
+      "sha256": "576e7e338f313171aab605a8a0197c687de9d49390ae6cf3726f303dee71f745",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/cloud_windup-source.png",
+      "sha256": "309a09df07601dcb6f0d19b4e6923ed18e5ddad1c569d887d02f6e4d30984900",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/cloudcrane-source.png",
+      "sha256": "bc4f27ac2a21bfd282aa326012fdf56500519de25ce2f4871bf326ed34c89aad",
+      "dimensions": [
+        1983,
+        793
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/creek_bridge-boss-source.png",
+      "sha256": "42ff8b72ea2af9edb6bcf5aaea884ff8538e34cf9a007130aac746db91b35b11",
+      "dimensions": [
+        2172,
+        724
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/mossback-source.png",
+      "sha256": "b1e9960f392215015fc8aefbf38ea3025f6717e8d28d92cffff273460cf375ac",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/opportunity_cairn-source.png",
+      "sha256": "ed7335d9771e47bb7f9252aa244d85343fea0ee7e052346b661f8a2dc7462406",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "assets/cultivation/beasts/sources/riverstone-source.png",
+      "sha256": "35bb44daaa424f6747050d9288acb961a093d1e52de99718e8193f7447d5f906",
+      "dimensions": [
+        1774,
+        887
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ]
+    }
+  ],
+  "pipeline": "tools/route_prepare_assets.py",
+  "pipeline_operations": [
+    "rectangular crop",
+    "LANCZOS resize",
+    "transparent-canvas placement for sprites"
+  ],
+  "preserves_generated_alpha": true,
+  "no_programmatic_background_removal": true,
+  "runtime_metadata": "metadata.json",
+  "updated_utc": "2026-10-19T10:27:00Z",
+  "pipelines_in_order": [
+    "tools/route_prepare_assets.py",
+    "tools/route_prepare_scroll_boss.py",
+    "tools/route_prepare_additional_art.py",
+    "tools/route_prepare_cloud_panorama.py"
+  ],
+  "additional_prompts": [
+    "sources/additional-generation-prompts.json",
+    "sources/cloud-frame-extraction-prompts.json",
+    "sources/bamboo-boss-pose-prompt.txt"
+  ],
+  "cloud_boss_extraction": "The crowded three-frame concept sheet was not programmatically masked. Each pose was cleanly isolated with built-in image_gen, viewed, cropped and scaled into the runtime canvas.",
+  "normal_bamboo_update": "Original small creature identity preserved; authored deep-crouch windup and full horizontal pounce replace the earlier one-paw attack. First bamboo boss unchanged."
+}

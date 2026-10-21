@@ -1,0 +1,206 @@
+{
+  "runtime_size": [
+    2080,
+    280
+  ],
+  "viewport_size": [
+    1040,
+    280
+  ],
+  "ground_baseline": 246,
+  "camera_offset_bounds": [
+    0,
+    1040
+  ],
+  "finite_panorama": true,
+  "infinite_seamless_tile": false,
+  "mirrored_or_duplicated_clumps": false,
+  "generation": "Original OpenAI built-in image_gen art with genuine alpha.",
+  "postprocessing": "Rectangular crop and LANCZOS canvas resize only; source alpha retained.",
+  "routes": {
+    "creek_bridge": {
+      "title": "Creek Bridge",
+      "runtime": "creek_bridge_panorama.png",
+      "source": "sources/creek_bridge_panorama-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        0,
+        0,
+        2172,
+        724
+      ],
+      "source_sha256": "f82dffb0b4f43a797304de0a09c3eae2a614c0e163994843d322403dd3b727d5",
+      "runtime_sha256": "8cd2717d252b88194d192ed2bc433cf32a7721eb13bb92b9c2ca86315c8e42eb",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "baseline_alpha_extrema": [
+        252,
+        254
+      ],
+      "clear_alpha_fraction": 0.430611
+    },
+    "cloud_slope": {
+      "title": "Cloud Slope",
+      "runtime": "cloud_slope_panorama.png",
+      "source": "sources/cloud_slope_panorama-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        0,
+        0,
+        2172,
+        724
+      ],
+      "source_sha256": "3b3e520769a005a486b9cdf082045d7949f3f19398c2d323f6854b746a2b908b",
+      "runtime_sha256": "f8cda4f0cbf99c0400a337725b43c81bfe3392287f46657e9072bf5b7975d985",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "baseline_alpha_extrema": [
+        249,
+        253
+      ],
+      "clear_alpha_fraction": 0.468846
+    },
+    "ember_ruins": {
+      "title": "Ember Ruins",
+      "runtime": "ember_ruins_panorama.png",
+      "source": "sources/ember_ruins_panorama-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        0,
+        0,
+        2172,
+        685
+      ],
+      "source_sha256": "33c6bd27861dd7de87507d043c33811e05bab36617b8e433c466fc4b8032b3b4",
+      "runtime_sha256": "fd1edec2b2f72e6cfd4a77dd91e92554501839bd4a919c337d3474d3efb7cd4d",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "baseline_alpha_extrema": [
+        250,
+        253
+      ],
+      "clear_alpha_fraction": 0.419921,
+      "compatibility_assets": {
+        "static": "ember_ruins.png",
+        "static_size": [
+          1040,
+          280
+        ],
+        "static_crop_from_panorama": [
+          0,
+          0,
+          1040,
+          280
+        ],
+        "static_sha256": "b46925e2ebfac75798b6de8a67aa5cf730ac5a390f739b3d7046c822b1108a5f",
+        "scroll": "ember_ruins_scroll.png",
+        "scroll_is_byte_identical_panorama_copy": true,
+        "scroll_sha256": "fd1edec2b2f72e6cfd4a77dd91e92554501839bd4a919c337d3474d3efb7cd4d",
+        "host_preferred_asset": "ember_ruins_panorama.png"
+      }
+    },
+    "moon_marsh": {
+      "title": "Moon Marsh",
+      "runtime": "moon_marsh_panorama.png",
+      "source": "sources/moon_marsh_panorama-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        0,
+        0,
+        2172,
+        710
+      ],
+      "source_sha256": "5dcd8a3a56874f49ce1359fd5d740e0d2ed10b3ea0bf43dd5b5d4e2bf7d7df04",
+      "runtime_sha256": "9b2897abe61585672bdcb5868f88196b0dc848635fcb04f018e32b72e8808e70",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "baseline_alpha_extrema": [
+        242,
+        253
+      ],
+      "clear_alpha_fraction": 0.523621,
+      "compatibility_assets": {
+        "static": "moon_marsh.png",
+        "static_size": [
+          1040,
+          280
+        ],
+        "static_crop_from_panorama": [
+          0,
+          0,
+          1040,
+          280
+        ],
+        "static_sha256": "073f310521057e65888cb7caf5e63bc3d61864a58a11c051222b3458655e5b38",
+        "scroll": "moon_marsh_scroll.png",
+        "scroll_is_byte_identical_panorama_copy": true,
+        "scroll_sha256": "9b2897abe61585672bdcb5868f88196b0dc848635fcb04f018e32b72e8808e70",
+        "host_preferred_asset": "moon_marsh_panorama.png"
+      }
+    },
+    "summit_gate": {
+      "title": "Summit Gate",
+      "runtime": "summit_gate_panorama.png",
+      "source": "sources/summit_gate_panorama-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        0,
+        0,
+        2172,
+        724
+      ],
+      "source_sha256": "a4093a2f52b4e12ff4ac96a34618c11d553def8bb3c1ec1900c59c1c25d8b203",
+      "runtime_sha256": "29d66baa431c2ccbf175887ce167a668096125fb5d6b9e38b1314f7023bf9f6a",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "baseline_alpha_extrema": [
+        250,
+        253
+      ],
+      "clear_alpha_fraction": 0.39114,
+      "compatibility_assets": {
+        "static": "summit_gate.png",
+        "static_size": [
+          1040,
+          280
+        ],
+        "static_crop_from_panorama": [
+          0,
+          0,
+          1040,
+          280
+        ],
+        "static_sha256": "8adbb02023bbf8d2c580a671cd0d591f952ef7c61e7210c3b8c3b2417c79d921",
+        "scroll": "summit_gate_scroll.png",
+        "scroll_is_byte_identical_panorama_copy": true,
+        "scroll_sha256": "29d66baa431c2ccbf175887ce167a668096125fb5d6b9e38b1314f7023bf9f6a",
+        "host_preferred_asset": "summit_gate_panorama.png"
+      }
+    }
+  }
+}

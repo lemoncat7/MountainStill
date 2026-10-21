@@ -1,0 +1,33 @@
+{
+  "type": "painted_creature_animation",
+  "tool": "built-in image_gen",
+  "created_utc": "2026-10-20",
+  "references": [
+    "bamboo_pass_idle.png",
+    "bamboo_pass_boss_idle.png",
+    "cloud_slope_idle.png",
+    "cloud_slope_boss_idle.png"
+  ],
+  "atlases": [
+    "bamboo_pass-authored-actions-atlas.png",
+    "cloud_slope-authored-actions-atlas.png"
+  ],
+  "moss_poses": [
+    "crouch",
+    "airborne pounce",
+    "charge stride A",
+    "charge stride B",
+    "reared double forepaw slam",
+    "heavy planted landing"
+  ],
+  "crane_poses": [
+    "coiled neck",
+    "extended peck",
+    "wing backswing",
+    "broad horizontal feather fan",
+    "raised-wing lift-off",
+    "folded-wing descending dive"
+  ],
+  "constraints": "Preserve exact normal/boss identities and warm hand-painted style. Left-facing side view, natural fixed body volume and skull size, transparent background. Fully authored anatomy rather than translated/squashed copies. No text or effects.",
+  "processing": "Connected solid-alpha component extraction with original soft edge up to3pixels; original RGBA preserved. Uniform resize to256canvas. Source ground anchor maps to[128,232]; skull calibration in authored-body-landmarks.json. No painted anatomy edits, no elastic UV deformation."
+}

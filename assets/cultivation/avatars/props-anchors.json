@@ -1,0 +1,88 @@
+{
+  "assets": {
+    "sword": {
+      "file": "sword.png",
+      "canvas": [
+        220,
+        560
+      ],
+      "source_crop": [
+        245,
+        0,
+        535,
+        702
+      ],
+      "alpha_bounds": [
+        4,
+        29,
+        216,
+        536
+      ],
+      "grip_anchor": [
+        66,
+        396
+      ]
+    },
+    "fan": {
+      "file": "fan.png",
+      "canvas": [
+        640,
+        560
+      ],
+      "source_crop": [
+        640,
+        135,
+        1295,
+        710
+      ],
+      "alpha_bounds": [
+        5,
+        4,
+        624,
+        556
+      ],
+      "grip_anchor": [
+        311,
+        359
+      ]
+    },
+    "mist_slash": {
+      "file": "mist_slash.png",
+      "canvas": [
+        640,
+        512
+      ],
+      "source_crop": [
+        5,
+        700,
+        670,
+        1215
+      ],
+      "alpha_bounds": [
+        8,
+        11,
+        636,
+        500
+      ]
+    },
+    "petal": {
+      "file": "petal.png",
+      "canvas": [
+        512,
+        352
+      ],
+      "source_crop": [
+        765,
+        798,
+        1268,
+        1142
+      ],
+      "alpha_bounds": [
+        4,
+        4,
+        507,
+        348
+      ]
+    }
+  }
+}

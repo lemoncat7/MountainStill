@@ -1,0 +1,11 @@
+{
+  "image": "sanctuary-warm.png",
+  "size": [1040, 280],
+  "anchors": {
+    "meditation_dais": [520, 231],
+    "herb_garden": [160, 223],
+    "alchemy_furnace": [879, 227]
+  },
+  "anchor_type": "Actor ground contact in image pixels",
+  "notes": "Use the illustration's natural anchors. The calm central background supports a character around 110 pixels high."
+}

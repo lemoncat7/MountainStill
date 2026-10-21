@@ -1,0 +1,177 @@
+{
+  "canvas_size": [
+    256,
+    256
+  ],
+  "common_ground_anchor": [
+    128,
+    232
+  ],
+  "anchor_normalized": [
+    0.5,
+    0.90625
+  ],
+  "facing": "left",
+  "suggested_render_size": [
+    112,
+    112
+  ],
+  "suggested_render_ground_anchor": [
+    56,
+    101.5
+  ],
+  "art_style": "Warm Chinese chibi anime, fine brown linework, cel-watercolor shading",
+  "notes": "Sprites share a fixed ground anchor. Creature frame pairs use identical scale. The open chest grows upward while preserving the box width. No cast shadows are baked in.",
+  "sprites": {
+    "fox_idle": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        119,
+        124,
+        1237,
+        1137
+      ],
+      "has_real_alpha": true,
+      "alpha_bbox": [
+        18,
+        32,
+        239,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "source_to_sprite_scale": 0.19748953974895397,
+      "rendered_art_height_at_112px": 87.5
+    },
+    "fox_attack": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        52,
+        171,
+        1247,
+        1131
+      ],
+      "has_real_alpha": true,
+      "alpha_bbox": [
+        10,
+        42,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "source_to_sprite_scale": 0.19748953974895397,
+      "rendered_art_height_at_112px": 83.12
+    },
+    "boar_idle": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        56,
+        195,
+        1228,
+        1118
+      ],
+      "has_real_alpha": true,
+      "alpha_bbox": [
+        14,
+        52,
+        243,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "source_to_sprite_scale": 0.19504132231404958,
+      "rendered_art_height_at_112px": 78.75
+    },
+    "boar_attack": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        35,
+        211,
+        1245,
+        1109
+      ],
+      "has_real_alpha": true,
+      "alpha_bbox": [
+        10,
+        57,
+        246,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "source_to_sprite_scale": 0.19504132231404958,
+      "rendered_art_height_at_112px": 76.56
+    },
+    "chest_closed": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        65,
+        222,
+        1196,
+        1090
+      ],
+      "has_real_alpha": true,
+      "alpha_bbox": [
+        14,
+        57,
+        243,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "source_to_sprite_scale": 0.20205799812909261,
+      "rendered_art_height_at_112px": 76.56
+    },
+    "chest_open": {
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_alpha_bbox": [
+        76,
+        63,
+        1196,
+        1132
+      ],
+      "has_real_alpha": true,
+      "alpha_bbox": [
+        15,
+        16,
+        241,
+        232
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "source_to_sprite_scale": 0.20205799812909261,
+      "rendered_art_height_at_112px": 94.5
+    }
+  }
+}

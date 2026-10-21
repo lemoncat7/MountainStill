@@ -1,0 +1,161 @@
+{
+  "generator": "OpenAI built-in image_gen",
+  "original_art": true,
+  "style_references": [
+    "creek_bridge_boss_idle.png",
+    "cloud_slope_idle.png"
+  ],
+  "pipeline": "tools/prepare_campaign_beasts.py",
+  "operations": [
+    "rectangular crop",
+    "LANCZOS resize",
+    "transparent canvas placement"
+  ],
+  "preserves_generated_alpha": true,
+  "no_programmatic_background_removal": true,
+  "runtime_sprites": [
+    "ember_ruins_idle",
+    "ember_ruins_windup",
+    "ember_ruins_attack",
+    "moon_marsh_idle",
+    "moon_marsh_windup",
+    "moon_marsh_attack",
+    "summit_gate_idle",
+    "summit_gate_windup",
+    "summit_gate_attack",
+    "creek_bridge_windup",
+    "cloud_slope_windup",
+    "ember_ruins_boss_idle",
+    "ember_ruins_boss_windup",
+    "ember_ruins_boss_attack",
+    "moon_marsh_boss_windup",
+    "moon_marsh_boss_attack",
+    "moon_marsh_boss_idle",
+    "summit_gate_boss_idle",
+    "summit_gate_boss_windup",
+    "summit_gate_boss_attack"
+  ],
+  "sources": [
+    {
+      "path": "sources/ember_ruins-campaign-atlas.png",
+      "sha256": "bd42bbabf2c4911897305df63d73919f05c6c00c896068182c8b4b80fe5feb76",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "sources/moon_marsh-campaign-atlas.png",
+      "sha256": "0b6ae57185c08304cde6ca048ec9f7987b2636fdd0a0e1f592a90463355345c1",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "sources/summit_gate-campaign-atlas.png",
+      "sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "sources/creek_bridge_windup-isolated.png",
+      "sha256": "95f88e585b692b58e73c3a54234ff232386e5d3352801ba075f6bed205e92dd3",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "sources/ember_ruins_boss_windup-isolated.png",
+      "sha256": "2a7d4985b83af1390a537bd46b15b00f419995c427c704b98d1c7be9a9e9b00b",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "sources/cloud_slope_windup-isolated.png",
+      "sha256": "8e13c7248b2e3617cd928fcec9a2868ad208b4fbb16c03edc89196df048400f8",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "sources/moon_marsh_boss_attack-isolated.png",
+      "sha256": "104b957333fd84cc75e810fac743d4046a6b79c590ac8b19b3bb547912d02c5d",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "sources/moon_marsh_boss_windup-isolated.png",
+      "sha256": "95daff7cccacb9570d5d7c3591b938e689ef67d1244628d2095ac5fc41f76696",
+      "size": [
+        1367,
+        1150
+      ],
+      "alpha": [
+        0,
+        255
+      ]
+    },
+    {
+      "path": "sources/ember_ruins_boss_idle-isolated.png",
+      "sha256": "f14d27d4d8c24a2149d7ff166ca02a61c0489461782191a81cf25abdbfe175e4",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "sources/ember_ruins_boss_attack-isolated.png",
+      "sha256": "37cf93d2f1573d5cf47e51b7b47c29b8be96893fe55316aabb3f8f28a7b3ded0",
+      "size": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    }
+  ],
+  "prompts": "sources/campaign-generation-prompts.json"
+}

@@ -1,0 +1,43 @@
+{
+  "file": "assets/cultivation/sanctuary-diorama.png",
+  "dimensions": [
+    1040,
+    280
+  ],
+  "mode": "RGBA",
+  "alpha_min": 0,
+  "alpha_max": 255,
+  "transparent_alpha_0_percent": 56.864,
+  "near_transparent_alpha_le_2_percent": 58.902,
+  "visually_opaque_alpha_ge_245_percent": 36.851,
+  "central_open_sky_rect": [
+    265,
+    0,
+    800,
+    160
+  ],
+  "central_open_sky_alpha_min": 0,
+  "central_open_sky_alpha_max": 1,
+  "central_open_sky_alpha_le_2_percent": 100.0,
+  "top_margin_rect": [
+    0,
+    0,
+    1040,
+    12
+  ],
+  "top_margin_alpha_min": 0,
+  "top_margin_alpha_max": 1,
+  "top_margin_alpha_le_2_percent": 100.0,
+  "ground_footing_band_y": [
+    245,
+    251
+  ],
+  "ground_footing_alpha_min": 252,
+  "ground_footing_alpha_mean": 252.95,
+  "anchor_alpha": {
+    "herb_garden": 253,
+    "meditation_dais": 253,
+    "alchemy_furnace": 253
+  },
+  "sha256": "b9d0f1a604243d51b8e463ede322c1f4bc02c4460159403dc0910d0c9186d382"
+}

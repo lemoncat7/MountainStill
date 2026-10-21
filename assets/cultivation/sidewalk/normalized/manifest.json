@@ -1,0 +1,369 @@
+{
+  "version": 1,
+  "template": "../template.json",
+  "tool": "tools/normalize_equipment_template.py",
+  "policy": "Legacy registration is baked once. Runtime uses only shared attachment families.",
+  "assets": {
+    "head": {
+      "source": "../head.png",
+      "source_sha256": "bc616d6ccd1eaa59f4c96891acd93d1858bd2d4073cdfe22e6e68b175f854636",
+      "file": "head.png",
+      "rgba_sha256": "a429dd1198471f8820b20a9e9daeb493f4b056788c129b26de32fecd86c97ad0",
+      "canvas": [
+        578,
+        650
+      ],
+      "alpha_bounds": [
+        0,
+        1,
+        578,
+        650
+      ],
+      "family": "head",
+      "operation": "identity"
+    },
+    "torso": {
+      "source": "../torso.png",
+      "source_sha256": "73884e89cad5f6a1bf89a12759d5e67f3898f750b2f94c219f1db26052a6d6b4",
+      "file": "torso.png",
+      "rgba_sha256": "88b10b1ae0ded1f8dd6ddf09c29df09d1dd2135203253be27c38324e4e05ba65",
+      "canvas": [
+        234,
+        386
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        234,
+        384
+      ],
+      "family": "torso",
+      "operation": "identity"
+    },
+    "arm": {
+      "source": "../arm.png",
+      "source_sha256": "ea8292911f70197a9eadab5d3c7b557d878ed1ba8565dc2999a5338d5fbbe259",
+      "file": "arm.png",
+      "rgba_sha256": "eb51412b54452d0483687ad7d3c262a7f8a180e0c8ad4e386831fe7711689641",
+      "canvas": [
+        219,
+        396
+      ],
+      "alpha_bounds": [
+        33,
+        0,
+        187,
+        395
+      ],
+      "family": "arm",
+      "operation": "integer_translation",
+      "translation": [
+        32,
+        0
+      ]
+    },
+    "leg": {
+      "source": "../leg.png",
+      "source_sha256": "26f57e42399fc156173012dd893f578f0be73229d2395463502edaef7fe18d7e",
+      "file": "leg.png",
+      "rgba_sha256": "639ac3832e629769cd7b18f706dc760027823b6c56d38a3b7abfa3ca29c716d8",
+      "canvas": [
+        210,
+        501
+      ],
+      "alpha_bounds": [
+        2,
+        1,
+        210,
+        501
+      ],
+      "family": "leg",
+      "operation": "identity"
+    },
+    "head_pin": {
+      "source": "../head_pin.png",
+      "source_sha256": "09b60f6e27c8824e8d21cfe1f92d0422d4b915fb9be85729d4f0b5b8831704b3",
+      "file": "head_pin.png",
+      "rgba_sha256": "d0ee7d0ed19ad8940a9d6bc81a2ecffff4fa76d204675b4ab108f002869615f6",
+      "canvas": [
+        578,
+        650
+      ],
+      "alpha_bounds": [
+        169,
+        130,
+        338,
+        210
+      ],
+      "family": "head",
+      "operation": "resample_to_fixed_canvas",
+      "output_content_rect": [
+        168.85393258426967,
+        130.0,
+        168.85393258426967,
+        80.16666666666667
+      ]
+    },
+    "head_crown": {
+      "source": "../head_crown.png",
+      "source_sha256": "183d5a83d3af4fc640540b3fc5ba777724833463ca64c840e4bf37550a628be8",
+      "file": "head_crown.png",
+      "rgba_sha256": "21a33dce5c695a50207e476a068e50a283be86b9793a6c5aeff6f5301654bcf6",
+      "canvas": [
+        578,
+        650
+      ],
+      "alpha_bounds": [
+        239,
+        96,
+        331,
+        197
+      ],
+      "family": "head",
+      "operation": "resample_to_fixed_canvas",
+      "output_content_rect": [
+        238.12734082397003,
+        95.33333333333333,
+        93.08614232209737,
+        101.83333333333333
+      ]
+    },
+    "chest_blue": {
+      "source": "../chest_blue.png",
+      "source_sha256": "7e34117fa35930b1ea208158080621d2eafd09dbe599627470d8c95a0019ead0",
+      "file": "chest_blue.png",
+      "rgba_sha256": "956536ea69b673a92e4864d7fe925caacd01c67d00312d5489a9cd5f7091aaf6",
+      "canvas": [
+        288,
+        448
+      ],
+      "alpha_bounds": [
+        0,
+        1,
+        288,
+        448
+      ],
+      "family": "chest",
+      "operation": "resample_to_fixed_canvas",
+      "output_content_rect": [
+        0,
+        0,
+        288,
+        448
+      ],
+      "removed_atlas_fragments": [
+        [
+          201,
+          0,
+          273,
+          23
+        ],
+        [
+          48,
+          343,
+          166,
+          370
+        ]
+      ],
+      "waist_registration": null
+    },
+    "chest_jade": {
+      "source": "../chest_jade.png",
+      "source_sha256": "9fb062fb94a8c52382b8de622256d82dfb8df32d281623d39b3a66c615a27ea0",
+      "file": "chest_jade.png",
+      "rgba_sha256": "e362bb686f233a80d4ca475ca84002b0edcf71efe9a2662ad26b844681ff2fc5",
+      "canvas": [
+        288,
+        448
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        288,
+        419
+      ],
+      "family": "chest",
+      "operation": "resample_to_fixed_canvas",
+      "output_content_rect": [
+        0,
+        0,
+        288,
+        396
+      ],
+      "removed_atlas_fragments": [
+        [
+          188,
+          0,
+          230,
+          11
+        ]
+      ],
+      "waist_registration": {
+        "fixed_through_y": 240,
+        "source_end_y": 396,
+        "target_end_y": 420
+      }
+    },
+    "sleeve_blue": {
+      "source": "../sleeve_blue.png",
+      "source_sha256": "fde11b42c14092eafe5e6bfa8a1680b7ed2de4068084975e5cf3112dbb7dbda2",
+      "file": "sleeve_blue.png",
+      "rgba_sha256": "f82336af39198ae1fe61a4206cefee126f670f01e557dadfedcd0977d7fd06ac",
+      "canvas": [
+        219,
+        396
+      ],
+      "alpha_bounds": [
+        5,
+        0,
+        160,
+        179
+      ],
+      "family": "arm",
+      "operation": "integer_translation",
+      "translation": [
+        5,
+        0
+      ],
+      "removed_atlas_fragments": [
+        [
+          140,
+          0,
+          155,
+          15
+        ]
+      ]
+    },
+    "sleeve_jade": {
+      "source": "../sleeve_jade.png",
+      "source_sha256": "86d2e87fc154b080d06296fca606861c660ee7aaabfd2920e538d635312588ca",
+      "file": "sleeve_jade.png",
+      "rgba_sha256": "7b4e19617f6f1451bfb6e39ef3dac2c6001858d9ca470a6f08c6244b91076a76",
+      "canvas": [
+        219,
+        396
+      ],
+      "alpha_bounds": [
+        12,
+        0,
+        167,
+        179
+      ],
+      "family": "arm",
+      "operation": "integer_translation",
+      "translation": [
+        12,
+        0
+      ],
+      "removed_atlas_fragments": []
+    },
+    "legs_blue": {
+      "source": "../legs_blue.png",
+      "source_sha256": "0e2532e60785459b239c4d807555afaf88b040c60ea95141ad87aacddc0f597a",
+      "file": "legs_blue.png",
+      "rgba_sha256": "d60830f7031fc7f549f33299141ca99812024eb4bab8e16cd8016a0b8c21e1c3",
+      "canvas": [
+        210,
+        501
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        208,
+        444
+      ],
+      "family": "leg",
+      "operation": "piecewise_shin_registration",
+      "fixed_waist": [
+        102.0,
+        20.0
+      ],
+      "fixed_knee_y": 255.55555555555554,
+      "legacy_cuff": [
+        100.0,
+        338
+      ],
+      "canonical_cuff": [
+        79.77777777777777,
+        426
+      ],
+      "canonical_hem_y": 445
+    },
+    "legs_jade": {
+      "source": "../legs_jade.png",
+      "source_sha256": "0a7bea40980f9d46ef3ee103e40b96251252352f712e46c456e51f7e17a67cac",
+      "file": "legs_jade.png",
+      "rgba_sha256": "a4adc5bb78734bde2331229022a3f2adf311f35d4890d2086d10123a54b17ec8",
+      "canvas": [
+        210,
+        501
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        208,
+        445
+      ],
+      "family": "leg",
+      "operation": "piecewise_shin_registration",
+      "fixed_waist": [
+        102.0,
+        20.0
+      ],
+      "fixed_knee_y": 255.55555555555554,
+      "legacy_cuff": [
+        84.0,
+        338
+      ],
+      "canonical_cuff": [
+        79.77777777777777,
+        426
+      ],
+      "canonical_hem_y": 445
+    },
+    "feet_cloth": {
+      "source": "../feet_cloth.png",
+      "source_sha256": "2e238da1f2801ace4e237362c388e10ef172af608b22bad04e3611b10ad45d08",
+      "file": "feet_cloth.png",
+      "rgba_sha256": "b8f245afccc6ba381d7cd0b1500e7aca866ba8bb173f0dde5a99372d70b91438",
+      "canvas": [
+        210,
+        501
+      ],
+      "alpha_bounds": [
+        12,
+        407,
+        210,
+        501
+      ],
+      "family": "leg",
+      "operation": "identity",
+      "ankle": [
+        79.77777777777777,
+        446.66666666666663
+      ]
+    },
+    "feet_boots": {
+      "source": "../feet_boots.png",
+      "source_sha256": "c623a4eb4dde58a3b996ce56fce8af9e4d8f43b863cac64583b91dbc318a3ca9",
+      "file": "feet_boots.png",
+      "rgba_sha256": "8ca831696413a311d32500d33f6416a4b9b6ca034e856b4ca2356e7f634401e8",
+      "canvas": [
+        210,
+        501
+      ],
+      "alpha_bounds": [
+        12,
+        358,
+        210,
+        501
+      ],
+      "family": "leg",
+      "operation": "identity",
+      "ankle": [
+        79.77777777777777,
+        446.66666666666663
+      ]
+    }
+  }
+}

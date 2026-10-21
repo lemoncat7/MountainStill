@@ -1,0 +1,37 @@
+{
+  "asset": "../sanctuary-diorama.png",
+  "generation_mode": "Built-in image_gen image edit",
+  "transparent_background": true,
+  "source_image": "assets/cultivation/sources/sanctuary-diorama-source.png",
+  "generated_source_dimensions": [
+    2068,
+    760
+  ],
+  "edit_target": "../sanctuary-warm.png",
+  "style_reference": "archived-workspace/reference/434ac6cf15d6a3e89d11e5988b87670e.jpg",
+  "prompt": "sanctuary-diorama-canopy-prompt.txt",
+  "postprocessing": "Normal bottom-edge crop (0,0,2068,744) to remove unwanted empty trailing strip, then LANCZOS canvas resize to 1040x280. No programmatic background removal, repainting, masking, or alpha edits. Generated alpha retained.",
+  "logical_canvas": [
+    1040,
+    280
+  ],
+  "anchors": {
+    "herb_garden": [
+      160,
+      230
+    ],
+    "meditation_dais": [
+      520,
+      246
+    ],
+    "alchemy_furnace": [
+      879,
+      240
+    ]
+  },
+  "mapping": "Asset fills existing 1040x280 scene rectangle. Final generation shifted foreground features down; use revised anchors for exact feature alignment.",
+  "notes": "Final canopy correction creates natural upper foliage silhouettes fully inside canvas. Opaque distant sky and landscape replaced by genuine alpha. Tree, pavilion, herb beds, foreground ground and central dais retained. Main scripts untouched.",
+  "alpha_stats": "sanctuary-diorama-alpha-stats.json",
+  "prior_generation_prompt": "sanctuary-diorama-prompt.txt",
+  "source_path_base": "project root"
+}

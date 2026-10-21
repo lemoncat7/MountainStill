@@ -1,0 +1,36 @@
+{
+  "method": "Forward tile + exact horizontal reflection; repeat full 2080px strip",
+  "tile_size": [
+    1040,
+    280
+  ],
+  "strip_size": [
+    2080,
+    280
+  ],
+  "ground_baseline": 246,
+  "renderer_note": "Draw strip at natural logical size 2080x280, offset -fmod(scroll_distance,2080), repeat next strip at +2080. Or alternate normal/mirror 1040px tiles. All scenery should render behind actor and enemies.",
+  "routes": {
+    "bamboo_pass": {
+      "strip": "bamboo_pass_scroll.png",
+      "mirrored_tile": "bamboo_pass_mirror.png",
+      "interior_join_rgba_max_difference": 0,
+      "wrap_join_rgba_max_difference": 0,
+      "entire_foot_row_opaque": true
+    },
+    "creek_bridge": {
+      "strip": "creek_bridge_scroll.png",
+      "mirrored_tile": "creek_bridge_mirror.png",
+      "interior_join_rgba_max_difference": 0,
+      "wrap_join_rgba_max_difference": 0,
+      "entire_foot_row_opaque": true
+    },
+    "cloud_slope": {
+      "strip": "cloud_slope_scroll.png",
+      "mirrored_tile": "cloud_slope_mirror.png",
+      "interior_join_rgba_max_difference": 0,
+      "wrap_join_rgba_max_difference": 0,
+      "entire_foot_row_opaque": true
+    }
+  }
+}

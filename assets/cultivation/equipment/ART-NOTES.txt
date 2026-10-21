@@ -1,0 +1,53 @@
+TRUE PAPER-DOLL EQUIPMENT, original AI-generated watercolor-style artwork
+
+This folder contains a neutral adult male cultivator base and eight separate
+transparent equipment overlays. Base always wears opaque loose white shorts.
+No equipment file includes a face, body, hand, or unrelated garment slot.
+
+Runtime files
+base.png
+head_pin.png / head_crown.png
+chest_blue.png / chest_jade.png
+legs_blue.png / legs_jade.png
+feet_cloth.png / feet_boots.png
+
+All runtime layers share a 512 x 512 transparent canvas with zero offset and
+unit scale. Draw every selected layer at exactly the same destination rectangle.
+Foot anchor: (256, 496). Right-hand weapon grip anchor: (318, 414).
+Suggested order: base, legs, footwear, chest, head accessory, weapon.
+Independent slot selection is supported, including an empty slot. The base is
+always present, so clearing leg equipment reveals modest shorts.
+
+Visual proof
+mixed-preview.png combines blue chest + green pants + cloth shoes + crown.
+equipment-contact-sheet.jpg displays the base, four combinations and each layer.
+coverage-check.jpg displays all 9 chest/leg combinations, including empty slots.
+
+Reproducible pipeline
+Original generated sources are retained in sources/. tools/crop_equipment_assets.py
+only crops, scales and places the source garment artwork onto matching canvases.
+It does not recolor or draw costumes over full character sprites. Exact target
+rectangles and runtime anchors are in equipment-anchors.json.
+
+Generation method
+Built-in image generation, with the supplied Chinese storybook image as style
+reference. Base prompt: original youthful adult male cultivator; neutral,
+front-facing relaxed stance; chibi oversized head and compact body; jade-blue
+swept hair and small topknot; blue-green eyes; delicate ink, soft cel shading and
+watercolor texture; shirtless with understated anatomy; always opaque loose
+white knee-length shorts; bare feet; no jewelry, props, background or shadow.
+The first base had too realistic proportions, so an image-generation edit made
+the head/body proportions more strongly chibi while retaining the adult facial
+features, modest shorts, relaxed pose and clean alpha.
+
+Equipment generation prompt: isolated true-alpha 2-column x 4-row paper-doll
+atlas, only eight garments in the base's front-facing pose; no skin, face, hair,
+hands, body or bare feet. Row 1: cloud hairpin with blue jade ribbon; small gold
+and jade cloud crown. Row 2: blue short wrap robe tunic with white lapels, cloud
+embroidery, short sleeves and waist sash; sage closed vest with ivory/gold short
+shoulder cape. Both end at waist and have transparent neck openings. Row 3:
+blue short loose trousers with overlapping pale-blue robe skirt panels; sage
+cropped loose trousers with ivory belt and gold cuffs. Both fully cover base
+shorts. Row 4: matching pair of ivory/blue cloth shoes; matching pair of sage and
+gold boots. Clothes render in worn front-facing shape, not flat-lay. Keep every
+slot separate and independently combinable; no label, grid, shadow or background.

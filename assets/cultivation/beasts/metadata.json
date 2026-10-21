@@ -1,0 +1,1196 @@
+{
+  "canvas_size": [
+    256,
+    256
+  ],
+  "common_ground_anchor": [
+    128,
+    232
+  ],
+  "facing": "left",
+  "suggested_render_size": [
+    112,
+    112
+  ],
+  "art_style": "Warm Chinese storybook chibi, fine brown ink contours, cel-watercolor shading",
+  "generation_mode": "Built-in image_gen, original generated two-pose sheets",
+  "postprocessing": "Rectangular crop, shared-scale LANCZOS resize, and transparent-canvas placement only. Generated alpha retained.",
+  "sprites": {
+    "bamboo_pass_idle": {
+      "species": "mossback",
+      "name": "Mossback guardian",
+      "source": "sources/mossback-source.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_crop": [
+        74,
+        132,
+        810,
+        793
+      ],
+      "source_to_sprite_scale": 0.28780487804878047,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        22,
+        42,
+        234,
+        232
+      ],
+      "source_sha256": "b1e9960f392215015fc8aefbf38ea3025f6717e8d28d92cffff273460cf375ac"
+    },
+    "bamboo_pass_attack": {
+      "name": "Mossback guardian",
+      "source": "sources/bamboo_normal-source.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_crop": [
+        851,
+        197,
+        1757,
+        753
+      ],
+      "source_to_sprite_scale": 0.26048565121412803,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        87,
+        246,
+        232
+      ],
+      "source_sha256": "d9f11e456222630ff7de3f569ab3c37da620d20e754b23f7f90661a758a9d5be"
+    },
+    "creek_bridge_idle": {
+      "species": "riverstone",
+      "name": "River-stone spirit",
+      "source": "sources/riverstone-source.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_crop": [
+        153,
+        130,
+        817,
+        802
+      ],
+      "source_to_sprite_scale": 0.2857142857142857,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        33,
+        40,
+        223,
+        232
+      ],
+      "source_sha256": "35bb44daaa424f6747050d9288acb961a093d1e52de99718e8193f7447d5f906"
+    },
+    "creek_bridge_attack": {
+      "species": "riverstone",
+      "name": "River-stone spirit",
+      "source": "sources/riverstone-source.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_crop": [
+        917,
+        214,
+        1743,
+        799
+      ],
+      "source_to_sprite_scale": 0.2857142857142857,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        65,
+        246,
+        232
+      ],
+      "source_sha256": "35bb44daaa424f6747050d9288acb961a093d1e52de99718e8193f7447d5f906"
+    },
+    "cloud_slope_idle": {
+      "species": "cloudcrane",
+      "name": "Cloud crane",
+      "source": "sources/cloudcrane-source.png",
+      "source_size": [
+        1983,
+        793
+      ],
+      "source_crop": [
+        210,
+        113,
+        952,
+        752
+      ],
+      "source_to_sprite_scale": 0.2783018867924528,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        25,
+        54,
+        231,
+        232
+      ],
+      "source_sha256": "bc4f27ac2a21bfd282aa326012fdf56500519de25ce2f4871bf326ed34c89aad"
+    },
+    "cloud_slope_attack": {
+      "species": "cloudcrane",
+      "name": "Cloud crane",
+      "source": "sources/cloudcrane-source.png",
+      "source_size": [
+        1983,
+        793
+      ],
+      "source_crop": [
+        1075,
+        39,
+        1923,
+        752
+      ],
+      "source_to_sprite_scale": 0.2783018867924528,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        34,
+        246,
+        232
+      ],
+      "source_sha256": "bc4f27ac2a21bfd282aa326012fdf56500519de25ce2f4871bf326ed34c89aad"
+    },
+    "bamboo_pass_boss_idle": {
+      "species": "ancient_bamboo_guardian",
+      "name": "Ancient Bamboo Guardian",
+      "source": "sources/bamboo-boss-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        19,
+        96,
+        665,
+        676
+      ],
+      "source_to_sprite_scale": 0.2783018867924528,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        38,
+        71,
+        218,
+        232
+      ],
+      "suggested_render_size": [
+        174,
+        174
+      ],
+      "source_sha256": "289d0b5bb2e6ea79d5d26918d357c6bac7ab4f4bdda6079c335761d374c70e26"
+    },
+    "bamboo_pass_boss_windup": {
+      "species": "ancient_bamboo_guardian",
+      "name": "Ancient Bamboo Guardian",
+      "source": "sources/bamboo-boss-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        711,
+        260,
+        1311,
+        671
+      ],
+      "source_to_sprite_scale": 0.2783018867924528,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        44,
+        118,
+        211,
+        232
+      ],
+      "suggested_render_size": [
+        174,
+        174
+      ],
+      "source_sha256": "289d0b5bb2e6ea79d5d26918d357c6bac7ab4f4bdda6079c335761d374c70e26"
+    },
+    "bamboo_pass_boss_attack": {
+      "species": "ancient_bamboo_guardian",
+      "name": "Ancient Bamboo Guardian",
+      "source": "sources/bamboo-boss-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        1312,
+        235,
+        2160,
+        653
+      ],
+      "source_to_sprite_scale": 0.2783018867924528,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        116,
+        246,
+        232
+      ],
+      "suggested_render_size": [
+        174,
+        174
+      ],
+      "source_sha256": "289d0b5bb2e6ea79d5d26918d357c6bac7ab4f4bdda6079c335761d374c70e26"
+    },
+    "creek_bridge_boss_idle": {
+      "name": "Ancient Riverstone Guardian",
+      "source": "sources/creek_bridge-boss-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        10,
+        69,
+        712,
+        676
+      ],
+      "source_to_sprite_scale": 0.28095238095238095,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        30,
+        61,
+        227,
+        232
+      ],
+      "source_sha256": "42ff8b72ea2af9edb6bcf5aaea884ff8538e34cf9a007130aac746db91b35b11"
+    },
+    "creek_bridge_boss_windup": {
+      "name": "Ancient Riverstone Guardian",
+      "source": "sources/creek_bridge-boss-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        723,
+        131,
+        1314,
+        678
+      ],
+      "source_to_sprite_scale": 0.28095238095238095,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        45,
+        78,
+        211,
+        232
+      ],
+      "source_sha256": "42ff8b72ea2af9edb6bcf5aaea884ff8538e34cf9a007130aac746db91b35b11"
+    },
+    "creek_bridge_boss_attack": {
+      "name": "Ancient Riverstone Guardian",
+      "source": "sources/creek_bridge-boss-source.png",
+      "source_size": [
+        2172,
+        724
+      ],
+      "source_crop": [
+        1321,
+        147,
+        2161,
+        676
+      ],
+      "source_to_sprite_scale": 0.28095238095238095,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        83,
+        246,
+        232
+      ],
+      "source_sha256": "42ff8b72ea2af9edb6bcf5aaea884ff8538e34cf9a007130aac746db91b35b11"
+    },
+    "bamboo_pass_windup": {
+      "name": "Mossback guardian",
+      "source": "sources/bamboo_normal-source.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_crop": [
+        63,
+        214,
+        827,
+        766
+      ],
+      "source_to_sprite_scale": 0.26048565121412803,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        28,
+        88,
+        227,
+        232
+      ],
+      "source_sha256": "d9f11e456222630ff7de3f569ab3c37da620d20e754b23f7f90661a758a9d5be"
+    },
+    "cloud_slope_boss_idle": {
+      "name": "Crowned Cloud Crane Sovereign",
+      "source": "sources/cloud_idle-source.png",
+      "design_source": "sources/cloud_slope-boss-source.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_crop": [
+        60,
+        43,
+        1249,
+        1254
+      ],
+      "source_to_sprite_scale": 0.15138772077375945,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        38,
+        49,
+        218,
+        232
+      ],
+      "source_sha256": "38cd2a471997076e5275beef9154665e9c6bc7f8dac1dfb82fa64293a5df06bb",
+      "notes": "Source pose cleanly isolated through built-in image_gen; no programmatic background removal. Relative pose scale matched to design sheet."
+    },
+    "cloud_slope_boss_windup": {
+      "name": "Crowned Cloud Crane Sovereign",
+      "source": "sources/cloud_windup-source.png",
+      "design_source": "sources/cloud_slope-boss-source.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "source_crop": [
+        59,
+        174,
+        1244,
+        1138
+      ],
+      "source_to_sprite_scale": 0.16540084388185655,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        30,
+        73,
+        226,
+        232
+      ],
+      "source_sha256": "309a09df07601dcb6f0d19b4e6923ed18e5ddad1c569d887d02f6e4d30984900",
+      "notes": "Source pose cleanly isolated through built-in image_gen; no programmatic background removal. Relative pose scale matched to design sheet."
+    },
+    "cloud_slope_boss_attack": {
+      "name": "Crowned Cloud Crane Sovereign",
+      "source": "sources/cloud_attack-source.png",
+      "design_source": "sources/cloud_slope-boss-source.png",
+      "source_size": [
+        1774,
+        887
+      ],
+      "source_crop": [
+        44,
+        7,
+        1737,
+        868
+      ],
+      "source_to_sprite_scale": 0.13939751919669227,
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        112,
+        246,
+        232
+      ],
+      "source_sha256": "fc587b4b695b758c83be2eb650ae98e95223e4d262a881948df9e152c7fab54c",
+      "notes": "Source pose cleanly isolated through built-in image_gen; no programmatic background removal. Relative pose scale matched to design sheet."
+    },
+    "ember_ruins_idle": {
+      "name": "ember_ruins_idle",
+      "source": "sources/ember_ruins-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        0,
+        0,
+        520,
+        455
+      ],
+      "visible_bbox_crop": [
+        112,
+        132,
+        438,
+        377
+      ],
+      "source_to_sprite_scale": 0.5828220858895705,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        33,
+        89,
+        223,
+        232
+      ],
+      "source_sha256": "bd42bbabf2c4911897305df63d73919f05c6c00c896068182c8b4b80fe5feb76",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "ember_ruins_windup": {
+      "name": "ember_ruins_windup",
+      "source": "sources/ember_ruins-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        520,
+        0,
+        1000,
+        455
+      ],
+      "visible_bbox_crop": [
+        72,
+        180,
+        427,
+        379
+      ],
+      "source_to_sprite_scale": 0.5521126760563381,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        30,
+        122,
+        226,
+        232
+      ],
+      "source_sha256": "bd42bbabf2c4911897305df63d73919f05c6c00c896068182c8b4b80fe5feb76",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "ember_ruins_attack": {
+      "name": "ember_ruins_attack",
+      "source": "sources/ember_ruins-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        1000,
+        0,
+        1536,
+        455
+      ],
+      "visible_bbox_crop": [
+        13,
+        144,
+        490,
+        380
+      ],
+      "source_to_sprite_scale": 0.4947589098532495,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        115,
+        246,
+        232
+      ],
+      "source_sha256": "bd42bbabf2c4911897305df63d73919f05c6c00c896068182c8b4b80fe5feb76",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "moon_marsh_idle": {
+      "name": "moon_marsh_idle",
+      "source": "sources/moon_marsh-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        0,
+        0,
+        510,
+        445
+      ],
+      "visible_bbox_crop": [
+        104,
+        54,
+        462,
+        443
+      ],
+      "source_to_sprite_scale": 0.5244215938303342,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        34,
+        28,
+        222,
+        232
+      ],
+      "source_sha256": "0b6ae57185c08304cde6ca048ec9f7987b2636fdd0a0e1f592a90463355345c1",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "moon_marsh_windup": {
+      "name": "moon_marsh_windup",
+      "source": "sources/moon_marsh-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        515,
+        0,
+        960,
+        445
+      ],
+      "visible_bbox_crop": [
+        92,
+        83,
+        355,
+        431
+      ],
+      "source_to_sprite_scale": 0.5862068965517241,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        51,
+        28,
+        205,
+        232
+      ],
+      "source_sha256": "0b6ae57185c08304cde6ca048ec9f7987b2636fdd0a0e1f592a90463355345c1",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "moon_marsh_attack": {
+      "name": "moon_marsh_attack",
+      "source": "sources/moon_marsh-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        965,
+        0,
+        1536,
+        445
+      ],
+      "visible_bbox_crop": [
+        2,
+        117,
+        535,
+        396
+      ],
+      "source_to_sprite_scale": 0.4427767354596623,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        108,
+        246,
+        232
+      ],
+      "source_sha256": "0b6ae57185c08304cde6ca048ec9f7987b2636fdd0a0e1f592a90463355345c1",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "summit_gate_idle": {
+      "name": "summit_gate_idle",
+      "source": "sources/summit_gate-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        0,
+        0,
+        520,
+        455
+      ],
+      "visible_bbox_crop": [
+        106,
+        121,
+        447,
+        446
+      ],
+      "source_to_sprite_scale": 0.5571847507331378,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        33,
+        51,
+        223,
+        232
+      ],
+      "source_sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "summit_gate_windup": {
+      "name": "summit_gate_windup",
+      "source": "sources/summit_gate-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        520,
+        0,
+        1000,
+        455
+      ],
+      "visible_bbox_crop": [
+        70,
+        185,
+        468,
+        447
+      ],
+      "source_to_sprite_scale": 0.49246231155778897,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        30,
+        103,
+        226,
+        232
+      ],
+      "source_sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "summit_gate_attack": {
+      "name": "summit_gate_attack",
+      "source": "sources/summit_gate-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        1000,
+        0,
+        1536,
+        455
+      ],
+      "visible_bbox_crop": [
+        41,
+        131,
+        501,
+        444
+      ],
+      "source_to_sprite_scale": 0.5130434782608696,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        71,
+        246,
+        232
+      ],
+      "source_sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "ember_ruins_boss_idle": {
+      "name": "ember_ruins_boss_idle",
+      "source": "sources/ember_ruins_boss_idle-isolated.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        278,
+        44,
+        1338,
+        974
+      ],
+      "source_to_sprite_scale": 0.18867924528301888,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        28,
+        57,
+        228,
+        232
+      ],
+      "source_sha256": "f14d27d4d8c24a2149d7ff166ca02a61c0489461782191a81cf25abdbfe175e4",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "ember_ruins_boss_windup": {
+      "name": "ember_ruins_boss_windup",
+      "source": "sources/ember_ruins_boss_windup-isolated.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        207,
+        91,
+        1379,
+        940
+      ],
+      "source_to_sprite_scale": 0.17747440273037543,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        24,
+        81,
+        232,
+        232
+      ],
+      "source_sha256": "2a7d4985b83af1390a537bd46b15b00f419995c427c704b98d1c7be9a9e9b00b",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "ember_ruins_boss_attack": {
+      "name": "ember_ruins_boss_attack",
+      "source": "sources/ember_ruins_boss_attack-isolated.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        79,
+        92,
+        1500,
+        953
+      ],
+      "source_to_sprite_scale": 0.1660802251935257,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        89,
+        246,
+        232
+      ],
+      "source_sha256": "37cf93d2f1573d5cf47e51b7b47c29b8be96893fe55316aabb3f8f28a7b3ded0",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "moon_marsh_boss_windup": {
+      "name": "moon_marsh_boss_windup",
+      "source": "sources/moon_marsh_boss_windup-isolated.png",
+      "source_size": [
+        1367,
+        1150
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        191,
+        28,
+        1271,
+        1138
+      ],
+      "source_to_sprite_scale": 0.1837837837837838,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        29,
+        28,
+        227,
+        232
+      ],
+      "source_sha256": "95daff7cccacb9570d5d7c3591b938e689ef67d1244628d2095ac5fc41f76696",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "moon_marsh_boss_attack": {
+      "name": "moon_marsh_boss_attack",
+      "source": "sources/moon_marsh_boss_attack-isolated.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        33,
+        121,
+        1499,
+        928
+      ],
+      "source_to_sprite_scale": 0.16098226466575716,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        102,
+        246,
+        232
+      ],
+      "source_sha256": "104b957333fd84cc75e810fac743d4046a6b79c590ac8b19b3bb547912d02c5d",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "moon_marsh_boss_idle": {
+      "name": "moon_marsh_boss_idle",
+      "source": "sources/moon_marsh-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        0,
+        450,
+        515,
+        1024
+      ],
+      "visible_bbox_crop": [
+        28,
+        8,
+        500,
+        503
+      ],
+      "source_to_sprite_scale": 0.4121212121212121,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        30,
+        28,
+        225,
+        232
+      ],
+      "source_sha256": "0b6ae57185c08304cde6ca048ec9f7987b2636fdd0a0e1f592a90463355345c1",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "summit_gate_boss_idle": {
+      "name": "summit_gate_boss_idle",
+      "source": "sources/summit_gate-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        0,
+        470,
+        518,
+        1024
+      ],
+      "visible_bbox_crop": [
+        55,
+        15,
+        496,
+        465
+      ],
+      "source_to_sprite_scale": 0.4533333333333333,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        28,
+        28,
+        228,
+        232
+      ],
+      "source_sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "summit_gate_boss_windup": {
+      "name": "summit_gate_boss_windup",
+      "source": "sources/summit_gate-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        518,
+        470,
+        998,
+        1024
+      ],
+      "visible_bbox_crop": [
+        17,
+        95,
+        473,
+        473
+      ],
+      "source_to_sprite_scale": 0.45614035087719296,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        24,
+        60,
+        232,
+        232
+      ],
+      "source_sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "summit_gate_boss_attack": {
+      "name": "summit_gate_boss_attack",
+      "source": "sources/summit_gate-campaign-atlas.png",
+      "source_size": [
+        1536,
+        1024
+      ],
+      "cell_crop": [
+        998,
+        470,
+        1536,
+        1024
+      ],
+      "visible_bbox_crop": [
+        7,
+        118,
+        518,
+        473
+      ],
+      "source_to_sprite_scale": 0.461839530332681,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        10,
+        68,
+        246,
+        232
+      ],
+      "source_sha256": "b6e2076e7395b0eacec670f24cdebaa95423f8e4125776b158b8612efdf0f180",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "creek_bridge_windup": {
+      "name": "creek_bridge_windup",
+      "source": "sources/creek_bridge_windup-isolated.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        185,
+        217,
+        1166,
+        1074
+      ],
+      "source_to_sprite_scale": 0.21202854230377166,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        24,
+        50,
+        232,
+        232
+      ],
+      "source_sha256": "95f88e585b692b58e73c3a54234ff232386e5d3352801ba075f6bed205e92dd3",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    },
+    "cloud_slope_windup": {
+      "name": "cloud_slope_windup",
+      "source": "sources/cloud_slope_windup-isolated.png",
+      "source_size": [
+        1254,
+        1254
+      ],
+      "cell_crop": null,
+      "visible_bbox_crop": [
+        93,
+        285,
+        1195,
+        1039
+      ],
+      "source_to_sprite_scale": 0.18874773139745918,
+      "canvas_size": [
+        256,
+        256
+      ],
+      "ground_anchor": [
+        128,
+        232
+      ],
+      "alpha_bbox": [
+        24,
+        90,
+        232,
+        232
+      ],
+      "source_sha256": "8e13c7248b2e3617cd928fcec9a2868ad208b4fbb16c03edc89196df048400f8",
+      "notes": "Original image_gen art; rectangular crop, LANCZOS resize, transparent canvas placement; all generated alpha retained within crop."
+    }
+  },
+  "boss_notes": "Distinct ancient guardian has branching stone antlers, massive boulder limbs and a jade shoulder core. Three poses share exact source scale: upright idle, deep crouching windup and fully stretched pouncing strike. Apply renderer jump offset during attack if airborne motion is desired.",
+  "props": {
+    "opportunity_cairn": {
+      "name": "Wayside votive shrine",
+      "source": "sources/opportunity_cairn-source.png",
+      "source_crop": [
+        201,
+        176,
+        1074,
+        1086
+      ],
+      "source_to_sprite_scale": 0.11868131868131868,
+      "canvas_size": [
+        128,
+        128
+      ],
+      "ground_anchor": [
+        64,
+        116
+      ],
+      "alpha_bbox": [
+        12,
+        8,
+        116,
+        116
+      ],
+      "source_sha256": "ed7335d9771e47bb7f9252aa244d85343fea0ee7e052346b661f8a2dc7462406"
+    }
+  }
+}

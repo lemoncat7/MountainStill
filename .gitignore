@@ -1,0 +1,29 @@
+# Godot import/editor cache
+.godot/
+# Local export products and build credentials
+builds/
+dist/
+export_credentials.cfg
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*.key
+*.pem
+# Local captures, logs, caches and save backups
+*.log
+*.avi
+*.mp4
+*.bak
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+generated_images/
+# Runtime saves belong in Godot user://, not in source control
+save.json
+savegame.json
+
+cultivation_save.json
+cultivation_save.json.*

@@ -1,0 +1,165 @@
+{
+  "source": "sources/equipment-side-atlas.png",
+  "parts": {
+    "head_pin": {
+      "source_rect": [
+        112,
+        76,
+        514,
+        272
+      ],
+      "canvas": [
+        402,
+        196
+      ],
+      "target_rect": null
+    },
+    "head_crown": {
+      "source_rect": [
+        653,
+        23,
+        880,
+        271
+      ],
+      "canvas": [
+        227,
+        248
+      ],
+      "target_rect": null
+    },
+    "chest_blue": {
+      "source_rect": [
+        206,
+        251,
+        479,
+        621
+      ],
+      "canvas": [
+        273,
+        370
+      ],
+      "target_rect": null
+    },
+    "chest_jade": {
+      "source_rect": [
+        654,
+        263,
+        912,
+        599
+      ],
+      "canvas": [
+        258,
+        336
+      ],
+      "target_rect": null
+    },
+    "sleeve_blue": {
+      "source_rect": [
+        185,
+        597,
+        406,
+        868
+      ],
+      "canvas": [
+        155,
+        396
+      ],
+      "target_rect": [
+        0,
+        0,
+        155,
+        179
+      ]
+    },
+    "sleeve_jade": {
+      "source_rect": [
+        656,
+        602,
+        897,
+        869
+      ],
+      "canvas": [
+        155,
+        396
+      ],
+      "target_rect": [
+        0,
+        0,
+        155,
+        179
+      ]
+    },
+    "legs_blue": {
+      "source_rect": [
+        148,
+        874,
+        472,
+        1283
+      ],
+      "canvas": [
+        210,
+        501
+      ],
+      "target_rect": [
+        0,
+        0,
+        208,
+        355
+      ]
+    },
+    "legs_jade": {
+      "source_rect": [
+        632,
+        881,
+        905,
+        1276
+      ],
+      "canvas": [
+        210,
+        501
+      ],
+      "target_rect": [
+        0,
+        0,
+        208,
+        355
+      ]
+    },
+    "feet_cloth": {
+      "source_rect": [
+        180,
+        1317,
+        475,
+        1503
+      ],
+      "canvas": [
+        210,
+        501
+      ],
+      "target_rect": [
+        12,
+        407,
+        210,
+        501
+      ]
+    },
+    "feet_boots": {
+      "source_rect": [
+        648,
+        1285,
+        923,
+        1505
+      ],
+      "canvas": [
+        210,
+        501
+      ],
+      "target_rect": [
+        12,
+        358,
+        210,
+        501
+      ]
+    }
+  }
+}

@@ -1,0 +1,6 @@
+MOUNTAIN STILL ORIGINAL PROCEDURAL MUSIC AND SOUND
+
+The included WAV files were composed and synthesized specifically for MountainStill
+using tools/generate_audio.py. They contain no recordings, external samples, or
+adapted melodies. The project owner may use, modify, and distribute these files
+with or separately from the game. The generation script is included for editing.

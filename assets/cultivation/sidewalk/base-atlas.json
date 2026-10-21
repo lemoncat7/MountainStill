@@ -1,0 +1,54 @@
+{
+  "source": "sources/base-cutout-atlas.png",
+  "method": "Original built-in image generation; rectangular alpha-preserving sprite extraction only",
+  "parts": {
+    "head": {
+      "rect": [
+        119,
+        29,
+        697,
+        679
+      ],
+      "size": [
+        578,
+        650
+      ]
+    },
+    "torso": {
+      "rect": [
+        826,
+        293,
+        1060,
+        679
+      ],
+      "size": [
+        234,
+        386
+      ]
+    },
+    "arm": {
+      "rect": [
+        352,
+        735,
+        507,
+        1131
+      ],
+      "size": [
+        155,
+        396
+      ]
+    },
+    "leg": {
+      "rect": [
+        846,
+        714,
+        1056,
+        1215
+      ],
+      "size": [
+        210,
+        501
+      ]
+    }
+  }
+}

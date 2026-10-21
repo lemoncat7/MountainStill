@@ -1,0 +1,232 @@
+{
+  "version": 1,
+  "coordinates": {
+    "source": "PNG pixel edges, x right / y down; floating-point landmarks",
+    "bind": "right-facing actor-local units before facing/actor scale; sole baseline y=0",
+    "chest": "CHEST_RECT before TORSO_WIDTH=1.30; shoulder landmarks below are after width",
+    "runtime": "shared rig deformation only; never inspect garment names for registration"
+  },
+  "canvases": {
+    "arm": [
+      219,
+      396
+    ],
+    "leg": [
+      210,
+      501
+    ],
+    "chest": [
+      288,
+      448
+    ],
+    "head": [
+      578,
+      650
+    ],
+    "torso": [
+      234,
+      386
+    ]
+  },
+  "rects": {
+    "chest": [
+      -34,
+      -204,
+      72,
+      112
+    ],
+    "head": [
+      -150,
+      -489,
+      267,
+      300
+    ],
+    "bare_torso": [
+      -28,
+      -204,
+      55,
+      96
+    ]
+  },
+  "arm": {
+    "source_origin": [
+      86.0,
+      38.0
+    ],
+    "source_scale": 0.245,
+    "elbow_source": [
+      102.3265306122449,
+      209.42857142857144
+    ],
+    "wrist_source": [
+      143.14285714285714,
+      356.36734693877554
+    ],
+    "upper_length": 42,
+    "forearm_vector": [
+      10,
+      36
+    ],
+    "elbow_blend_local_y": [
+      34,
+      49
+    ],
+    "wrist_blend_local_y": [
+      66,
+      78
+    ],
+    "replace_hand_cut_source_y": 331.8775510204082,
+    "shoulder_cap_source": [
+      86,
+      38
+    ],
+    "cap_overlap_local_y": [
+      -7,
+      6
+    ]
+  },
+  "leg": {
+    "source_origin": [
+      102.0,
+      20.0
+    ],
+    "source_scale": 0.225,
+    "hip_source": [
+      102.0,
+      20.0
+    ],
+    "knee_source": [
+      102,
+      255.55555555555554
+    ],
+    "ankle_source": [
+      79.77777777777777,
+      446.66666666666663
+    ],
+    "sole_source_y": 501,
+    "upper_length": 53,
+    "lower_length": 43,
+    "knee_blend_local_y": [
+      46,
+      60
+    ],
+    "ankle_blend_local_y": [
+      87,
+      98
+    ],
+    "trouser_cuff_source": [
+      79.77777777777777,
+      426
+    ],
+    "trouser_hem_source_y": 445,
+    "trouser_shoe_overlap_source_y": [
+      418,
+      437
+    ],
+    "waist_overlap_local_y": [
+      -4,
+      4
+    ]
+  },
+  "body": {
+    "near_armhole_bind": [
+      -24,
+      -160
+    ],
+    "far_armhole_bind": [
+      -30,
+      -160
+    ],
+    "bare_shoulder_surface_bind": [
+      -18,
+      -177
+    ],
+    "near_armhole_chest_source": [
+      62.15384615384616,
+      176
+    ],
+    "waist_hip_bind": [
+      0,
+      -109
+    ],
+    "waist_chest_source": [
+      136,
+      380
+    ],
+    "neck_bind": [
+      0,
+      -202
+    ],
+    "neck_chest_source": [
+      136,
+      8
+    ],
+    "shoulder_follow": "shared shoulder_surface_point; armhole and sleeve root use the same fitted shoulder"
+  },
+  "head": {
+    "neck_source": [
+      324.7191011235955,
+      621.8333333333334
+    ],
+    "ornaments": "same full head canvas and HEAD_RECT; no per-ornament draw rectangles"
+  },
+  "weapon": {
+    "hand_origin": "fixed original painted fist joint at the anatomical fitted wrist",
+    "socket_provider": "res://scripts/character_sidewalk.gd",
+    "socket_method": "_grip_offset(arm, side, style, roll)",
+    "hand_local_socket": [
+      0,
+      0
+    ],
+    "socket_units": "zero native hand-local offset; apply actor facing/scale at the existing wrist",
+    "socket_ownership": "Original normalized arm artwork and the live rig own the fixed fist joint; no procedural replacement hand or garment offset table.",
+    "visual_handle": "weapon-local (0,0) at the original painted fist joint; hand_angle remains animated and weapon rotation remains independent",
+    "collision_authority": "unchanged; zero visual handle offset introduces no contact-authority displacement",
+    "weapon_local_grip": [
+      0,
+      0
+    ],
+    "rule": "Clothing import cannot move the anatomical wrist, resize the painted fist, or redefine its fixed socket."
+  },
+  "ordering": [
+    "far_arm",
+    "far_leg",
+    "near_leg",
+    "bare_torso",
+    "chest",
+    "near_arm",
+    "head",
+    "head_ornament"
+  ],
+  "weapon_layer_constraints": {
+    "rear_sword_hilt": "before the holding forearm",
+    "front_sword_blade_and_crossguard": "after the holding forearm and before the painted fist",
+    "hand_passes": [
+      "original arm mesh rows 0..23",
+      "weapon at the fixed original fist joint",
+      "original arm mesh rows 24..31 once, at unchanged source UVs and scale"
+    ],
+    "painted_fist_source_split": {
+      "first_row": 24,
+      "total_rows": 32,
+      "source_y": 297
+    },
+    "ownership": "character_sidewalk.draw_held_weapon and draw_grip_front; draw_grip_back is an empty compatibility hook; no garment-specific layer rules"
+  },
+  "assets": {
+    "head": "head",
+    "torso": "torso",
+    "arm": "arm",
+    "leg": "leg",
+    "head_pin": "head",
+    "head_crown": "head",
+    "chest_blue": "chest",
+    "chest_jade": "chest",
+    "sleeve_blue": "arm",
+    "sleeve_jade": "arm",
+    "legs_blue": "leg",
+    "legs_jade": "leg",
+    "feet_cloth": "leg",
+    "feet_boots": "leg"
+  }
+}

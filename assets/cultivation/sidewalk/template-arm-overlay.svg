@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="219" height="396" viewBox="0 0 219 396">
+<style>text{font:10px sans-serif;fill:#12a5a0;paint-order:stroke;stroke:white;stroke-width:2px}path,circle,line,rect{vector-effect:non-scaling-stroke}</style>
+<rect x="0.5" y="0.5" width="218" height="395" fill="none" stroke="#12a5a0" stroke-dasharray="4 4"/>
+<rect x="66" y="10" width="40" height="52" fill="#f0bc4640"/>
+<path d="M79.00000 38.00000h14 M86.00000 31.00000v14" stroke="#12a5a0" fill="none"/>
+<circle cx="86.00000" cy="38.00000" r="3" fill="none" stroke="#12a5a0"/>
+<text x="96.00000" y="28.00000">shoulder</text>
+<path d="M95.32653 209.42857h14 M102.32653 202.42857v14" stroke="#12a5a0" fill="none"/>
+<circle cx="102.32653" cy="209.42857" r="3" fill="none" stroke="#12a5a0"/>
+<text x="112.32653" y="199.42857">elbow</text>
+<path d="M136.14286 356.36735h14 M143.14286 349.36735v14" stroke="#12a5a0" fill="none"/>
+<circle cx="143.14286" cy="356.36735" r="3" fill="none" stroke="#12a5a0"/>
+<text x="131.00000" y="346.36735">wrist</text>
+</svg>

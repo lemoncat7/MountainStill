@@ -1,0 +1,288 @@
+{
+  "canvas": [
+    512,
+    512
+  ],
+  "foot_anchor": [
+    256,
+    496
+  ],
+  "right_hand_anchor": [
+    318,
+    414
+  ],
+  "draw_order": [
+    "base",
+    "legs",
+    "feet",
+    "chest",
+    "head",
+    "weapon"
+  ],
+  "layers": {
+    "head_pin": {
+      "file": "head_pin.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        126,
+        111,
+        540,
+        275
+      ],
+      "source_base_rect": [
+        537,
+        179,
+        210,
+        81
+      ],
+      "alpha_bounds": [
+        217,
+        86,
+        300,
+        118
+      ]
+    },
+    "head_crown": {
+      "file": "head_crown.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        680,
+        28,
+        1008,
+        290
+      ],
+      "source_base_rect": [
+        530,
+        123,
+        220,
+        176
+      ],
+      "alpha_bounds": [
+        213,
+        64,
+        301,
+        133
+      ]
+    },
+    "chest_blue": {
+      "file": "chest_blue.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        34,
+        353,
+        578,
+        706
+      ],
+      "source_base_rect": [
+        461,
+        756,
+        350,
+        191
+      ],
+      "alpha_bounds": [
+        186,
+        316,
+        326,
+        392
+      ]
+    },
+    "chest_jade": {
+      "file": "chest_jade.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        580,
+        346,
+        1105,
+        691
+      ],
+      "source_base_rect": [
+        463,
+        754,
+        350,
+        193
+      ],
+      "alpha_bounds": [
+        186,
+        316,
+        326,
+        393
+      ]
+    },
+    "legs_blue": {
+      "file": "legs_blue.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        82,
+        712,
+        532,
+        1080
+      ],
+      "source_base_rect": [
+        475,
+        911,
+        325,
+        270
+      ],
+      "alpha_bounds": [
+        191,
+        378,
+        321,
+        486
+      ]
+    },
+    "legs_jade": {
+      "file": "legs_jade.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        626,
+        712,
+        1059,
+        1073
+      ],
+      "source_base_rect": [
+        475,
+        911,
+        325,
+        233
+      ],
+      "alpha_bounds": [
+        192,
+        378,
+        321,
+        471
+      ]
+    },
+    "feet_cloth": {
+      "file": "feet_cloth.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        86,
+        1155,
+        532,
+        1339
+      ],
+      "source_base_rect": [
+        486,
+        1115,
+        309,
+        95
+      ],
+      "alpha_bounds": [
+        196,
+        460,
+        319,
+        498
+      ]
+    },
+    "feet_boots": {
+      "file": "feet_boots.png",
+      "canvas": [
+        512,
+        512
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1
+      ],
+      "source_crop": [
+        632,
+        1106,
+        1053,
+        1342
+      ],
+      "source_base_rect": [
+        486,
+        1070,
+        309,
+        140
+      ],
+      "alpha_bounds": [
+        196,
+        442,
+        320,
+        498
+      ]
+    }
+  }
+}

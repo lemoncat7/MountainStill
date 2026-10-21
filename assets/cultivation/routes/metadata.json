@@ -1,0 +1,79 @@
+{
+  "canvas_size": [
+    1040,
+    280
+  ],
+  "ground_baseline": 246,
+  "combat_lane_x": [
+    420,
+    880
+  ],
+  "generation_mode": "Built-in image_gen, original generated game art",
+  "transparent_background": true,
+  "postprocessing": "Rectangular crop and LANCZOS resize only. Generated alpha retained.",
+  "routes": {
+    "bamboo_pass": {
+      "name": "青竹关",
+      "source": "sources/bamboo_pass-source.png",
+      "source_size": [
+        2180,
+        721
+      ],
+      "source_crop": [
+        0,
+        0,
+        2180,
+        721
+      ],
+      "source_sha256": "6f8314ede807fc0e071e8d5af5dd58b7d560de1646cf036cf127ec41bae15d3a",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "upper_combat_region_clear_fraction": 0.98982,
+      "enemy_species": "mossback"
+    },
+    "creek_bridge": {
+      "name": "听泉桥",
+      "source": "sources/creek_bridge-source.png",
+      "source_size": [
+        2188,
+        718
+      ],
+      "source_crop": [
+        0,
+        0,
+        2188,
+        635
+      ],
+      "source_sha256": "bfcecaab3bc76ca8effaf10578ffa7c5a3c46197a14974eb4c8b8d9776a104cf",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "upper_combat_region_clear_fraction": 0.99663,
+      "enemy_species": "riverstone"
+    },
+    "cloud_slope": {
+      "name": "眠云坡",
+      "source": "sources/cloud_slope-source.png",
+      "source_size": [
+        2059,
+        764
+      ],
+      "source_crop": [
+        0,
+        0,
+        2059,
+        706
+      ],
+      "source_sha256": "e26d580afea38f119a7b4e047f42737e1dcd97a5caa104d3e758c542ce5a5fe9",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "upper_combat_region_clear_fraction": 0.98756,
+      "enemy_species": "cloudcrane"
+    }
+  }
+}

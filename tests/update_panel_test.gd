@@ -15,7 +15,7 @@ func _run() -> void:
 	game._open_updates()
 	var panel = game.update_panel
 	check(panel.visible, "settings opens updater")
-	check(panel.info.text.contains("1.3.9-test.1"), "version visible")
+	check(panel.info.text.contains(boot.store.BUILTIN_VERSION), "version visible")
 	check(not panel.check_button.disabled, "check enabled idle")
 	check(panel.download_button.disabled, "download disabled without candidate")
 	check(panel.apply_button.disabled, "apply disabled without staged update")

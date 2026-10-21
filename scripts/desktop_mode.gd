@@ -3,8 +3,9 @@ extends RefCounted
 ## Conservative native-window helper. No global hooks, injected code, or
 ## whole-window input passthrough. Main owns all restore shortcut handling.
 
-const NORMAL_SIZE := Vector2i(1200, 400)
+const NORMAL_SIZE := Vector2i(1440, 720)
 const STRIP_SIZE := Vector2i(1200, 320)
+const NORMAL_MIN := Vector2i(960, 540)
 const MARGIN := 12
 
 var strip_enabled := false
@@ -17,6 +18,10 @@ var desired_passthrough := false
 var _window: Window
 var _normal_size := NORMAL_SIZE
 var _normal_position := Vector2i.ZERO
+var _normal_mode := Window.MODE_WINDOWED
+var _strip_size := STRIP_SIZE
+var _strip_scale := 1.0
+var _changing_geometry := false
 var _safe_rect := Rect2()
 var _interactive_rects: Array = []
 var _note := ""
@@ -30,7 +35,7 @@ func attach(window: Window) -> void:
 		return
 	_normal_size = _window.size
 	_normal_position = _window.position
-	_window.min_size = Vector2i(1000, 320)
+	_window.min_size = NORMAL_MIN
 	_window.mouse_passthrough = false
 	_window.mouse_passthrough_polygon = PackedVector2Array()
 	if not _window.size_changed.is_connected(_on_size_changed):
@@ -60,26 +65,26 @@ func set_strip(enabled: bool) -> void:
 		return
 	_clear_passthrough()
 	if enabled:
-		_normal_size = _window.size
-		_normal_position = _window.position
+		_remember_normal()
+		_normal_mode = _window.mode
+	_changing_geometry = true
 	strip_enabled = enabled
 	_window.mode = Window.MODE_WINDOWED
 	_window.borderless = enabled
 	_window.unresizable = enabled
-	_window.min_size = Vector2i(1000, 320)
 	_note = ""
 	if enabled:
-		_window.size = _fit_size(STRIP_SIZE)
+		_window.size = _fit_size(_strip_size)
 		_snap_bottom()
 		set_top(desired_top)
 		set_transparent(desired_transparent)
 		set_passthrough(desired_passthrough)
 	else:
-		_window.transparent = false
-		_window.transparent_bg = false
-		transparent_enabled = false
+		set_transparent(desired_transparent)
 		_window.size = _fit_size(_normal_size)
 		_window.position = _clamp_position(_normal_position, _window.size)
+		_window.mode = _normal_mode
+	_changing_geometry = false
 
 
 func set_top(enabled: bool) -> void:
@@ -95,11 +100,6 @@ func set_transparent(enabled: bool) -> bool:
 	desired_transparent = enabled
 	if not _ready_window():
 		return false
-	if not strip_enabled:
-		transparent_enabled = false
-		_window.transparent = false
-		_window.transparent_bg = false
-		return true
 	if enabled and not DisplayServer.is_window_transparency_available():
 		transparent_enabled = false
 		_window.transparent = false
@@ -142,11 +142,13 @@ func set_passthrough(enabled: bool) -> void:
 func set_width(width: int) -> void:
 	if not _ready_window():
 		return
-	_window.size = _fit_size(Vector2i(maxi(width, 1000), _window.size.y))
+	_window.size = _fit_size(Vector2i(width, _window.size.y))
 	if strip_enabled:
+		_strip_size = _window.size
 		_snap_bottom()
 	else:
 		_window.position = _clamp_position(_window.position, _window.size)
+		_remember_normal()
 	_apply_passthrough()
 
 
@@ -160,6 +162,7 @@ func safe_restore() -> void:
 	desired_passthrough = false
 	if not _ready_window():
 		return
+	_normal_mode = Window.MODE_WINDOWED
 	_window.mode = Window.MODE_WINDOWED
 	_window.unfocusable = false
 	_window.unresizable = false
@@ -167,9 +170,10 @@ func safe_restore() -> void:
 	_window.transparent = false
 	_window.transparent_bg = false
 	_window.borderless = false
-	_window.min_size = Vector2i(1000, 320)
-	_window.size = _fit_size(NORMAL_SIZE)
+	_window.min_size = NORMAL_MIN
+	_window.size = _fit_size(Vector2i(Vector2(NORMAL_SIZE) * display_scale()))
 	_window.position = _center_position(_window.size)
+	_remember_normal()
 	_window.grab_focus()
 	_note = "已安全恢复普通窗口。"
 
@@ -291,20 +295,27 @@ func _usable_rect() -> Rect2i:
 	return rect
 
 
+static func fit_size(requested: Vector2i, usable: Rect2i, minimum: Vector2i = NORMAL_MIN) -> Vector2i:
+	var available := Vector2i(maxi(1, usable.size.x - MARGIN * 2), maxi(1, usable.size.y - MARGIN * 2 - 32))
+	return Vector2i(clampi(requested.x, mini(minimum.x, available.x), available.x), clampi(requested.y, mini(minimum.y, available.y), available.y))
+
+
+static func clamp_position(requested: Vector2i, dimensions: Vector2i, usable: Rect2i) -> Vector2i:
+	# The usable rect already excludes the OS dock/taskbar; reserve titlebar space.
+	var inset := Vector2i(mini(MARGIN, maxi(0, (usable.size.x - dimensions.x) / 2)), mini(MARGIN + 32, maxi(0, usable.size.y - dimensions.y)))
+	var first := usable.position + inset
+	return Vector2i(clampi(requested.x, first.x, maxi(first.x, usable.end.x - dimensions.x - mini(MARGIN, inset.x))), clampi(requested.y, first.y, maxi(first.y, usable.end.y - dimensions.y - mini(MARGIN, inset.y))))
+
+
 func _fit_size(requested: Vector2i) -> Vector2i:
 	var usable := _usable_rect()
-	var available := usable.size - Vector2i(MARGIN * 2, MARGIN * 2 + 32)
-	var minimum := Vector2i(mini(1000, available.x), mini(320, available.y))
-	_window.min_size = minimum
-	return Vector2i(clampi(requested.x, minimum.x, available.x), clampi(requested.y, minimum.y, available.y))
+	var minimum := Vector2i(960, int(320 * _strip_scale)) if strip_enabled else NORMAL_MIN
+	_window.min_size = fit_size(minimum, usable, minimum)
+	return fit_size(requested, usable, minimum)
 
 
 func _clamp_position(requested: Vector2i, dimensions: Vector2i) -> Vector2i:
-	var usable := _usable_rect()
-	return Vector2i(
-		clampi(requested.x, usable.position.x + MARGIN, maxi(usable.position.x + MARGIN, usable.end.x - dimensions.x - MARGIN)),
-		clampi(requested.y, usable.position.y + 32 + MARGIN, maxi(usable.position.y + 32 + MARGIN, usable.end.y - dimensions.y - MARGIN))
-	)
+	return clamp_position(requested, dimensions, _usable_rect())
 
 
 func _center_position(dimensions: Vector2i) -> Vector2i:
@@ -320,6 +331,8 @@ func _snap_bottom() -> void:
 
 
 func _on_size_changed() -> void:
+	if not _changing_geometry:
+		_remember_normal()
 	_apply_passthrough()
 
 
@@ -329,3 +342,97 @@ func restore_position(x:int, y:int) -> void:
 	if not _ready_window() or x == -99999 or y == -99999:
 		return
 	_window.position = _clamp_position(Vector2i(x,y), _window.size)
+
+
+func _remember_normal() -> void:
+	if _ready_window() and not strip_enabled and _window.mode == Window.MODE_WINDOWED:
+		_normal_size = _window.size
+		_normal_position = _window.position
+
+
+func initialize(settings: Dictionary, force_expanded := false) -> void:
+	_normal_size = Vector2i(int(settings.get("normal_width", 1440)), int(settings.get("normal_height", 720)))
+	_normal_position = Vector2i(int(settings.get("normal_x", -99999)), int(settings.get("normal_y", -99999)))
+	_strip_size = Vector2i(int(settings.get("strip_width", 1200)), int(320 * _strip_scale))
+	if not _ready_window():
+		strip_enabled = settings.get("window_mode", "window") == "strip" and not force_expanded
+		return
+	# Only a never-positioned default rectangle is in design pixels. Saved
+	# native sizes are never multiplied again on every launch.
+	if _normal_position.x == -99999 and _normal_size == NORMAL_SIZE:
+		_normal_size = Vector2i(Vector2(NORMAL_SIZE) * display_scale())
+	if int(settings.get("window_x", -99999)) == -99999 and _strip_size.x == STRIP_SIZE.x:
+		_strip_size.x = int(STRIP_SIZE.x * display_scale())
+	prepare_strip_scale(float(settings.get("ui_scale",1.5))*display_scale())
+	_changing_geometry = true
+	_window.mode = Window.MODE_WINDOWED
+	_window.borderless = false
+	_window.unresizable = false
+	strip_enabled = false
+	_window.size = _fit_size(_normal_size)
+	_window.position = _center_position(_window.size) if _normal_position.x == -99999 or _normal_position.y == -99999 else _clamp_position(_normal_position, _window.size)
+	_changing_geometry = false
+	_remember_normal()
+	if settings.get("window_mode", "window") == "strip" and not force_expanded:
+		set_strip(true)
+		restore_position(int(settings.get("window_x", -99999)), int(settings.get("window_y", -99999)))
+
+
+func capture_settings(settings: Dictionary) -> void:
+	settings.geometry_version = 2
+	if not _ready_window():
+		return
+	_remember_normal()
+	settings.normal_width = _normal_size.x
+	settings.normal_height = _normal_size.y
+	settings.normal_x = _normal_position.x
+	settings.normal_y = _normal_position.y
+	settings.window_mode = "strip" if strip_enabled else "window"
+	if strip_enabled:
+		_strip_size = _window.size
+		settings.strip_width = _strip_size.x
+		settings.window_x = _window.position.x
+		settings.window_y = _window.position.y
+	# Compatibility fields must not accidentally record maximized/fullscreen size.
+	settings.width = _window.size.x if strip_enabled else _normal_size.x
+	settings.height = _window.size.y if strip_enabled else _normal_size.y
+
+
+func set_normal_preset(dimensions: Vector2i) -> void:
+	_normal_mode = Window.MODE_WINDOWED
+	if strip_enabled:
+		set_strip(false)
+	if not _ready_window():
+		return
+	_window.mode = Window.MODE_WINDOWED
+	_window.size = _fit_size(dimensions)
+	_window.position = _clamp_position(_window.position, _window.size)
+	_remember_normal()
+
+
+func prepare_strip_scale(requested: float) -> void:
+	# Use the stable saved strip width, never a transient native configure event.
+	set_strip_scale(minf(requested, _strip_size.x / 960.0))
+
+
+func set_strip_scale(value: float) -> void:
+	var next_scale := clampf(value, 0.5, 5.25)
+	# Native resize events can be queued even for redundant size/min-size writes.
+	# Do not feed each viewport size_changed back into another OS resize.
+	if is_equal_approx(next_scale, _strip_scale):
+		return
+	_strip_scale = next_scale
+	_strip_size.y = int(320 * _strip_scale)
+	if _ready_window() and strip_enabled:
+		_window.size = _fit_size(_strip_size)
+		_snap_bottom()
+
+
+func display_scale() -> float:
+	if not _ready_window():
+		return 1.0
+	# Godot 4.6 screen_get_scale is not implemented on Windows. Its DPI API
+	# uses GetDpiForMonitor(MDT_DEFAULT), the effective OS scale (not EDID).
+	# macOS reports the Retina backing scale; do not use physical screen DPI.
+	var factor := float(DisplayServer.screen_get_dpi(_window.current_screen)) / 96.0 if OS.get_name() == "Windows" else DisplayServer.screen_get_scale()
+	return clampf(factor, 1.0, 3.0) if is_finite(factor) else 1.0

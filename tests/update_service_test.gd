@@ -79,7 +79,7 @@ func run() -> void:
 	await settle(service)
 	check(service.apply_hot_content(), "explicit hot content apply")
 	check(service.content_data().get("accent") == "#843927", "hot content active")
-	check(service.current_version == "1.3.9-test.1", "hot content does not fake game version")
+	check(service.current_version == service.CURRENT_VERSION, "hot content does not fake game version")
 	check(not FileAccess.file_exists(service.PENDING), "hot apply clears pending")
 	check(not service.apply_hot_content(), "second hot apply rejected")
 	service.check_updates()

@@ -29,8 +29,10 @@ const EPSILON := 0.000001
 const DEFAULT_SETTINGS := {
 	"music": 0.3, "sfx": 0.5, "low_power": false,
 	"always_on_top": false, "transparent": true,
-	"click_through": false, "width": 1200,
-	"window_mode": "strip", "window_x": -99999, "window_y": -99999, "paused": false,
+	"click_through": false, "width": 1440, "height": 720,
+	"geometry_version": 2, "normal_width": 1440, "normal_height": 720,
+	"normal_x": -99999, "normal_y": -99999, "strip_width": 1200, "ui_scale": 1.5,
+	"window_mode": "window", "window_x": -99999, "window_y": -99999, "paused": false,
 }
 
 var gear = Equipment.new()
@@ -756,6 +758,22 @@ func _restore_and_award(data: Dictionary, result: Dictionary, may_save: bool = t
 			settings[key] = data.settings[key]
 	settings.click_through = false
 	settings.width = int(settings.width)
+	# Legacy saves only had width and lost height. Preserve their explicit mode;
+	# supply a comfortable normal restore rectangle without changing gameplay saves.
+	if data.settings.get("geometry_version", 0) != 2:
+		settings.strip_width = settings.width
+		settings.normal_width = 1440
+		settings.normal_height = 720
+		settings.normal_x = -99999
+		settings.normal_y = -99999
+	settings.geometry_version = 2
+	for key in ["normal_width", "strip_width"]:
+		settings[key] = _bounded_saved_int(settings.get(key), 480, 7680, int(DEFAULT_SETTINGS[key]))
+	settings.normal_height = _bounded_saved_int(settings.get("normal_height"), 320, 4320, 720)
+	settings.height = _bounded_saved_int(settings.get("height"), 320, 4320, 720)
+	for key in ["normal_x", "normal_y"]:
+		settings[key] = _bounded_saved_int(settings.get(key), -99999, 100000, -99999)
+	settings.ui_scale = clampf(float(settings.ui_scale), 1.0, 1.75) if _valid_number(settings.get("ui_scale"), 0.5, 3.0) else 1.5
 	_restore_campaign(data)
 	_restore_adventure(data.get("adventure", {}))
 	result.loaded = true

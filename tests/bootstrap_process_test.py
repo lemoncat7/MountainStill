@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Real PCK mount in fresh Godot processes; no mock of bootstrap/store."""
-import json, os, pathlib, subprocess, tempfile
+import json, os, pathlib, subprocess, tempfile, re
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+BUILTIN_VERSION = re.search(r'const BUILTIN_VERSION = "([^"]+)"', (ROOT/"scripts/update_store.gd").read_text()).group(1)
 def run(env, *args, expected=0):
     p = subprocess.run(['godot', '--headless', '--path', str(ROOT), *args], env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=60)
     print(p.stdout)
@@ -12,9 +13,9 @@ with tempfile.TemporaryDirectory(prefix='ms-bootstrap-') as tmp:
     env = dict(os.environ, HOME=tmp, XDG_DATA_HOME=tmp)
     run(env, '--script', 'tests/bootstrap_stage_fixture.gd')
     output = run(env)
-    assert 'UPDATE BOOT: 1.3.9-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
+    assert 'UPDATE BOOT: 1.3.10-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
     output = run(env)
-    assert 'UPDATE BOOT: 1.3.9-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
+    assert 'UPDATE BOOT: 1.3.10-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
 with tempfile.TemporaryDirectory(prefix='ms-bootstrap-broken-') as tmp:
     env = dict(os.environ, HOME=tmp, XDG_DATA_HOME=tmp)
     run(env, '--script', 'tests/bootstrap_stage_fixture.gd', '--', '--broken')
@@ -23,7 +24,7 @@ with tempfile.TemporaryDirectory(prefix='ms-bootstrap-broken-') as tmp:
     original = save.read_bytes()
     run(env, expected=1)
     output = run(env, '--quit-after', '5')
-    assert 'UPDATE BOOT: 1.3.9-test.1' in output and '已回退' in output
+    assert 'UPDATE BOOT: ' + BUILTIN_VERSION in output and '已回退' in output
     assert next(p for p in (updates / 'updates').glob('recovered-newer-snapshot-*') if not p.name.endswith('.bak')).read_text() == 'newer broken save'
     assert json.loads(save.read_text())['version'] == json.loads(original)['version']
 print('BOOTSTRAP PROCESS: healthy mount + nested preload + persistent next launch + failed boot rollback PASS')

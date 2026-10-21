@@ -4,6 +4,11 @@ const CombatResponseCues = preload("res://scripts/combat_response_cues.gd")
 const CorpsePresentation = preload("res://scripts/corpse_presentation.gd")
 const State = preload("res://scripts/cultivation_state.gd")
 const Desktop = preload("res://scripts/desktop_mode.gd")
+const Readability = preload("res://scripts/readability_layout.gd")
+const SceneArt = preload("res://scripts/scene_art_layout.gd")
+var display_check_clock := 0.0
+var last_display_scale := 1.0
+var applying_readability := false
 const QuietButton = preload("res://scripts/quiet_button.gd")
 const InkHotspot = preload("res://scripts/ink_hotspot.gd")
 const InkPaper = preload("res://scripts/ink_paper.gd")
@@ -62,7 +67,7 @@ var rendered_stage_scale=1.0
 var preview_blend=0.0
 var character_preview:Control
 var paused=false
-var strip=true
+var strip=false
 var elapsed=0.0
 var save_clock=0.0
 var repaint_clock=0.0
@@ -191,6 +196,7 @@ var walker=CharacterWalk.new()
 var walk_motion:Dictionary={"phase":0.0,"blend":0.0,"facing":1.0,"bob":0.0,"body_tilt":0.0}
 
 func _ready():
+	clip_contents=true
 	var theme_value=Theme.new();theme_value.default_font=SANS;theme_value.default_font_size=13;theme=theme_value
 	var tooltip_style=InkPaper.paper_style(12,8)
 	theme_value.set_stylebox("panel","TooltipPanel",tooltip_style);theme_value.set_color("font_color","TooltipLabel",INK);theme_value.set_font_size("font_size","TooltipLabel",12)
@@ -258,11 +264,10 @@ func _ready():
 	get_window().mouse_exited.connect(func():mouse_inside=false)
 	get_viewport().size_changed.connect(_resized)
 	_apply_settings()
-	strip=state.settings.get("window_mode","strip")=="strip" and not "--expanded" in OS.get_cmdline_user_args()
-	desktop.set_strip(strip)
-	desktop.set_width(int(state.settings.width))
-	desktop.set_transparent(state.settings.transparent)
-	desktop.restore_position(int(state.settings.get("window_x",-99999)),int(state.settings.get("window_y",-99999)))
+	desktop.initialize(state.settings, "--expanded" in OS.get_cmdline_user_args())
+	strip=desktop.strip_enabled
+	desktop.set_transparent(bool(state.settings.transparent))
+	_apply_readability()
 	paused=bool(state.settings.get("paused",false))
 	journal.append("初入青岚山，一灯一席，自此安居。")
 	if capturing:_capture_later()
@@ -324,10 +329,10 @@ func _build_nav():
 	# A single discreet seal is always recoverable; other actions belong to the scenery.
 	_hotspot("settings","山",Rect2(size.x-43,12,30,29),func():_toggle_drawer("settings"),"山居小印 · 设置、暂歇与离开 · M",true)
 	_hotspot("wardrobe","行装",Rect2(0,0,95,144),func():_toggle_drawer("wardrobe"),"点人物翻阅行装册 · I")
-	_hotspot("alchemy","丹房",Rect2(size.x*879/1040.0-59,size.y*227/280.0-103,118,103),func():_toggle_drawer("alchemy"),"点香炉展开丹方 · A")
-	_hotspot("practice","修行",Rect2(size.x*.5-105,size.y*230/280.0-25,210,40),func():_toggle_drawer("practice"),"点石台查看修行札记 · R")
-	_hotspot("companion","灵狐",Rect2(size.x*686/1040.0-38,size.y*245/280.0-72,76,75),func():wardrobe_tab="adventure";_toggle_drawer("wardrobe"),"点灵狐查看游历与山间寻缘")
-	_hotspot("garden","采药",Rect2(size.x*145/1040.0-65,size.y*213/280.0-75,130,90),func():state.set_activity("gather");_notice("循药香而行，采一叶山间清气。");_refresh_drawer(),"点药圃采集灵草与灵露 · G")
+	_hotspot("alchemy","丹房",Rect2(_world_x(879)-59,_world_y(227)-103,118,103),func():_toggle_drawer("alchemy"),"点香炉展开丹方 · A")
+	_hotspot("practice","修行",Rect2(_world_x(520)-105,_world_y(230)-25,210,40),func():_toggle_drawer("practice"),"点石台查看修行札记 · R")
+	_hotspot("companion","灵狐",Rect2(_world_x(686)-38,_world_y(245)-72,76,75),func():wardrobe_tab="adventure";_toggle_drawer("wardrobe"),"点灵狐查看游历与山间寻缘")
+	_hotspot("garden","采药",Rect2(_world_x(145)-65,_world_y(213)-75,130,90),func():state.set_activity("gather");_notice("循药香而行，采一叶山间清气。");_refresh_drawer(),"点药圃采集灵草与灵露 · G")
 	_hotspot("route_opportunity","机缘",Rect2(0,0,110,100),_open_route_opportunity,"点石龛回应机缘；它会一直等你")
 	# A dismissible line of ink, not a permanent dashboard. Its visibility is
 	# saved, while the complete guide always remains inside the stone journal.
@@ -352,14 +357,14 @@ func _update_hotspots():
 		var hotspot=buttons.get(key)
 		if not is_instance_valid(hotspot):continue
 		var source:Rect2=hotspot.get_meta("scene_rect",Rect2(hotspot.position,hotspot.size))
-		if key=="wardrobe":source=Rect2(Vector2(size.x*character_x/1040.0-46,size.y*(character_y+(16 if _diorama_active() or not world_route.is_empty() else 0))/280.0-142),Vector2(95,144))
+		if key=="wardrobe":source=Rect2(Vector2(_world_x(character_x)-46,_world_y((character_y+(16 if _diorama_active() or not world_route.is_empty() else 0)))-142),Vector2(95,144))
 		hotspot.position=source.position;hotspot.size=source.size
 	for key in ["wardrobe","alchemy","practice","garden","companion"]:
 		if is_instance_valid(buttons.get(key)):
 			buttons[key].visible=drawer_name.is_empty() and drawer_alpha<=.02 and (world_route.is_empty() or key=="wardrobe")
 	if is_instance_valid(buttons.get("route_opportunity")):
 		buttons.route_opportunity.visible=encounter_phase=="opportunity" and drawer_name.is_empty() and drawer_alpha<.02
-		buttons.route_opportunity.position=Vector2(size.x*(ROUTE_HERO_X+130.0)/1040.0-45,size.y*246.0/280.0-92)
+		buttons.route_opportunity.position=Vector2(_world_x((ROUTE_HERO_X+130.0))-45,_world_y(246.0)-92)
 	for key in ["guide_note","guide_dismiss"]:
 		if is_instance_valid(buttons.get(key)):
 			buttons[key].visible=not state.guidance_dismissed and drawer_name.is_empty() and drawer_alpha<=.02 and world_route.is_empty() and not encounter_active
@@ -447,7 +452,7 @@ func _close_drawer():
 
 func _drawer_rect()->Rect2:
 	var page=drawer_name if not drawer_name.is_empty() else drawn_page
-	var width=700.0 if page in ["wardrobe","alchemy","practice"] else (460.0 if page=="settings" else 390.0)
+	var width=700.0 if page in ["wardrobe","alchemy","practice"] else (460.0 if page in ["settings","display"] else 390.0)
 	return Rect2(size.x-width-58,20,width,280)
 
 func _refresh_drawer(animated=false):
@@ -481,8 +486,8 @@ func _refresh_drawer(animated=false):
 		_check("节能 20 FPS",Vector2(x+194,y+58),state.settings.low_power,func(v):state.settings.low_power=v;Engine.max_fps=20 if v else 60)
 		_slider(Vector2(x+65,y+105),120,float(state.settings.music),func(v):state.settings.music=v;_volume())
 		_slider(Vector2(x+262,y+105),120,float(state.settings.sfx),func(v):state.settings.sfx=v;_volume())
-		_qbutton(drawer,"width","宽度 %d"%state.settings.width,Rect2(x,y+145,92,30),func():var widths=[1000,1200,1360];var idx=widths.find(int(state.settings.width));state.settings.width=widths[(idx+1)%3];desktop.set_width(state.settings.width);_refresh_drawer(),"在 1000、1200、1360 像素间切换")
-		_qbutton(drawer,"recovery","恢复窗口",Rect2(x+102,y+145,92,30),_safe_restore,"Esc / F8 也能恢复")
+		_qbutton(drawer,"width","窗口 / 字号",Rect2(x,y+145,100,30),func():_toggle_drawer("display"),"窗口尺寸与界面字号缩放")
+		_qbutton(drawer,"recovery","恢复窗口",Rect2(x+110,y+145,92,30),_safe_restore,"Esc / F8 也能恢复")
 		_qbutton(drawer,"save","保存",Rect2(x+204,y+145,72,30),func():_notice("山居已保存。" if _save_current() else "保存失败，请检查本地权限。"))
 		_qbutton(drawer,"reset","重置…",Rect2(x+286,y+145,92,30),func():reset_dialog.popup_centered())
 		_qbutton(drawer,"advanced","桌面小记",Rect2(x,y+186,112,28),func():_toggle_drawer("desktop"),"透明背景与景观区穿透的平台限制")
@@ -491,8 +496,16 @@ func _refresh_drawer(animated=false):
 		_qbutton(drawer,"window","普通窗口" if strip else "桌面小窗",Rect2(x+126,y+232,116,28),_toggle_window,"F2 切换窗口模式")
 		_qbutton(drawer,"quit","保存离山",Rect2(x+252,y+232,128,28),_quit,"保存并退出")
 		_qbutton(drawer,"updates","版本更新",Rect2(x+260,y+186,118,28),_open_updates,"正式 / 测试频道，下载、校验与安全重启")
+	elif drawer_name=="display":
+		_qbutton(drawer,"scale_down","−",Rect2(x,y+78,38,32),func():_change_readability(-.25),"缩小界面与字号")
+		_qbutton(drawer,"scale_up","＋",Rect2(x+210,y+78,38,32),func():_change_readability(.25),"放大界面与字号；空间不足时自动适配")
+		_qbutton(drawer,"size_comfort","舒适窗口",Rect2(x,y+137,112,30),func():_resize_preset(Vector2i(1440,720)),"1440 × 720；自动适配当前屏幕")
+		_qbutton(drawer,"size_large","宽阔窗口",Rect2(x+130,y+137,112,30),func():_resize_preset(Vector2i(1680,900)),"1680 × 900；自动适配当前屏幕")
+		_qbutton(drawer,"display_restore","安全恢复",Rect2(x+260,y+137,118,30),_safe_restore,"Esc / F8 恢复普通窗口")
+		_qbutton(drawer,"display_mode","普通窗口" if strip else "桌面小窗",Rect2(x,y+188,116,30),_toggle_window,"F2 切换；保留普通窗口大小")
+		_qbutton(drawer,"display_back","返回设置",Rect2(x,y+232,116,28),func():_toggle_drawer("settings"))
 	elif drawer_name=="desktop":
-		_check("透明背景（小窗）",Vector2(x,y+65),state.settings.transparent,func(v):state.settings.transparent=v;desktop.set_transparent(v);_notice(desktop.status()))
+		_check("透明街景（支持时）",Vector2(x,y+65),state.settings.transparent,func(v):state.settings.transparent=v;desktop.set_transparent(v);_notice(desktop.status()))
 		_check("景观区鼠标穿透",Vector2(x,y+107),state.settings.click_through,func(v):state.settings.click_through=v;_notice("收起书页后应用穿透；小印与场景入口仍可操作。" if v else "景观区穿透已关闭。"))
 		_qbutton(drawer,"desktop_back","返回设置",Rect2(x,y+180,130,30),func():_toggle_drawer("settings"))
 	if animated:
@@ -525,7 +538,13 @@ func _slider(p:Vector2,width:float,value:float,fn:Callable):
 	drawer.add_child(s)
 
 func _process(delta):
-	var before_screen_x=character_x*size.x/1040.0
+	display_check_clock+=delta
+	if display_check_clock>=.5:
+		display_check_clock=0.0
+		if not is_equal_approx(last_display_scale,desktop.display_scale()):
+			if strip:desktop.prepare_strip_scale(float(state.settings.get("ui_scale",1.5))*desktop.display_scale())
+			_apply_readability();_build_nav();_refresh_drawer()
+	var before_screen_x=_world_x(character_x)
 	var before_route_distance=route_distance
 	elapsed+=delta
 	interface_clock+=delta
@@ -551,16 +570,16 @@ func _process(delta):
 		meditation_phase="seated" if meditation_amount>=.999 else ("entering" if meditation_target>meditation_amount else ("leaving" if meditation_amount>0.0 else "standing"))
 	# A page is an overlay: it never changes world movement, pose, pause or scale.
 	if not paused and meditation_amount<.02:
-		var movement_speed=48.0*1040.0/maxf(1.0,size.x)
+		var movement_speed=48.0
 		character_x=move_toward(character_x,target_x,delta*movement_speed)
 		var target_y=230.0 if practice_time>0 or encounter_active else float({"meditate":230.0,"gather":213.0,"brew":222.0}.get(state.activity,230.0))
 		character_y=move_toward(character_y,target_y,delta*8)
-	var actual_velocity=(character_x*size.x/1040.0-before_screen_x)/maxf(delta,.000001)
+	var actual_velocity=(_world_x(character_x)-before_screen_x)/maxf(delta,.000001)
 	_sync_character_preview(delta)
 	if preview_blend<=0.0 and drawer_name.is_empty() and drawer_alpha<=0.0:drawn_page=""
 	rendered_stage_scale=1.0
 	walk_motion=walker.update_motion(0.0 if paused else delta,actual_velocity,1.0)
-	route_frame_velocity=(route_distance-before_route_distance)*size.x/1040.0/maxf(delta,.000001) if not world_route.is_empty() and not _portal_active() else 0.0
+	route_frame_velocity=(route_distance-before_route_distance)/maxf(delta,.000001) if not world_route.is_empty() and not _portal_active() else 0.0
 	var virtual_velocity=route_frame_velocity if encounter_active and not world_route.is_empty() else actual_velocity
 	side_motion=sidewalker.update_motion(0.0 if paused else delta,virtual_velocity,1.0)
 	side_motion.technique=state.technique
@@ -613,11 +632,19 @@ func _process(delta):
 		if values!=panel_last_values:panel_last_values=values;_refresh_drawer()
 	queue_redraw()
 
+func _landscape_rect()->Rect2:
+	return Readability.landscape_rect(size)
+func _world_x(value:float)->float:
+	return _landscape_rect().position.x+value
+func _world_y(value:float)->float:
+	var rect=_landscape_rect()
+	return rect.position.y+value
+
 func _bottom_y()->float:return size.y-62
 func _draw():
 	var w=size.x;var h=size.y
-	if not _diorama_active():draw_rect(Rect2(0,0,w,h),PAPER)
-	_draw_scene(Rect2(0,0,w,h))
+	if not desktop.transparent_enabled:draw_rect(Rect2(0,0,w,h),PAPER)
+	_draw_scene(_landscape_rect())
 	# The landscape stays clear. A quiet ink inscription carries only essential progress.
 	_text(_realm_name(),Vector2(25,h-23),12,Color("394c43"),SERIF)
 	draw_line(Vector2(25,h-14),Vector2(112,h-14),Color(.30,.36,.28,.18),1,true)
@@ -642,26 +669,27 @@ func _draw():
 		_center(shown_toast,r,12,Color(.20,.34,.29,alpha))
 
 func _diorama_active()->bool:
-	return strip and desktop.transparent_enabled and diorama_texture!=null
+	
+	# Artwork/foot anchors do not change when the OS compositor is toggled.
+	return SceneArt.texture("courtyard")!=null
 
 func _draw_scene(r:Rect2):
-	var background=route_assets.get(world_route,diorama_texture if _diorama_active() else scene_texture)
-	if not world_route.is_empty() and route_panoramas.has(world_route):
-		# Every chapter is a finite panorama. Travel exposes new landscape, never a mirrored seam.
-		draw_texture_rect(route_panoramas[world_route],Rect2(r.position-Vector2(route_distance*r.size.x/1040.0,0),Vector2(r.size.x*2,r.size.y)),false,Color(1,1,1,_route_reveal()))
-	elif not world_route.is_empty() and route_scroll_assets.has(world_route):
-		var offset=fposmod(route_distance,2080.0)*r.size.x/1040.0
-		for tile in range(2):draw_texture_rect(route_scroll_assets[world_route],Rect2(r.position+Vector2(tile*r.size.x*2-offset,0),Vector2(r.size.x*2,r.size.y)),false,Color(1,1,1,_route_reveal()))
-	elif background:draw_texture_rect(background,r,false,Color(1,1,1,_route_reveal()))
-	else:draw_rect(r,Color("bed1c1"))
+	# Use original alpha artwork with one uniform source-to-world scale.
+	# The old 2080×280 prepared panoramas compressed trees vertically; no
+	# native resize policy can repair those baked-in proportions.
+	var art_key=world_route if not world_route.is_empty() else "courtyard"
+	var art_texture=SceneArt.texture(art_key)
+	if art_texture:
+		var destination=SceneArt.destination_rect(art_key,r,route_distance if not world_route.is_empty() else 0.0)
+		draw_texture_rect_region(art_texture,destination,SceneArt.source_rect(art_key),Color(1,1,1,_route_reveal()))
 	# Slow, nearly imperceptible wind; never a camera pan or screen shake.
 	for i in range(14):
-		var x=fposmod(i*103.7+elapsed*(2+i%3),r.size.x)
+		var x=r.position.x+fposmod(i*103.7+elapsed*(2+i%3),r.size.x)
 		var y=r.position.y+r.size.y*((.68 if _diorama_active() else .24)+(.19 if _diorama_active() else .63)*fposmod(i*.137,1))+sin(elapsed*.35+i)*5
 		draw_circle(Vector2(x,y),1.1,Color(1,.98,.79,.15+.16*sin(elapsed+i)))
 	if not world_route.is_empty():_draw_route_landmarks()
 	var anchor_x=520.0 if practice_time>0 or encounter_active else {"meditate":520.0,"gather":160.0,"brew":879.0}.get(state.activity,520.0)
-	var feet=Vector2(r.size.x*character_x/1040.0,r.position.y+r.size.y*(character_y+(16 if _diorama_active() or not world_route.is_empty() else 0))/280.0)
+	var feet=Vector2(_world_x(character_x),_world_y(character_y+(16 if _diorama_active() or not world_route.is_empty() else 0)))
 	var travelling=absf(character_x-float(anchor_x))>1
 	if meditation_amount>0.01:_draw_meditation_qi(feet,1.0,false)
 	if _portal_active():_draw_portal(feet,false)
@@ -758,7 +786,7 @@ func _draw_drawer():
 	if interaction_pulse>0 and not drawer_name.is_empty() and r.encloses(interaction_rect):
 		var p=interaction_rect.position+Vector2(content_offset,(1.0-paper_reveal)*4.0)
 		InkPaper.brush(self,Rect2(p+Vector2(5,interaction_rect.size.y-2),Vector2(maxf(8,interaction_rect.size.x-10)*(1.0-interaction_pulse*.25),1.5)),Color(.56,.25,.17,interaction_pulse*.32*a))
-	var titles={"bag":"随身行囊","settings":"山居小记","desktop":"桌面相伴"}
+	var titles={"bag":"随身行囊","settings":"山居小记","desktop":"桌面相伴","display":"窗口与字号"}
 	if titles.has(page):_text(titles[page],Vector2(x,y+39),27,Color(INK,a),BRUSH)
 	if page=="practice":
 		JournalPages.draw_practice(self,x,y,a)
@@ -776,6 +804,11 @@ func _draw_drawer():
 		_draw_equipment_drawer(x,y,a)
 	elif page=="settings":
 		_text("山间乐音",Vector2(x,y+120),11,Color(SUBTLE,a));_text("轻柔音效",Vector2(x+197,y+120),11,Color(SUBTLE,a))
+	elif page=="display":
+		_text("界面 / 字号  %d%%" % roundi(float(state.settings.get("ui_scale",1.5))*100),Vector2(x+48,y+100),13,Color(INK,a))
+		_text("字体、按钮等比放大；小窗口会自动适配。",Vector2(x,y+64),11,Color(SUBTLE,a))
+		_text("普通窗口可拖动边框；大小与位置自动保存。",Vector2(x,y+124),11,Color(SUBTLE,a))
+		_text("小窗适合桌面陪伴；阅读建议使用普通窗口。",Vector2(x,y+183),11,Color(SUBTLE,a))
 	elif page=="desktop":
 		_text("小印始终可点击；Esc / F8 恢复窗口。",Vector2(x,y+158),11,Color(SUBTLE,a))
 		_text("Windows 暂不启用区域穿透。",Vector2(x,y+175),10,Color(SUBTLE,a))
@@ -858,7 +891,7 @@ func _push_combat_feedback(event:Dictionary):
 	var profile:Dictionary=event.get("impact_profile",CombatImpact.describe(event))
 	if not bool(profile.get("active",false)):return
 	combat_hitstop=maxf(combat_hitstop,float(profile.get("hitstop",0.0)))
-	var ground:=_enemy_feet() if str(event.target)=="enemy" else Vector2(size.x*character_x/1040.0,size.y*(character_y+16.0)/280.0)
+	var ground:=_enemy_feet() if str(event.target)=="enemy" else Vector2(_world_x(character_x),_world_y((character_y+16.0)))
 	if str(profile.get("family",""))=="moss_slam":
 		var enemy_motion:Dictionary=duel.pose().get("enemy",{})
 		ground=_enemy_feet()+Vector2(float(enemy_motion.get("visual_offset",Vector2.ZERO).x)-32.0,0.0)
@@ -884,13 +917,46 @@ func _apply_settings():
 	Engine.max_fps=30 if "--review" in OS.get_cmdline_user_args() else (20 if state.settings.low_power else 60)
 	desktop.set_top(state.settings.always_on_top);_volume()
 func _toggle_window():
-	_close_drawer();strip=not strip;desktop.set_strip(strip)
+	_close_drawer();strip=not strip
+	if strip:desktop.prepare_strip_scale(float(state.settings.get("ui_scale",1.5))*desktop.display_scale())
+	desktop.set_strip(strip)
 	if strip:
 		desktop.set_top(state.settings.always_on_top);desktop.set_transparent(state.settings.transparent);desktop.set_passthrough(state.settings.click_through)
-	_build_nav();_save_loadout()
+	_apply_readability();_build_nav();_save_loadout()
 func _safe_restore():
-	_close_drawer();strip=false;desktop.safe_restore();state.settings.always_on_top=false;state.settings.transparent=false;state.settings.click_through=false;_build_nav();_save_loadout()
+	_close_drawer();strip=false;desktop.safe_restore();state.settings.always_on_top=false;state.settings.transparent=false;state.settings.click_through=false;_apply_readability();_build_nav();_save_loadout()
+func _change_readability(amount:float):
+	state.settings.ui_scale=clampf(float(state.settings.get("ui_scale",1.5))+amount,1.0,1.75)
+	if strip:desktop.prepare_strip_scale(float(state.settings.ui_scale)*desktop.display_scale())
+	_apply_readability();_build_nav();_refresh_drawer();_save_loadout()
+
+func _resize_preset(dimensions:Vector2i):
+	strip=false;desktop.set_normal_preset(Vector2i(Vector2(dimensions)*desktop.display_scale()))
+	_apply_readability();_build_nav();_refresh_drawer();_save_loadout()
+
+func _apply_readability():
+	if applying_readability:return
+	applying_readability=true
+	var window=get_window()
+	var requested=float(state.settings.get("ui_scale",1.5))
+	var display_scale=desktop.display_scale()
+	last_display_scale=display_scale
+	# Never resize the native window from a viewport size_changed callback.
+	# X11/Windows may deliver older configure events after a newer request;
+	# feeding those sizes back to the OS creates an asynchronous resize storm.
+	# Disabled stretch + content scale renders text at native resolution rather
+	# than enlarging a low-resolution viewport bitmap. Runtime setting also
+	# applies when an older immutable launcher mounts this update pack.
+	if window.content_scale_mode!=Window.CONTENT_SCALE_MODE_DISABLED:window.content_scale_mode=Window.CONTENT_SCALE_MODE_DISABLED
+	if window.content_scale_size!=Vector2i.ZERO:window.content_scale_size=Vector2i.ZERO
+	var next_scale=Readability.effective_scale(window.size,requested,display_scale)
+	if not is_equal_approx(window.content_scale_factor,next_scale):window.content_scale_factor=next_scale
+	applying_readability=false
+	queue_redraw()
+
 func _resized():
+	if applying_readability:return
+	_apply_readability()
 	if is_instance_valid(nav):_build_nav()
 	if drawer_name!="":_refresh_drawer()
 func _input(event):
@@ -1129,7 +1195,7 @@ func _route_enemy_world_x(index:int)->float:
 	return ROUTE_HERO_X+(120.0 if index==2 else 88.0)+float(ROUTE_EVENTS[clampi(index,0,2)])
 
 func _route_landmark_feet(world_x:float)->Vector2:
-	return Vector2((world_x-route_distance)*size.x/1040.0,size.y*246.0/280.0)
+	return Vector2(_world_x((world_x-route_distance)),_world_y(246.0))
 
 func _draw_beast(texture:Texture2D,key:String,p:Vector2,display_size:float,color:Color=Color.WHITE,rotation:float=0.0,offset:Vector2=Vector2.ZERO):
 	_scene_set_transform(p+offset,rotation,Vector2.ONE)
@@ -1168,7 +1234,7 @@ func _begin_duel():
 	hero.hp=int(vitality);hero.max_hp=int(vitality_max)
 	hero.technique_level=int(state.technique_levels.get(state.technique,1))
 	hero.battle_resources=battle_resources.duplicate(true)
-	route_enemy_definition.engagement_distance=(encounter_enemy_x-character_x)*size.x/1040.0
+	route_enemy_definition.engagement_distance=(encounter_enemy_x-character_x)
 	var attack_key:String=world_route+("_boss" if route_boss else "")+"_attack"
 	route_enemy_definition.enemy_front_extent=maxf(24.0,-BeastPresentation.visible_bounds(attack_key,174.0 if route_boss else 112.0).position.x)
 	duel.start(hero,route_enemy_definition,state.technique,_attack_style(),encounter_run_id*1337+encounter_index*79+17)
@@ -1232,7 +1298,7 @@ func _update_encounter(delta:float):
 		_advance_field_battle_resources(delta)
 		var checkpoint=encounter_index==2 and bool(state.stage_status().get("opportunity_pending",false))
 		var stop=route_opportunity_at if checkpoint else route_target_distance
-		var motion:Dictionary=RouteMotion.advance(route_distance,route_scroll_velocity,stop,delta,size.x/1040.0)
+		var motion:Dictionary=RouteMotion.advance(route_distance,route_scroll_velocity,stop,delta,1.0)
 		route_distance=float(motion.distance);route_scroll_velocity=float(motion.velocity)
 		_update_enemy_route_position()
 		if bool(motion.arrived):
@@ -1254,7 +1320,7 @@ func _update_encounter(delta:float):
 			return
 		if encounter_phase_age>.90 and pickup_collect_started<0.0:
 			var stop:float=_route_enemy_world_x(encounter_index)-ROUTE_HERO_X-35.0
-			var motion:Dictionary=RouteMotion.advance(route_distance,route_scroll_velocity,stop,delta,size.x/1040.0)
+			var motion:Dictionary=RouteMotion.advance(route_distance,route_scroll_velocity,stop,delta,1.0)
 			route_distance=float(motion.distance);route_scroll_velocity=float(motion.velocity)
 			_update_enemy_route_position()
 			if bool(motion.arrived):
@@ -1338,25 +1404,25 @@ func _claim_searched_corpse():
 	_save_loadout();_refresh_drawer()
 
 func _enemy_feet()->Vector2:
-	return Vector2(size.x*encounter_enemy_x/1040.0,size.y*(230.0+(16 if _diorama_active() or not world_route.is_empty() else 0))/280.0)
+	return Vector2(_world_x(encounter_enemy_x),_world_y((230.0+(16 if _diorama_active() or not world_route.is_empty() else 0))))
 
 func _event_contact_point(event:Dictionary)->Vector2:
 	var geometry:Dictionary=event.get("melee_contact",{})
 	if str(event.get("target",""))=="hero":
 		geometry=event.get("enemy_contact",{})
 		if not geometry.is_empty():
-			var feet:=Vector2(size.x*character_x/1040.0,size.y*(character_y+16.0)/280.0)
+			var feet:=Vector2(_world_x(character_x),_world_y((character_y+16.0)))
 			return feet+Vector2(geometry.point)
 	if not geometry.is_empty():
-		var feet:=Vector2(size.x*character_x/1040.0,size.y*(character_y+16.0)/280.0)
+		var feet:=Vector2(_world_x(character_x),_world_y((character_y+16.0)))
 		return feet+Vector2(geometry.target)
 	return _combat_contact_point(str(event.target))
 
 func _combat_contact_point(receiver:String)->Vector2:
 	if receiver=="enemy" and duel_pose.has("melee_contact"):
-		return Vector2(size.x*character_x/1040.0,size.y*(character_y+16.0)/280.0)+Vector2(duel_pose.melee_contact.target)
+		return Vector2(_world_x(character_x),_world_y((character_y+16.0)))+Vector2(duel_pose.melee_contact.target)
 	if receiver=="hero":
-		var feet:=Vector2(size.x*character_x/1040.0,size.y*(character_y+16.0)/280.0)
+		var feet:=Vector2(_world_x(character_x),_world_y((character_y+16.0)))
 		var pose:Dictionary=CharacterSidewalk.sample_pose(side_motion)
 		return feet+(Vector2(12,-168)+Vector2(pose.shift))*CharacterSidewalk.PIXEL_SCALE
 	var visual:Dictionary=duel_pose.get("enemy",{})
@@ -1780,7 +1846,7 @@ func _draw_enemy_mechanic(p:Vector2,visual:Dictionary):
 	var radius:float=float(visual.get("effect_radius",30.0))
 	var phase:String=str(visual.get("combat_phase","idle"))
 	var a:float=(.18+.35*sin(t*PI)) if phase=="windup" else .48*(1.0-t*.5)
-	var feet:Vector2=Vector2(size.x*character_x/1040.0,size.y*(character_y+16.0)/280.0)+Vector2(float(CharacterSidewalk.approach_footwork(side_motion).root),0)
+	var feet:Vector2=Vector2(_world_x(character_x),_world_y((character_y+16.0)))+Vector2(float(CharacterSidewalk.approach_footwork(side_motion).root),0)
 	if "ember" in kind or "erupt" in kind or "heat" in kind:
 		for i in range(5):
 			var q:float=i/4.0
@@ -1947,10 +2013,7 @@ func _reset_presentation():
 func _capture_window_settings():
 	state.settings.window_mode="strip" if strip else "window"
 	state.settings.paused=paused
-	if DisplayServer.get_name()!="headless":
-		state.settings.window_x=get_window().position.x
-		state.settings.window_y=get_window().position.y
-		state.settings.width=get_window().size.x
+	desktop.capture_settings(state.settings)
 
 func _save_current()->bool:
 	if get_meta("update_transaction", false):return false
@@ -1968,7 +2031,7 @@ func _draw_companion(r:Rect2):
 	if encounter_active or not world_route.is_empty():return
 	var info:Dictionary=state.journey_status()
 	var texture:Texture2D=encounter_assets.get("fox_idle",null)
-	var p=Vector2(r.size.x*686/1040.0,r.size.y*(252 if _diorama_active() else 238)/280.0)
+	var p=Vector2(_world_x(686),r.position.y+r.size.y*(252 if _diorama_active() else 238)/280.0)
 	if bool(info.get("active",false)):
 		# A little travelling knot marks the companion's place while away.
 		draw_line(p+Vector2(-8,-7),p+Vector2(8,-7),Color(.44,.51,.35,.6),1.5,true)

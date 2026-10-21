@@ -73,6 +73,7 @@ func key_event(code: int, pressed_value: bool) -> void:
 	Input.parse_input_event(event)
 
 func mouse_event(point: Vector2, pressed_value: bool) -> void:
+	point = root.get_final_transform() * point
 	var motion := InputEventMouseMotion.new()
 	motion.position = point
 	motion.global_position = point
@@ -111,8 +112,8 @@ func check_hotspots_and_passthrough(label: String) -> void:
 		var button: Control = scene.buttons[name]
 		var expected: Rect2 = button.get_meta("scene_rect")
 		if name == "wardrobe":
-			expected = Rect2(Vector2(scene.size.x * scene.character_x / 1040.0 - 46.0,
-				scene.size.y * (scene.character_y + (16 if scene._diorama_active() else 0)) / 280.0 - 142.0), Vector2(95, 144))
+			expected = Rect2(Vector2(scene._world_x(scene.character_x) - 46.0,
+				scene._world_y(scene.character_y + (16 if scene._diorama_active() else 0)) - 142.0), Vector2(95, 144))
 		check(button.get_rect().is_equal_approx(expected), label + ": untransformed hotspot " + name)
 		check(regions[i].is_equal_approx(expected), label + ": passthrough matches hotspot " + name)
 		check(not button.tooltip_text.is_empty() and button.get_tooltip(button.size * .5) == button.tooltip_text,
@@ -252,7 +253,7 @@ func run() -> void:
 	# Tooltip anchoring uses the current world's hit rectangle, never portrait space.
 	var tooltip_target: Control = scene.buttons.alchemy
 	var hover := InputEventMouseMotion.new()
-	hover.position = tooltip_target.get_global_rect().get_center()
+	hover.position = root.get_final_transform() * tooltip_target.get_global_rect().get_center()
 	hover.global_position = hover.position
 	Input.parse_input_event(hover)
 	await process_frame

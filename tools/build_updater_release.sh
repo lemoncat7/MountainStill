@@ -15,6 +15,7 @@ run macos --export-release 'macOS Universal' "$OUT/MountainStill-macOS.zip"
 for platform in windows macos; do
   preset='Windows x86_64'; [[ "$platform" == macos ]] && preset='macOS Universal'
   run "${platform}-content" --export-pack "$preset" "$OUT/${platform}-content.zip"
+  python3 "$ROOT/tools/verify_export_dependencies.py" "$OUT/${platform}-content.zip"
   run "${platform}-pck" --script res://tools/build_update_pack.gd -- "$OUT/${platform}-content.zip" "$OUT/MountainStill-${platform}.pck"
 done
 python3 "$ROOT/tools/write_update_manifest.py" "$OUT"

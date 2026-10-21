@@ -5,6 +5,16 @@ extends SceneTree
 func _initialize() -> void:
 	var expected := [
 		"main.tscn", "default_bus_layout.tres", "icon.svg",
+		"scripts/readability_layout.gd",
+		"scripts/scene_art_layout.gd",
+		"assets/cultivation/routes/sources/bamboo_panorama-source.png",
+		"assets/cultivation/routes/sources/creek_bridge_panorama-source.png",
+		"assets/cultivation/routes/sources/cloud_slope_panorama-source.png",
+		"assets/cultivation/routes/sources/ember_ruins_panorama-source.png",
+		"assets/cultivation/routes/sources/moon_marsh_panorama-source.png",
+		"assets/cultivation/routes/sources/summit_gate_panorama-source.png",
+		"assets/cultivation/sources/sanctuary-diorama-source.png",
+
 		"scripts/cultivation.gd", "scripts/cultivation_state.gd", "scripts/equipment_ledger.gd",
 		"scripts/desktop_mode.gd", "scripts/quiet_button.gd", "scripts/ink_hotspot.gd", "scripts/ink_paper.gd", "scripts/ink_pages.gd", "scripts/adventure_pages.gd", "scripts/journal_pages.gd", "scripts/cultivation_content.gd", "scripts/character_walk.gd", "scripts/character_meditation.gd", "scripts/character_preview.gd",
 		"assets/fonts/NotoSansCJK-Regular.ttc", "assets/fonts/NotoSerifCJK-Regular.ttc", "assets/fonts/DejaVuSans.ttf", "assets/fonts/MaShanZheng-Regular.ttf",

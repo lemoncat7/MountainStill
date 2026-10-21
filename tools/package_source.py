@@ -6,7 +6,7 @@ import hashlib
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ["project.godot", "main.tscn", "default_bus_layout.tres", "icon.svg", "export_presets.cfg", "README.md"]
+BASE = [".gitignore", "BUILD_VERIFICATION.md", "FIRST_TEST_README.md", "PUBLICATION_NOTES.md", "bootstrap.tscn", "project.godot", "main.tscn", "default_bus_layout.tres", "icon.svg", "export_presets.cfg", "README.md"]
 SCRIPTS = [f"scripts/{name}" for name in ("cultivation.gd", "cultivation_state.gd", "equipment_ledger.gd", "desktop_mode.gd", "quiet_button.gd", "ink_hotspot.gd", "ink_paper.gd", "ink_pages.gd", "adventure_pages.gd", "journal_pages.gd", "cultivation_content.gd", "character_walk.gd", "character_meditation.gd", "character_preview.gd", "export_all.sh")]
 TESTS = [f"tests/{name}" for name in ("test_cultivation.gd", "test_cultivation_ui.gd", "test_equipment.gd", "test_desktop_mode.gd", "test_campaign.gd", "test_campaign_journey.gd", "test_equipment_upgrade.gd", "test_campaign_ui.gd", "test_preview_layout.gd", "test_character_walk.gd", "show_character_walk.gd", "test_character_meditation.gd", "test_motion_transitions.gd", "show_character_meditation.gd", "show_meditation_scene.gd", "show_motion_interactions.gd", "show_book_transition.gd", "test_scene_framing.gd", "test_adventure_state.gd", "test_adventure_ui.gd", "test_combat_pose.gd", "show_adventure_loop.gd")]
 TOOLS = [f"tools/{name}" for name in ("crop_props_assets.py", "crop_equipment_assets.py", "crop_encounter_assets.py", "generate_audio.py", "package_builds.py", "package_source.py", "verify_builds.py", "audit_export_payload.gd")]
@@ -38,6 +38,9 @@ for folder in ("sidewalk", "routes", "beasts"):
     for path in (ROOT / "assets/cultivation" / folder).rglob("*"):
         if path.is_file() and path.suffix in (".png", ".json", ".txt", ".md", ".svg", ".gd") and "preview" not in path.name:
             ASSETS.append(str(path.relative_to(ROOT)))
+
+TOOLS += ["tools/build_update_pack.gd", "tools/build_updater_release.sh", "tools/write_update_manifest.py", "tools/verify_updater_artifacts.py"]
+TESTS += [str(path.relative_to(ROOT)) for path in sorted((ROOT / "tests").glob("*")) if path.suffix == ".py" and path.name.startswith(("update_", "bootstrap_"))]
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--dry-run", action="store_true", help="validate and print the allowlist without making an archive")

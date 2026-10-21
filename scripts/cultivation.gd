@@ -27,7 +27,8 @@ const LATIN = preload("res://assets/fonts/DejaVuSans.ttf")
 const PAPER = Color("f0e9d7")
 const INK = Color("303b37")
 const SUBTLE = Color("818579")
-const GOLD = Color("9e4739")
+var GOLD = Color("9e4739")
+var content_accent = Color(.36,.40,.29,.65)
 const LINE = Color("d3ddd2")
 
 var state=State.new()
@@ -269,6 +270,12 @@ func _ready():
 		set_meta("ink_journal_tab","guide")
 		_notice("初入山中 · 下方入山札记会陪你走完这一卷，也可随时收起。")
 
+	var update_service = get_tree().root.get_node_or_null("UpdateService")
+	if update_service != null:
+		update_service.content_applied.connect(_apply_hot_content)
+		_apply_hot_content(update_service.content_data())
+	get_tree().root.set_meta("update_gameplay_ready", true)
+
 func _setup_dialogs():
 	tip=AcceptDialog.new();tip.title="山居小记";tip.min_size=Vector2i(630,340)
 	tip.dialog_text="山隐 · 归山一卷\n\n石台的修行札记含入山引导、目标和物华录。五大境各三期，最终归真。\n新档：静坐会积累灵气，突破先由你亲点。随缘可自行开启，自动静坐、采药与突破；手选活动后关闭。\n人物的行装册：五部位分别穿脱，白短裤始终保留。开启首箱开始收集。\n十种形制、四档品阶，每件装备可温养至 +5；分解前需确认。\n功法：十门书卷，三至七重上限。支付草露研习，计时后学成；心法、武式、主动与辅修分别装配。\n丹房：三种丹方随境界解锁。聚气增修为，回春与澄心提供限时增益。\n灵狐：选择青竹、听泉或眠云，游历归来自动带回资源与见闻。\n游历可离线进行；历练六章依序开放，须手选关卡、点击出发。每章三场后归山。\n每章首通获固定信物与成长赠礼；普通掉落仍为木箱12%、装备3%。机缘等你选择。\n任督六穴与四条支脉，共二十二穴；各脉可搭配，以灵气与草露温养，不阻境界突破。\n失败或归山保留已击退进度，点继续才重返；不扣行装修为。六章解结，归真后可读归山尾声。\n离线最多结算八小时，暂停时不积累；倒调时钟不会获益。\n\nI 行装 / A 丹方 / R 修行与引导 / G 采药 / M 小印设置。\n空格暂停；F2 切换小窗；Esc 或 F8 安全恢复普通窗口。\n拖动顶部空白区移动；位置、大小、音量与节能偏好都会保存。\n存档只在本地，并留有上一份备份；无云同步。\n透明和穿透取决于系统支持；Windows 暂不启用区域穿透。"
@@ -483,6 +490,7 @@ func _refresh_drawer(animated=false):
 		_qbutton(drawer,"pause","继续修行" if paused else "暂歇片刻",Rect2(x,y+232,116,28),func():_set_paused(not paused);_refresh_drawer(),"空格也可暂停")
 		_qbutton(drawer,"window","普通窗口" if strip else "桌面小窗",Rect2(x+126,y+232,116,28),_toggle_window,"F2 切换窗口模式")
 		_qbutton(drawer,"quit","保存离山",Rect2(x+252,y+232,128,28),_quit,"保存并退出")
+		_qbutton(drawer,"updates","版本更新",Rect2(x+260,y+186,118,28),_open_updates,"正式 / 测试频道，下载、校验与安全重启")
 	elif drawer_name=="desktop":
 		_check("透明背景（小窗）",Vector2(x,y+65),state.settings.transparent,func(v):state.settings.transparent=v;desktop.set_transparent(v);_notice(desktop.status()))
 		_check("景观区鼠标穿透",Vector2(x,y+107),state.settings.click_through,func(v):state.settings.click_through=v;_notice("收起书页后应用穿透；小印与场景入口仍可操作。" if v else "景观区穿透已关闭。"))
@@ -613,7 +621,7 @@ func _draw():
 	# The landscape stays clear. A quiet ink inscription carries only essential progress.
 	_text(_realm_name(),Vector2(25,h-23),12,Color("394c43"),SERIF)
 	draw_line(Vector2(25,h-14),Vector2(112,h-14),Color(.30,.36,.28,.18),1,true)
-	draw_line(Vector2(25,h-14),Vector2(25+87*clampf(state.stats().progress,0,1),h-14),Color(.36,.40,.29,.65),1.4,true)
+	draw_line(Vector2(25,h-14),Vector2(25+87*clampf(state.stats().progress,0,1),h-14),content_accent,1.4,true)
 	if paused:_text("暂歇",Vector2(128,h-23),12,Color("8e4436"),SERIF)
 	if "--loot-demo" in OS.get_cmdline_user_args():_text("演示存档 · 固定随机种子",Vector2(w-178,h-12),10,Color(.93,.95,.85,.85))
 	if "--campaign-demo" in OS.get_cmdline_user_args():_text("预置进度演示 · 非自然挂机时长",Vector2(w-238,h-12),10,Color(.22,.32,.25,.92))
@@ -1945,6 +1953,7 @@ func _capture_window_settings():
 		state.settings.width=get_window().size.x
 
 func _save_current()->bool:
+	if get_meta("update_transaction", false):return false
 	_persist_battle_resources()
 	_capture_window_settings()
 	return state.save_game()
@@ -2092,3 +2101,21 @@ func _draw_portal(feet:Vector2,foreground:bool):
 		var opacity=strength*sin(q*PI)*.75
 		draw_circle(p,1.2+(i%3)*.35,Color(.88,.84,.57,opacity))
 		if i%4==0:draw_line(p+Vector2(0,5),p+Vector2(0,-3),Color(.73,.82,.68,opacity*.4),1,true)
+
+var update_panel: AcceptDialog
+func _open_updates():
+	if not is_instance_valid(update_panel):
+		update_panel = preload("res://scripts/update_panel.gd").new()
+		add_child(update_panel)
+		update_panel.setup(self)
+	update_panel.popup_centered()
+
+func _apply_hot_content(data: Dictionary) -> void:
+	if data.is_empty():
+		return
+	GOLD = Color(data.accent)
+	content_accent = Color(GOLD, .65)
+	queue_redraw()
+	if not drawer_name.is_empty():
+		_refresh_drawer()
+	_notice(str(data.message))

@@ -1,17 +1,21 @@
-# 山隐 · MountainStill v1.3.8 第一版测试包
+# 山隐 · MountainStill v1.3.9-test.1 更新功能测试包
 
-本次是第一轮跨平台测试发布，不是已通过全部平台验收的正式版。玩法基线 v1.3.8，发布标记建议 `v1.3.8-test.1`。
+本次在 v1.3.8 玩法基线上增加游戏内更新，不是已通过全部平台验收的正式版。当前发布标记为 `v1.3.9-test.1`。旧 `v1.3.8-test.1` 不含更新器，需最后一次手动安装本包；原有第一版发布保持不变。
 
 ## Windows（x86_64）
-1. 下载 `MountainStill-v1.3.8-test.1-Windows-x86_64.zip` 并完整解压。
+1. 下载 `MountainStill-v1.3.9-test.1-Windows-x86_64.zip` 并完整解压。
 2. 双击文件夹中的 `MountainStill.exe`。无需安装 Godot。
 3. 本包未做 Windows 代码签名，系统可能显示来源/信誉提示。仅在确认来源与 SHA256 后自行决定是否运行；不要关闭系统防护。
 
 ## macOS（Intel + Apple Silicon）
-1. 下载 `MountainStill-v1.3.8-test.1-macOS-Universal.zip` 并解压。
+1. 下载 `MountainStill-v1.3.9-test.1-macOS-Universal.zip` 并解压。
 2. 将 `山隐 · Mountain Still.app` 移到「应用程序」，打开它。无需安装 Godot。
 3. 本包只有 Godot 导出的本地 ad-hoc 签名，没有 Apple Developer ID 签名，也没有公证，不能视为已获 Apple 信任。Gatekeeper 可能阻止启动。确认来源与 SHA256 后可查看系统「隐私与安全性」中的单个应用允许选项；若仍拒绝，请反馈，不必禁用 Gatekeeper 或移除隔离属性。
 4. 导出预设最低系统为 Intel macOS 10.15 / Apple Silicon macOS 11；这只是构建设置，未实机验证最低系统兼容性。
+
+## 游戏内更新
+
+右上角“山”→“版本更新”：选择正式/测试频道，检查、下载并明确确认应用。运行时自动检查可关闭；离线不影响游戏。严格 JSON 文案/墨色可同进程热加载，游戏脚本需保存并重启；失败启动恢复上一版和更新前快照。完整说明、恢复、代理和单实例边界见 `docs/UPDATING.md`（程序包中为 `UPDATING.md`）。
 
 ## 开始与反馈
 - 点击人物管理行装，石台查看修行札记；先按入山引导操作。详见 README 与 `docs/CAMPAIGN_USER_GUIDE.md`。

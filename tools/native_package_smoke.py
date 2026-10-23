@@ -19,18 +19,21 @@ import zipfile
 
 from native_platform_smoke import configure_output, run, unexpected_errors
 
-TAG = 'v1.3.16-test.1'
-VERSION = '1.3.16-test.1'
+TAG = 'v1.3.17-test.1'
+VERSION = '1.3.17-test.1'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.16-test.1-Windows-x86_64.zip',
-              '0fc1f62faac2bf1c96e5afc7ec3cb91106776b2334f5b9057700cff2282d65ce',
-              'MountainStill/MountainStill.exe', 114302884),
-    'darwin': ('MountainStill-v1.3.16-test.1-macOS-Universal.zip',
-               '486856ff409528609b754d86ee06867c36ac16a582a292cb48204069e409f08d',
-               APP + '.app/Contents/MacOS/' + APP, 141035820),
+    'win32': ('MountainStill-v1.3.17-test.1-Windows-x86_64.zip',
+              'cea0c082645140b4b94600cc7d15fa4e642e461ad20738c66223272df49a0bfd',
+              'MountainStill/MountainStill.exe', 114376509),
+    'darwin': ('MountainStill-v1.3.17-test.1-macOS-Universal.zip',
+               '9a9c06b3fbda05ac5e4097015002e8070e15c9c47916e1e9409e51503f4a712f',
+               APP + '.app/Contents/MacOS/' + APP, 141109182),
 }
-ASSET = 'res://assets/cultivation/beasts/creek_bridge_boss_settle.png'
+ASSETS = (
+    'res://assets/cultivation/beasts/creek_bridge_boss_settle.png',
+    'res://assets/cultivation/beasts/creek_bridge_boss_retract.png',
+)
 
 
 def safe_members(bundle):
@@ -142,8 +145,9 @@ def check_boot(output):
     if not re.search(r'^UPDATE BOOT: ' + re.escape(VERSION) + r'\s*$', output, re.M):
         raise AssertionError('Expected installed release bootstrap version missing')
     # Godot --verbose records actual resource-loader calls, not archive listing.
-    if not any('Loading resource:' in line and ASSET in line for line in output.splitlines()):
-        raise AssertionError('No native resource-loader evidence for new stone settle texture')
+    for asset in ASSETS:
+        if not any('Loading resource:' in line and asset in line for line in output.splitlines()):
+            raise AssertionError('No native resource-loader evidence for required texture: ' + asset)
 
 
 def check_saved_progress(current, backup, previous):
@@ -217,7 +221,7 @@ def main():
                     check_saved_progress(current, backup, previous)
                     if list(userdata.glob('*invalid*')):
                         raise AssertionError('Fixture rejected or corrupt-save recovery occurred')
-                results.append((f'actual native package boot {boot}, settle load, save and engine exit', 'PASS'))
+                results.append((f'actual native package boot {boot}, settle/retract loads, save and engine exit', 'PASS'))
     except Exception as error:
         print(f'Native package smoke FAILED: {type(error).__name__}: {error}', flush=True)
         results.append(('package check', 'FAIL'))

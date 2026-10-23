@@ -86,11 +86,14 @@ class DriverSafety(unittest.TestCase):
             smoke.check_saved_progress(dict(loaded, lifetime_seconds=110, herbs=3), loaded, fixture)
 
     def test_boot_requires_resource_loader_and_version(self):
-        valid = 'UPDATE BOOT: ' + smoke.VERSION + '\nLoading resource: ' + smoke.ASSET + '\n'
+        valid = 'UPDATE BOOT: ' + smoke.VERSION + '\n' + ''.join('Loading resource: ' + asset + '\n' for asset in smoke.ASSETS)
         smoke.check_boot(valid)
-        for text in ('', smoke.ASSET, valid.replace('Loading resource:', 'archive listing:'), valid + 'ERROR: failed\n', valid.replace(smoke.VERSION, '1.3.14-test.1')):
+        for text in ('', '\n'.join(smoke.ASSETS), valid.replace('Loading resource:', 'archive listing:'), valid + 'ERROR: failed\n', valid.replace(smoke.VERSION, '1.3.14-test.1')):
             with self.subTest(text=text), self.assertRaises(AssertionError):
                 smoke.check_boot(text)
+        for asset in smoke.ASSETS:
+            with self.subTest(missing=asset), self.assertRaises(AssertionError):
+                smoke.check_boot(valid.replace('Loading resource: ' + asset + '\n', ''))
 
 
 if __name__ == '__main__':

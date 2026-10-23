@@ -1,0 +1,77 @@
+{
+  "commit": "6eb28d396a3d67de0410856d664632a1754537e3",
+  "repository": "lemoncat7/MountainStill",
+  "method": "GitHub connector fetch_file at exact ref (base64), returned Git blob SHA",
+  "files": [
+    {
+      "path": ".github/workflows/native-gui-probe.yml",
+      "isError": false,
+      "sha": "743c21bd052b700588440359421ff1287694df4d"
+    },
+    {
+      "path": ".github/workflows/native-headless-smoke.yml",
+      "isError": false,
+      "sha": "6c13155b799d3df1acdb87f2b595ae9719b5d894"
+    },
+    {
+      "path": ".github/workflows/native-package-smoke.yml",
+      "isError": false,
+      "sha": "8581be9ef882616aa9c42902b387b1d7cd93d432"
+    },
+    {
+      "path": "NATIVE_GUI_PROBE.md",
+      "isError": false,
+      "sha": "077fc884c629c722eddf9d0295cd891044b6a3ef"
+    },
+    {
+      "path": "NATIVE_PACKAGE_SMOKE.md",
+      "isError": false,
+      "sha": "67d75f17690808f1ca8217449a6ba69b803b2436"
+    },
+    {
+      "path": "NATIVE_SMOKE.md",
+      "isError": false,
+      "sha": "279ab52fee53e7bef39354b612fd0b94efb942a9"
+    },
+    {
+      "path": "tests/native_gui_driver_test.py",
+      "isError": false,
+      "sha": "bb2cf3c2ab4eeb21b7a272271de0b32f558272df"
+    },
+    {
+      "path": "tests/native_package_driver_test.py",
+      "isError": false,
+      "sha": "04fb834913763113ee3270d64854b3b7ae1daea4"
+    },
+    {
+      "path": "tools/native_gui_capture.ps1",
+      "isError": false,
+      "sha": "27bba69c8437c8d1f88036065c2478771e3af9ef"
+    },
+    {
+      "path": "tools/native_gui_capture.swift",
+      "isError": false,
+      "sha": "b226d73afd9799fc25256139ddf7608673ea1d86"
+    },
+    {
+      "path": "tools/native_gui_probe.py",
+      "isError": false,
+      "sha": "990f0d7b39a919eec4f965b1391b25763a8fe96b"
+    },
+    {
+      "path": "tools/native_package_smoke.py",
+      "isError": false,
+      "sha": "9c1caa7c2b776f4e5734a98a6f4b68e1761acc2b"
+    },
+    {
+      "path": "tools/native_platform_smoke.py",
+      "isError": false,
+      "sha": "37ca62ca21c6e947ecdb69eaddc5b13b32f41d6a"
+    },
+    {
+      "path": "tools/test_native_platform_smoke.py",
+      "isError": false,
+      "sha": "26c302e991cdaecb1aba2b72d9483b940a794656"
+    }
+  ]
+}

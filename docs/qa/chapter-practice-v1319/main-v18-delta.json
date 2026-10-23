@@ -1,0 +1,10 @@
+[
+  "NATIVE_GUI_PROBE.md",
+  "NATIVE_PACKAGE_SMOKE.md",
+  "tools/native_package_smoke.py",
+  "tools/native_gui_probe.py",
+  "tools/native_gui_capture.swift",
+  "tools/native_gui_capture.ps1",
+  "tests/native_gui_driver_test.py",
+  ".github/workflows/native-gui-probe.yml"
+]

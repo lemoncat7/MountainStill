@@ -21,10 +21,47 @@ static func is_open(h) -> bool:
 	return bool(h.get_meta("combat_insight_open", false)) and str(h.wardrobe_tab) == "equipment"
 
 static func open(h):
+	h.remove_meta("chapter_practice_return")
 	h.set_meta("combat_insight_open", true)
 	h.set_meta("combat_insight_view", "attributes")
 	h.set_meta("combat_attribute_page", 0)
 	h._refresh_drawer()
+
+static func open_chapter(h, stage_id: String) -> bool:
+	# Read the current catalogue, including locked placeholders. Never select,
+	# start, cancel, save or simulate an expedition merely to inspect its enemy.
+	if h.practice_session != null: return false
+	var rows: Array = h.practice_enemy_rows()
+	var page: int = -1
+	for i in range(rows.size()):
+		if str(rows[i].get("stage_id", "")) == stage_id:
+			page = i; break
+	if page < 0: return false
+	h.set_meta("chapter_practice_return", {"id": stage_id, "page": int(h.get_meta("ink_stage_page", 0)), "view": str(h.get_meta("expedition_view", "route"))})
+	h.set_meta("equipment_comparison_open", false)
+	h.wardrobe_tab = "equipment"
+	h.set_meta("combat_insight_open", true)
+	h.set_meta("combat_insight_view", "enemies")
+	h.set_meta("practice_enemy_page", page)
+	h._refresh_drawer(true)
+	return true
+
+static func _back(h):
+	if h.practice_session != null: return
+	var origin: Dictionary = h.get_meta("chapter_practice_return", {})
+	h.remove_meta("chapter_practice_return")
+	h.set_meta("combat_insight_open", false)
+	if not origin.is_empty():
+		# Restore only the browsed paper, never State.selected_stage or a run.
+		var rows: Array = h.state.stage_rows()
+		for i in range(rows.size()):
+			if str(rows[i].id) == str(origin.get("id", "")):
+				h.wardrobe_tab = "expedition"
+				h.set_meta("ink_stage_id", str(rows[i].id))
+				h.set_meta("ink_stage_page", clampi(int(origin.get("page", i / 3)), 0, maxi(0, ceili(rows.size() / 3.0) - 1)))
+				h.set_meta("expedition_view", "guide" if str(origin.get("view", "route")) == "guide" else "route")
+				break
+	h._refresh_drawer(true)
 
 static func _view(h) -> String:
 	var selected := str(h.get_meta("combat_insight_view", "attributes"))
@@ -50,9 +87,10 @@ static func _choose_tactic(h, id: String):
 	h._refresh_drawer()
 
 static func build(h, x: float, y: float):
-	h._qbutton(h.drawer, "combat_back", "返回衣冠", Rect2(x + 490, y + 13, 115, 28), func():
-		if h.get("practice_session") != null: return
-		h.set_meta("combat_insight_open", false); h._refresh_drawer(), "仅返回衣冠，不改动战术或装备").disabled = h.get("practice_session") != null
+	var from_chapter: bool = not h.get_meta("chapter_practice_return", {}).is_empty()
+	var back: Button = h._qbutton(h.drawer, "combat_back", "返回山路" if from_chapter else "返回衣冠", Rect2(x + 490, y + 13, 115, 28), func():_back(h), "仅返回原章纸页，不出发、不改变未完行程" if from_chapter else "仅返回衣冠，不改动战术或装备")
+	back.disabled = h.get("practice_session") != null
+	back.add_theme_font_size_override("font_size", 14)
 	for i in range(VIEWS.size()):
 		var id: String = VIEWS[i]
 		h._qbutton(h.drawer, "combat_view_" + id, VIEW_NAMES[i], Rect2(x + i * 90, y + 60, 80, 27), func():

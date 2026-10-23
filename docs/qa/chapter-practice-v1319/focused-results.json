@@ -1,0 +1,32 @@
+[
+  {
+    "test": "test_practice_pages.gd",
+    "exit": 0,
+    "wall_s": 0.9673614501953125
+  },
+  {
+    "test": "test_practice_session.gd",
+    "exit": 0,
+    "wall_s": 1.6210618019104004
+  },
+  {
+    "test": "test_practice_host.gd",
+    "exit": 0,
+    "wall_s": 5.9447548389434814
+  },
+  {
+    "test": "test_practice_lifecycle.gd",
+    "exit": 0,
+    "wall_s": 4.627608776092529
+  },
+  {
+    "test": "test_practice_controls_ui.gd",
+    "exit": 0,
+    "wall_s": 4.380666255950928
+  },
+  {
+    "test": "test_campaign_ui.gd",
+    "exit": 0,
+    "wall_s": 7.339293718338013
+  }
+]

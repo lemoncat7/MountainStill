@@ -77,10 +77,16 @@ static func _book_header(h, title:String, subtitle:String, x:float, y:float, wid
 	_rule(h,Vector2(x,y+51),Vector2(x+width,y+51),a,true)
 
 static func build_wardrobe(h, x:float, y:float, _r:Rect2):
+	# Direct links (for example a waiting route opportunity) also supersede the
+	# chapter detour, even when they do not go through the sidebar callbacks.
+	if h.has_meta("chapter_practice_return") and str(h.wardrobe_tab)!="equipment":
+		h.remove_meta("chapter_practice_return")
+		h.set_meta("combat_insight_open",false)
+		h.set_meta("equipment_comparison_open",false)
 	for i in range(TABS.size()):
 		var category:String = TABS[i]
 		_hit(h,"wardrobe_"+category,TAB_NAMES[i],Rect2(x+621,y+65+i*33,29,30),func():
-			h.wardrobe_tab=category;h.set_meta("combat_insight_open",false);h.set_meta("equipment_comparison_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
+				h.wardrobe_tab=category;h.remove_meta("chapter_practice_return");h.set_meta("combat_insight_open",false);h.set_meta("equipment_comparison_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
 	match str(h.wardrobe_tab):
 		"equipment":
 			if EquipmentComparison.is_open(h): EquipmentComparison.build(h,x,y)

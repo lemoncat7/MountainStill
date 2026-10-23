@@ -33,6 +33,12 @@ static func _open(h,book:String):
 	else:h._toggle_drawer(book)
 
 static func navigate(h,kind:String,target:String=""):
+	# An explicit journal destination supersedes our chapter reading detour.
+	# Only clear overlays belonging to that detour; legacy entry behavior stays.
+	if h.has_meta("chapter_practice_return"):
+		h.remove_meta("chapter_practice_return")
+		h.set_meta("combat_insight_open",false)
+		h.set_meta("equipment_comparison_open",false)
 	match kind:
 		"equipment":
 			var chosen:Dictionary={}

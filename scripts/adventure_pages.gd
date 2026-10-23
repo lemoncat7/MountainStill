@@ -128,6 +128,13 @@ static func _guide_recipe(h):
 	h.wardrobe_tab="bag";h.set_meta("bag_view","craft")
 	h.InkPages.inspect_craft(h,id)
 
+static func _open_chapter_enemies(h,id:String,generation:int):
+	# A detached/rapidly clicked control must never replace newer navigation.
+	if h.drawer_name!="wardrobe" or h.wardrobe_tab!="expedition":return
+	if h.drawer_generation!=generation or h.practice_session!=null:return
+	if str(selected_chapter(h).get("id",""))!=id:return
+	h.InkPages.CombatInsight.open_chapter(h,id)
+
 static func build_expedition(h,x:float,y:float):
 	var status:Dictionary=h.state.stage_status()
 	var rows:Array=h.state.stage_rows()
@@ -168,6 +175,11 @@ static func build_expedition(h,x:float,y:float):
 			h.set_meta("expedition_view","route" if str(h.get_meta("expedition_view","route"))=="guide" else "guide");h._refresh_drawer(),_guide_hint(guide),false,guide_open)
 		if guide_open and not str(guide.get("recipe_id","")).is_empty():
 			button(h,"chapter_recipe","查看配方 ↗",Rect2(x+403,y+67,123,26),func():_guide_recipe(h),"百工 · "+str(guide.get("crafting_goal",""))+"\n只翻阅配方；不出发、不换路线、不自动制作。")
+		elif not guide_open:
+			var enemy_chapter:String=str(chosen.get("id",""))
+			var generation:int=h.drawer_generation
+			var enemy_link:Button=button(h,"chapter_enemies","本章敌情 ↗",Rect2(x+403,y+67,123,26),func():_open_chapter_enemies(h,enemy_chapter,generation),"先看本章守灵与应对提示，再自愿镜中试招。\n仅翻页，不出发；试招无消耗、无奖励。未完历练仍须保留或正常结束。")
+			enemy_link.add_theme_font_size_override("font_size",14)
 	if _can_abandon_for_chapter(h,chosen,status):
 		if bool(status.get("corpse_pending",false)):
 			button(h,"abandon_stage","遗物尚未搜取 · 回到「%s」"%str(status.get("name","未完之程")),Rect2(x+225,y+207,379,26),func():_abandon_for_chapter(h),"倒地守灵与搜寻进度保留。先返回原章、亲点继续搜取遗物，再选择另一章；不会重打已击退守灵。",true)

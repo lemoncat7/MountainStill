@@ -1,0 +1,29 @@
+{
+  "baseline": "full-install-candidate/MountainStill",
+  "candidate": "chapter-practice-v1319",
+  "files_compared": 604,
+  "runtime_added": [],
+  "runtime_removed": [],
+  "changed": [
+    "export_presets.cfg",
+    "project.godot",
+    "scripts/adventure_pages.gd",
+    "scripts/combat_insight_pages.gd",
+    "scripts/ink_pages.gd",
+    "scripts/player_journey_pages.gd",
+    "scripts/update_service.gd",
+    "scripts/update_store.gd"
+  ],
+  "updater_only_change": "1.3.18-test.1 \u2192 1.3.19-test.1",
+  "changed_sha256": {
+    "export_presets.cfg": "d1d45b76a653faaa6a4a2e395b5799bf4085019112e4585eab5e140a34b72e7a",
+    "project.godot": "e999492af27ef2b0ff00b7407da53d3ddf47c81bd74276e1ca5400b66755c816",
+    "scripts/adventure_pages.gd": "4de97edf2915e86c36b2f9f599889d4513b9bd81585a817311cff2b11e3b6eec",
+    "scripts/combat_insight_pages.gd": "4b188fe9bbb366bfd7b6964d371395dcc894b94981b0177fc3cf986501d4ab73",
+    "scripts/ink_pages.gd": "86410e458e88834e8f60f79b18a593a3541b731a0aca9d9c9afafed3d864244b",
+    "scripts/player_journey_pages.gd": "5fffe04a6ba2d497e51045e2e2a59127df4d4c339bcec2e6282579db72c1d634",
+    "scripts/update_service.gd": "42e7043837871f4ff24c5c2509b47938ceb4d7338a3189f3aa7ca7da00674506",
+    "scripts/update_store.gd": "fa7c83c25e1cd509ee114054fef065117253ed54420581c92c5ef2c170843c3f"
+  },
+  "native_extensions": []
+}

@@ -1,0 +1,149 @@
+{
+  "chapter-navigation-native-qa/MountainStill": {
+    "checked": 70,
+    "mismatch": []
+  },
+  "chapter-practice-v1319": {
+    "checked": 70,
+    "mismatch": []
+  },
+  "manifest_sha256": "e8eceb1d3ae821d976e106e325c62d20f528270f6362dc0674b9af9e71e353e0",
+  "new": {
+    "native_exit_0": true,
+    "script_error": false,
+    "ui_scale": 1.25,
+    "normal_size": [
+      960,
+      540
+    ],
+    "resource_values": {
+      "qi": 37.3484126984124,
+      "herbs": 3,
+      "dew": 1,
+      "total_victories": 0,
+      "combat_reports": []
+    },
+    "post_trial_adventure_unchanged": true
+  },
+  "unlocked": {
+    "native_exit_0": true,
+    "script_error": false,
+    "ui_scale": 1.25,
+    "normal_size": [
+      960,
+      540
+    ],
+    "resource_values": {
+      "qi": 0.0,
+      "herbs": 3,
+      "dew": 1,
+      "total_victories": 0,
+      "combat_reports": []
+    }
+  },
+  "pending": {
+    "native_exit_0": true,
+    "script_error": false,
+    "ui_scale": 1.25,
+    "normal_size": [
+      960,
+      540
+    ],
+    "resource_values": {
+      "qi": 0.0,
+      "herbs": 3,
+      "dew": 1,
+      "total_victories": 0,
+      "combat_reports": []
+    },
+    "all_save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792749752,
+        "after": 1792749822
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      }
+    ]
+  },
+  "corpse": {
+    "native_exit_0": true,
+    "script_error": false,
+    "ui_scale": 1.25,
+    "normal_size": [
+      960,
+      540
+    ],
+    "resource_values": {
+      "qi": 0.0,
+      "herbs": 3,
+      "dew": 1,
+      "total_victories": 0,
+      "combat_reports": []
+    },
+    "all_save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792749842,
+        "after": 1792749915
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      }
+    ]
+  },
+  "opportunity": {
+    "native_exit_0": true,
+    "script_error": false,
+    "ui_scale": 1.25,
+    "normal_size": [
+      960,
+      540
+    ],
+    "resource_values": {
+      "qi": 0.0,
+      "herbs": 3,
+      "dew": 1,
+      "total_victories": 0,
+      "combat_reports": []
+    },
+    "all_save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792749932,
+        "after": 1792750034
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      },
+      {
+        "path": "/adventure/stage_run/travel_checkpoint",
+        "before": 0,
+        "after": 2
+      }
+    ]
+  },
+  "png_count": 98
+}

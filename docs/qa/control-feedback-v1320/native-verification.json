@@ -1,0 +1,124 @@
+{
+  "manifest_sha256": "cf2740f50c34a788462bed6a286c190d37cce64648e634c25473368e90163bca",
+  "control-feedback-native-qa/MountainStill": {
+    "checked": 70,
+    "mismatch": []
+  },
+  "control-feedback-v1320": {
+    "checked": 70,
+    "mismatch": []
+  },
+  "new": {
+    "exit_0": true,
+    "script_error": false,
+    "save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792753571,
+        "after": 1792753774
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      }
+    ],
+    "adventure_unchanged": true,
+    "reports_unchanged": true,
+    "victories_before_after": [
+      0,
+      0
+    ],
+    "new_metrics_in_save": false,
+    "ui_scale": 1.25
+  },
+  "control": {
+    "exit_0": true,
+    "script_error": false,
+    "save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792753803,
+        "after": 1792754065
+      },
+      {
+        "path": "/settings/height",
+        "before": 540,
+        "after": 400
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      },
+      {
+        "path": "/settings/width",
+        "before": 960,
+        "after": 1200
+      },
+      {
+        "path": "/settings/window_mode",
+        "before": "window",
+        "after": "strip"
+      },
+      {
+        "path": "/settings/window_x",
+        "before": -99999,
+        "after": 82
+      },
+      {
+        "path": "/settings/window_y",
+        "before": -99999,
+        "after": 524
+      }
+    ],
+    "adventure_unchanged": true,
+    "reports_unchanged": true,
+    "victories_before_after": [
+      15,
+      15
+    ],
+    "new_metrics_in_save": false,
+    "ui_scale": 1.25
+  },
+  "legacy": {
+    "exit_0": true,
+    "script_error": false,
+    "save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792754090,
+        "after": 1792754150
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      }
+    ],
+    "adventure_unchanged": true,
+    "reports_unchanged": true,
+    "victories_before_after": [
+      0,
+      0
+    ],
+    "new_metrics_in_save": false,
+    "ui_scale": 1.25
+  },
+  "screenshots": 36
+}

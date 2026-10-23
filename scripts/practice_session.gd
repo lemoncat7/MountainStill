@@ -11,11 +11,15 @@ var _outcome := ""
 var _seed := DEFAULT_SEED
 var _enemy_name := ""
 var _report: Dictionary = {}
+# Practice-only observers. These never alter engine events, state or RNG.
+var _slowed_enemy_actions: Dictionary = {}
+var _interrupted_enemy_contacts: Dictionary = {}
 
 func start(hero: Dictionary, enemy: Dictionary, technique: String = "mist", style: String = "unarmed", run_seed: int = DEFAULT_SEED) -> Dictionary:
 	# Drop the old simulation wholesale, including its RNG, report and callbacks.
 	duel = Duel.new()
 	_started = false; _paused = false; _outcome = ""; _report = {}
+	_slowed_enemy_actions.clear(); _interrupted_enemy_contacts.clear()
 	if hero.is_empty() or enemy.is_empty():
 		return {"ok": false, "reason": "invalid_snapshot"}
 	var snapshot := hero.duplicate(true)
@@ -40,6 +44,7 @@ func advance(delta: float) -> Array[Dictionary]:
 	if not _started or _paused or not _outcome.is_empty() or not is_finite(delta) or delta <= 0.0: return events
 	var allowed := minf(delta, maxf(0.0, MAX_SECONDS - duel.elapsed))
 	events = duel.advance(allowed)
+	_observe_control_events(events)
 	if duel.finished:
 		_finish("victory" if duel.victory else "defeat")
 	elif duel.elapsed >= MAX_SECONDS - .0000001:
@@ -47,6 +52,17 @@ func advance(delta: float) -> Array[Dictionary]:
 		duel.cancel()
 		events.append({"type": "practice_timeout", "time": MAX_SECONDS})
 	return events
+
+func _observe_control_events(events: Array) -> void:
+	if not _started or not _outcome.is_empty(): return
+	for event in events:
+		if not event is Dictionary: continue
+		if str(event.get("type", "")) == "turn_started" and str(event.get("actor", "")) == "enemy" and bool(event.get("slowed", false)):
+			var action_id := str(event.get("action_id", ""))
+			if not action_id.is_empty(): _slowed_enemy_actions[action_id] = true
+		elif str(event.get("type", "")) == "poise_break" and str(event.get("actor", "")) == "hero" and str(event.get("target", "")) == "enemy" and bool(event.get("interrupted", false)):
+			var contact_id := str(event.get("contact_id", ""))
+			if not contact_id.is_empty(): _interrupted_enemy_contacts[contact_id] = true
 
 func pause() -> void:
 	if _started and _outcome.is_empty(): _paused = true
@@ -68,6 +84,8 @@ func _finish(outcome: String) -> void:
 func _snapshot_report() -> Dictionary:
 	var result: Dictionary = duel.combat_report()
 	result.merge({"outcome": _outcome, "practice": true, "seed": _seed,
+		"control_metrics_version": 1, "slowed_enemy_starts": _slowed_enemy_actions.size(),
+		"enemy_action_interrupts": _interrupted_enemy_contacts.size(),
 		"enemy_name": _enemy_name, "stage_name": "镜中试招", "rewarded": false,
 		"notice": "固定种子单次试招，不代表胜率；不消耗历练资源，不获得奖励。"}, true)
 	return result

@@ -54,6 +54,19 @@ static func comparison_text(current: Dictionary, previous: Dictionary) -> String
 	var outcome: String = {"victory": "胜", "defeat": "败", "timeout": "超时"}.get(str(previous.get("outcome", "")), "结束")
 	return "比上次（%s）：%s · %s" % [outcome, pace, hurt]
 
+static func control_summary(report: Dictionary) -> String:
+	var version: Variant = report.get("control_metrics_version")
+	if not (version is int or version is float) or not is_finite(float(version)) or float(version) != 1.0:
+		return "控场统计：未记录"
+	for key in ["slowed_enemy_starts", "enemy_action_interrupts"]:
+		var value: Variant = report.get(key)
+		if not (value is int or value is float) or not is_finite(float(value)) or float(value) < 0.0 or float(value) != floorf(float(value)):
+			return "控场统计：未记录"
+	return "霜滞起手%d · 中断动作%d" % [int(report.slowed_enemy_starts), int(report.enemy_action_interrupts)]
+
+static func control_notes() -> String:
+	return "霜滞：实际影响后续新起手，非施法次数。\n中断：确实中断敌动作，含收势；不等于破势次数、避免命中或节省秒数。\n同一霜滞起手可能随后中断，两项可重叠。\n只记本次固定种子试招，不代表普遍强弱。"
+
 static func build(h, x: float, y: float):
 	var rows := _rows(h)
 	var page := _page(h, rows)
@@ -73,6 +86,8 @@ static func build(h, x: float, y: float):
 			h.toggle_practice_pause(); h._refresh_drawer(), "只暂停镜中试招，不推进山居时间")
 		pause_button.disabled = not running
 		if bool(status.get("finished", false)):
+			h._qbutton(h.drawer, "practice_control_help", "控场说明", Rect2(x + 376, y + 228, 116, 30), func():
+				h._notice("霜滞影响后续起手；中断含收势，不等于避免命中。"), control_notes())
 			h._qbutton(h.drawer, "practice_retry", "同敌再试", Rect2(x + 248, y + 228, 116, 30), func():
 				h.start_practice(str(row.get("id", ""))); h._refresh_drawer(), "同一固定种子、当前合法搭配；不是胜率预测")
 		h._qbutton(h.drawer, "practice_end", "结束试招", Rect2(x + 124, y + 228, 116, 30), func():
@@ -106,6 +121,8 @@ static func draw(h, x: float, y: float, a: float):
 		h.InkPages._txt(h, "%s · %.1f秒 · 固定种子，非胜率" % [label, float(report.get("elapsed", 0.0))], Vector2(x, y + 137), BODY, a, h.InkPages.JADE)
 		h.InkPages._txt(h, "伤害%d · 承伤%d · 治疗%d" % [int(report.get("damage_dealt", 0)), int(report.get("damage_taken", 0)), int(report.get("healing", 0))], Vector2(x, y + 161), BODY, a)
 		h.InkPages._txt(h, "真气消耗%.1f · 气血%d/%d" % [float(report.get("qi_spent", 0.0)), int(report.get("hero_hp", 0)), int(report.get("hero_max_hp", 0))], Vector2(x, y + 185), BODY, a)
+		if bool(status.get("finished", false)):
+			h.InkPages._txt(h, control_summary(report), Vector2(x + 316, y + 185), BODY, a, h.InkPages.JADE)
 		var comparison: String = comparison_text(report, h.practice_comparison) if bool(status.get("finished", false)) else "不获得奖励；完成后可比较同敌的上次试招。"
 		h.InkPages._txt(h, h.InkPages._ellipsis(comparison, 600, BODY), Vector2(x, y + 211), BODY, a, h.InkPages.FADED)
 	else:

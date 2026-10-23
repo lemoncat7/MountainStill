@@ -1,0 +1,47 @@
+[
+  {
+    "test": "test_practice_pages.gd",
+    "exit": 0,
+    "wall_s": 0.8666491508483887
+  },
+  {
+    "test": "test_practice_session.gd",
+    "exit": 0,
+    "wall_s": 1.619025468826294
+  },
+  {
+    "test": "test_practice_host.gd",
+    "exit": 0,
+    "wall_s": 5.934457540512085
+  },
+  {
+    "test": "test_practice_lifecycle.gd",
+    "exit": 0,
+    "wall_s": 4.587111711502075
+  },
+  {
+    "test": "test_practice_controls_ui.gd",
+    "exit": 0,
+    "wall_s": 3.727416753768921
+  },
+  {
+    "test": "test_campaign_ui.gd",
+    "exit": 0,
+    "wall_s": 7.094420909881592
+  },
+  {
+    "test": "test_chapter_practice_navigation.gd",
+    "exit": 0,
+    "wall_s": 6.691240310668945
+  },
+  {
+    "test": "test_combat_report.gd",
+    "exit": 0,
+    "wall_s": 1.2178723812103271
+  },
+  {
+    "test": "test_combat_report_host.gd",
+    "exit": 0,
+    "wall_s": 2.8295705318450928
+  }
+]

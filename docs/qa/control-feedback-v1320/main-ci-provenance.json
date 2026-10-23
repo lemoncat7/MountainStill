@@ -1,0 +1,20 @@
+{
+  "main_sha": "04d556e51d8c86ef5c02c37d146bbb143527cc9d",
+  "tag_check": "publisher authenticated tag refs v1.3.20-test.1 empty on2026-10-23",
+  "files": {
+    ".github/workflows/native-gui-probe.yml": "9009b6dffe8ecff7c05b6f46205bf5f91d9078542b6fe70675b5194b84a882c3",
+    ".github/workflows/native-headless-smoke.yml": "e954a19340cdb4f0588c790fd4fc444d8acdb2116c730e7c5e21b4d35a597fe2",
+    ".github/workflows/native-package-smoke.yml": "a44a474db3118a4728232eeea6ebe320c831e1e2c7cc68ab99a7b8666082e5ef",
+    "NATIVE_GUI_PROBE.md": "fbea1ca2bc369cb2cfb835222cd61be5cf504192951f9eb27e5ad035ce337d44",
+    "NATIVE_PACKAGE_SMOKE.md": "acebff11837692ffdb6e4289c0aae13412af7b3ce1bd90af667495c910b65988",
+    "NATIVE_SMOKE.md": "db9ab528ffbc4b4dafc1850226a2c172d91b63147d87f334a920b332d7f10257",
+    "tests/native_gui_driver_test.py": "69fb9a0e03bef2cc135930bbfcb2f7503f9678cf809382261676e037ae2d2dbf",
+    "tests/native_package_driver_test.py": "d210b4f26dbbe5f1c528905388d6a0636e14d959a99b5781af4cf7de8f43c8aa",
+    "tools/native_gui_capture.ps1": "3a8524366ecedfdb415bd5ab26515d438bc2feecd8e6633138f990228fde49cb",
+    "tools/native_gui_capture.swift": "970923932eb6b44f83a0048ea679a835706c50c528f0d12c4b98dbbc4f3368c7",
+    "tools/native_gui_probe.py": "6b856227807e4ebc87112a9bddcb4381613326d66dfba364fbf2be82deae333f",
+    "tools/native_package_smoke.py": "efcf21aa061db68786a77708d6e549addbcdebb88115ed6d605a12e6e8d992ab",
+    "tools/native_platform_smoke.py": "1c0e0d726e7b109ae73dd1dbc2580b5bfd0c19c8f7dc244108e787c942e154be",
+    "tools/test_native_platform_smoke.py": "43c1fa3225b1380dccfccffad32bfb0e25ba29fd960dde60d00943a450d82379"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "runtime_diff": [
+    "scripts/practice_pages.gd",
+    "scripts/practice_session.gd",
+    "scripts/update_service.gd",
+    "scripts/update_store.gd"
+  ],
+  "version_only": [
+    "scripts/update_service.gd",
+    "scripts/update_store.gd"
+  ],
+  "identical_asset_files": 464,
+  "duel_combat_report_state_unchanged": true
+}

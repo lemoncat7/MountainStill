@@ -156,7 +156,8 @@ static func _build_journal(h,x:float,y:float):
 			var id:String=str(row.id)
 			var claim:Button=h._qbutton(h.drawer,"quest_claim_"+id,"已记" if bool(row.claimed) else ("收下" if bool(row.ready) else "未成"),Rect2(x+325,y+91+i*46,63,30),func():
 				var result:Dictionary=h.state.claim_quest(id)
-				if bool(result.get("ok",false)):h._save_loadout();h._notice("已完成 · "+str(row.name),"loot");h._refresh_drawer(),str(row.description)+" · "+Ink._reward_text(row.get("rewards",{})),bool(row.ready))
+				if bool(result.get("ok",false)):h._save_loadout();h._notice("已完成 · "+str(row.name),"loot");h._refresh_drawer()
+				else:h.CapacityPages.open(h,"quest",{"id":id},str(result.get("reason",""))),str(row.description)+" · "+Ink._reward_text(row.get("rewards",{})),bool(row.ready))
 			claim.disabled=not bool(row.ready) or bool(row.claimed)
 	h._qbutton(h.drawer,"journal_ending","归山终章 ↗",Rect2(x+425,y+238,179,28),func():h.set_meta("ink_journal_tab","ending");h._refresh_drawer(),"查看静修与六章山路的进度；完成后亲手写下结语")
 	h._qbutton(h.drawer,"journal_prev","‹",Rect2(x,y+240,32,26),func():h.set_meta("ink_journal_page",maxi(0,page-1));h._refresh_drawer(),"前一页").disabled=page<=0

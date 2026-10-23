@@ -73,7 +73,7 @@ static func _item_art(h, item:Dictionary, r:Rect2, a:float):
 
 static func _book_header(h, title:String, subtitle:String, x:float, y:float, width:float, a:float):
 	h._text(title,Vector2(x+1,y+40),29,Color(INK,a),BRUSH)
-	_txt(h,subtitle,Vector2(x+111,y+37),10,a,FADED)
+	if not h.CapacityPages.active(h) and h.CapacityPages.held_corpse(h).is_empty():_txt(h,subtitle,Vector2(x+111,y+37),10,a,FADED)
 	_rule(h,Vector2(x,y+51),Vector2(x+width,y+51),a,true)
 
 static func build_wardrobe(h, x:float, y:float, _r:Rect2):
@@ -107,7 +107,7 @@ static func _draw_evasion_summary(h,x:float,y:float,a:float):
 static func _build_equipment(h, x:float, y:float):
 	var compare: Button = h._qbutton(h.drawer,"compare_selected","换装比较 ↗",Rect2(x+178,y+55,151,24),func():EquipmentComparison.open(h),"比较所选物品与当前同部位装备的实际属性和招式条件；不自动穿戴")
 	compare.disabled=h.state.gear.get_item(h.selected_item).is_empty()
-	_hit(h,"evasion_stat","战斗属性",Rect2(x+111,y+9,493,37),func():CombatInsight.open(h),"点开属性来源、战术与最近战报\n"+evasion_hint(h))
+	if not h.CapacityPages.active(h) and h.CapacityPages.held_corpse(h).is_empty():_hit(h,"evasion_stat","战斗属性",Rect2(x+111,y+9,493,37),func():CombatInsight.open(h),"点开属性来源、战术与最近战报\n"+evasion_hint(h))
 	var slots:Array = ["head","chest","legs","feet","weapon"]
 	for i in range(5):
 		var slot:String = slots[i]
@@ -183,13 +183,13 @@ static func draw_wardrobe(h, x:float, y:float, a:float):
 	elif h.wardrobe_tab=="equipment":
 		if EquipmentComparison.is_open(h):
 			_book_header(h,"换 装 比","",x,y,605,a)
-			_txt(h,"当前搭配 → 候选搭配，仅替换同一部位",Vector2(x+111,y+37),12,a,FADED)
+			if not h.CapacityPages.active(h) and h.CapacityPages.held_corpse(h).is_empty():_txt(h,"当前搭配 → 候选搭配，仅替换同一部位",Vector2(x+111,y+37),12,a,FADED)
 		elif CombatInsight.is_open(h):
 			_book_header(h,"交 锋 札","",x,y,605,a)
-			_txt(h,"看清搭配，选择下一场的打法",Vector2(x+111,y+37),12,a,FADED)
+			if not h.CapacityPages.active(h) and h.CapacityPages.held_corpse(h).is_empty():_txt(h,"看清搭配，选择下一场的打法",Vector2(x+111,y+37),12,a,FADED)
 		else:
 			_book_header(h,"行 装 谱","",x,y,605,a)
-			_draw_evasion_summary(h,x,y,a)
+			if not h.CapacityPages.active(h) and h.CapacityPages.held_corpse(h).is_empty():_draw_evasion_summary(h,x,y,a)
 	elif h.wardrobe_tab=="bag":
 		_book_header(h,"百 工 囊","搜寻所得各有去处  ·  合成灵材，制作衣冠，再淬炼随身之物",x,y,605,a)
 	else:

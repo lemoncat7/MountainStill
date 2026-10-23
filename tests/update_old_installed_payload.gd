@@ -15,7 +15,7 @@ func _run() -> void:
 	var old_store_hash := FileAccess.get_sha256("res://scripts/update_store.gd")
 	boot.store.platform = args[1]
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string(args[0].path_join("MountainStill-update.json")))
-	assert(manifest.version == "1.3.13-test.1")
+	assert(manifest.version == "1.3.14-test.1")
 	var record: Dictionary = manifest.packages[args[1]].duplicate()
 	for key in ["schema", "version", "engine", "bootstrap", "save_schema"]: record[key] = manifest[key]
 	record.platform = args[1]
@@ -27,8 +27,8 @@ func _run() -> void:
 	root.add_child(boot)
 	for i in range(90): await process_frame
 	assert(root.get_meta("update_gameplay_ready", false))
-	assert(root.get_meta("update_version") == "1.3.13-test.1")
-	assert(boot.store.current_version() == "1.3.13-test.1")
+	assert(root.get_meta("update_version") == "1.3.14-test.1")
+	assert(boot.store.current_version() == "1.3.14-test.1")
 	assert(boot.store.BUILTIN_VERSION == "1.3.9-test.1")
 	assert(FileAccess.get_sha256("res://scripts/update_bootstrap.gd") == old_boot_hash)
 	assert(FileAccess.get_sha256("res://scripts/update_store.gd") == old_store_hash)
@@ -50,5 +50,5 @@ func _run() -> void:
 		var destination: Rect2 = game.SceneArt.destination_rect(key, Rect2(0, 0, 1040, 280))
 		assert(is_equal_approx(source.size.x / source.size.y, destination.size.x / destination.size.y))
 	assert(ProjectSettings.get_setting("display/window/per_pixel_transparency/allowed"))
-	print("OLD_INSTALLED_UPDATE: ", args[1], " immutable 1.3.9 bootstrap/store -> actual 1.3.13 gameplay, 1440x720, 150% UI, seven original panorama dependencies, uniform source aspect, health commit PASS")
+	print("OLD_INSTALLED_UPDATE: ", args[1], " immutable 1.3.9 bootstrap/store -> actual 1.3.14 gameplay, 1440x720, 150% UI, seven original panorama dependencies, uniform source aspect, health commit PASS")
 	quit()

@@ -99,7 +99,11 @@ func test_capacity():
  check(bool(scene.state.stage_corpse_status().get("pending",false)) and bool(scene.state.stage_corpse_status().get("search_ready",false)),"Retreat retains ready body")
  scene.state.materials.inventory.spirit_shard=0
  scene._start_encounter()
- until(func():return scene.pickup_claimed_at>=0.0,12.0,"Explicit continuation can claim after room is freed")
+ until(func():return scene.encounter_phase=="pickup",6.0,"Explicit continuation returns to retained ready body")
+ advance(.5)
+ check(scene.pickup_claimed_at<0.0,"Ready capacity-blocked body waits for explicit collection after room is freed")
+ page("expedition");press("capacity_return");press("capacity_retry")
+ check(scene.pickup_claimed_at>=0.0,"Explicit collection claims retained body after room is freed")
  check(scene.state.material_count("spirit_shard")==1 and scene.state.material_count("moss_fiber")==2,"Ready body resumes once with original complete payout")
 func test_craft_controls():
  scene._retreat_encounter();until(func():return not scene.encounter_active,6.0,"Return home for controls")

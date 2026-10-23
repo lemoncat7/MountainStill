@@ -31,6 +31,8 @@ const QuietButton = preload("res://scripts/quiet_button.gd")
 const InkHotspot = preload("res://scripts/ink_hotspot.gd")
 const InkPaper = preload("res://scripts/ink_paper.gd")
 const InkPages = preload("res://scripts/ink_pages.gd")
+const CapacityPages = preload("res://scripts/capacity_pages.gd")
+const RewardCapacity = preload("res://scripts/reward_capacity.gd")
 const JournalPages = preload("res://scripts/journal_pages.gd")
 const CharacterSidewalk = preload("res://scripts/character_sidewalk.gd")
 const DuelTimeline = preload("res://scripts/duel_timeline.gd")
@@ -316,7 +318,8 @@ func _setup_dialogs():
 	salvage_dialog.confirmed.connect(func():
 		var result:Dictionary=state.salvage_item(salvage_pending)
 		if result.get("ok",false):selected_item=-1;_notice("已分解，灵草收入行囊。","loot");_save_loadout();_refresh_drawer()
-		else:_notice("未分解：请先卸下装备，或留出灵草空间。"))
+		elif str(result.get("reason",""))=="resource_full":CapacityPages.open(self,"salvage",{"id":salvage_pending},"resource_full")
+		else:_notice("未分解：装备可能已穿戴或不存在，请重新选择。"))
 	add_child(salvage_dialog)
 	for dialog in [tip,reset_dialog,salvage_dialog]:
 		dialog.about_to_popup.connect(func():_animate_dialog_contents(dialog))
@@ -456,6 +459,7 @@ func _toggle_drawer(value:String):
 	_refresh_drawer(true)
 
 func _close_drawer():
+	CapacityPages.clear(self)
 	if practice_session != null: end_practice(); return
 	_record_cue("收册")
 	if drawer_name.is_empty():return
@@ -482,7 +486,7 @@ func _close_drawer():
 
 func _drawer_rect()->Rect2:
 	var page=drawer_name if not drawer_name.is_empty() else drawn_page
-	var width=700.0 if page in ["wardrobe","alchemy","practice"] else (460.0 if page in ["settings","display"] else 390.0)
+	var width=700.0 if page in ["wardrobe","alchemy","practice","capacity"] else (460.0 if page in ["settings","display"] else 390.0)
 	return Rect2(size.x-width-58,20,width,280)
 
 func _refresh_drawer(animated=false):
@@ -503,7 +507,10 @@ func _refresh_drawer(animated=false):
 	panel_last_values=InkPages.state_signature(self)
 	var r=_drawer_rect();var x=r.position.x+24;var y=r.position.y
 	_qbutton(drawer,"drawer_close","合",Rect2(r.end.x-42,y+10,26,26),_close_drawer,"合上书页")
-	if drawer_name=="practice":
+	CapacityPages.build_return(self,x,y)
+	if drawer_name=="capacity":
+		CapacityPages.build(self,x,y)
+	elif drawer_name=="practice":
 		JournalPages.build_practice(self,x,y,r)
 	elif drawer_name=="alchemy":
 		InkPages.build_alchemy(self,x,y,r)
@@ -828,7 +835,9 @@ func _draw_drawer():
 		InkPaper.brush(self,Rect2(p+Vector2(5,interaction_rect.size.y-2),Vector2(maxf(8,interaction_rect.size.x-10)*(1.0-interaction_pulse*.25),1.5)),Color(.56,.25,.17,interaction_pulse*.32*a))
 	var titles={"bag":"随身行囊","settings":"山居小记","desktop":"桌面相伴","display":"窗口与字号"}
 	if titles.has(page):_text(titles[page],Vector2(x,y+39),27,Color(INK,a),BRUSH)
-	if page=="practice":
+	if page=="capacity":
+		CapacityPages.draw(self,x,y,a)
+	elif page=="practice":
 		JournalPages.draw_practice(self,x,y,a)
 	elif page=="alchemy":
 		InkPages.draw_alchemy(self,x,y,a)
@@ -1162,7 +1171,11 @@ func _draw_equipment_drawer(x:float,y:float,a:float):
 func _save_loadout():
 	if not demo and not _save_current():_notice("存档暂时无法写入。")
 
-func _open_treasure():
+func _open_treasure(confirmed: bool = false):
+	if encounter_active and encounter_phase=="fight":_notice("交锋中暂不启封木箱，请待此敌结束。");return
+	var warning: Dictionary=RewardCapacity.chest(state)
+	if not confirmed and (bool(warning.get("equipment_full",false)) or not str(warning.get("resource_warning","")).is_empty()):
+		CapacityPages.open(self,"chest");return
 	var reward:Dictionary=state.open_chest()
 	if not reward.get("ok",false):_notice("暂时没有可开启的木箱。");return
 	chest_time=4.0;chest_reveal_age=0.0
@@ -1175,7 +1188,12 @@ func _accept_reward(reward:Dictionary,source:String):
 		last_loot=item;selected_item=int(item.id);selected_slot=str(item.slot)
 		inventory_page=maxi(0,(state.gear.inventory.size()-1)/3)
 		_notice(source+"所得 · "+str(item.get("name","装备"))+" · 已收入行装","loot")
-	else:_notice(source+"所得 · 灵草与灵露已收好。","loot")
+	else:
+		var detail: String="%s所得 · 灵草 %d · 灵露 %d"%[source,int(reward.get("herbs",0)),int(reward.get("dew",0))]
+		if str(reward.get("reason",""))=="inventory_full":detail+=" · 装备满，已按规则转换"
+		var overflow: Dictionary=reward.get("resource_overflow",{})
+		if int(overflow.get("herbs",0))+int(overflow.get("dew",0))>0:detail+=" · 超额未保留：草%d/露%d"%[int(overflow.get("herbs",0)),int(overflow.get("dew",0))]
+		_notice(detail,"loot")
 	_save_loadout()
 
 func _attack_style()->String:
@@ -1233,7 +1251,13 @@ func _prepare_stage_monster():
 	if not corpse.is_empty():
 		encounter_phase="pickup";enemy_hp=0.0;enemy_defeat=1.0;pickup_status=corpse
 		defeat_enemy_motion={};finish_hero_motion={}
-		_notice("重返原处 · 倒地守灵仍在，搜寻进度已保留。")
+		if bool(corpse.get("search_ready",false)):
+			# A restored completed search may have been capacity-blocked before
+			# saving. Derive a transient hold from existing data, no new schema.
+			set_meta("capacity_corpse_hold",{"run_id":int(corpse.run_id),"monster_index":int(corpse.monster_index),"stage_id":str(corpse.stage_id)})
+			pickup_block_reason="awaiting_claim"
+			_notice("搜寻已满2秒 · 遗物保留；翻开历练册，亲点收取。")
+		else:_notice("重返原处 · 倒地守灵仍在，搜寻进度已保留。")
 		return
 	if bool(status.get("opportunity_pending",false)) and route_distance>=route_opportunity_at-.001:
 		encounter_phase="opportunity"
@@ -1432,15 +1456,23 @@ func _complete_duel():
 	toast_time=0.0
 	_save_loadout();_refresh_drawer()
 
-func _claim_searched_corpse():
+func _claim_searched_corpse(explicit: bool = false):
+	var held: Dictionary=get_meta("capacity_corpse_hold",{})
+	if not explicit and int(held.get("run_id",-1))==encounter_run_id and int(held.get("monster_index",-1))==encounter_index:return
 	var result:Dictionary=state.complete_stage_search(encounter_run_id,encounter_index)
 	if not bool(result.get("ok",false)):
 		var reason:String=str(result.get("reason",""))
 		if reason!=pickup_block_reason:
 			pickup_block_reason=reason
-			_notice("行囊已满 · 搜寻进度保留，腾出空间后收取。" if reason in ["inventory_full","material_full","materials_full","resource_full","chest_full"] else "搜寻收取暂缓 · 进度保留，可归山后继续。")
+			if reason in ["inventory_full","material_full","materials_full","resource_full","chest_full"]:
+				var target: Dictionary={"run_id":encounter_run_id,"monster_index":encounter_index,"stage_id":str(state.stage_status().get("id",""))}
+				set_meta("capacity_corpse_hold",target)
+				_notice(str(RewardCapacity.corpse(state).get("description","容量不足"))+" · 搜寻进度保留，整理后亲点收取。")
+				if not explicit:CapacityPages.open(self,"corpse",target,reason)
+			else:_notice("搜寻收取暂缓 · 进度保留，可归山后继续。")
 		return
 	pickup_block_reason=""
+	set_meta("capacity_corpse_hold",{})
 	encounter_reward=result;pickup_claimed_at=encounter_phase_age;pickup_burst=1.0
 	encounter_first_clear=bool(result.get("first_clear",false));encounter_chapter_reward=result.get("chapter_reward",{})
 	encounter_chapter_reward.recipe_unlocks=result.get("recipe_unlocks",[])
@@ -2056,7 +2088,7 @@ func _draw_search_feedback(feet:Vector2,p:Vector2):
 		var status_plate:=Rect2(p+Vector2(146,-32),Vector2(174,31))
 		InkPaper.paint(self,status_plate,.89,"leaf",1.0)
 		var label:String="搜寻 %.1f / 2.0秒"%float(pickup_status.get("search_seconds",0.0)) if searching else "已倒地 · 走近搜寻"
-		if not pickup_block_reason.is_empty():label="行囊已满 · 进度保留"
+		if not pickup_block_reason.is_empty():label="已搜满 · 册中亲点收取"
 		_text(label,status_plate.position+Vector2(9,16),10,Color("586e52"),SANS)
 		if searching:
 			draw_line(status_plate.position+Vector2(9,24),status_plate.position+Vector2(164,24),Color(.43,.52,.38,.20),2,true)
@@ -2091,6 +2123,7 @@ func _capture_now():
 	get_viewport().get_texture().get_image().save_png(ProjectSettings.globalize_path("res://builds/MountainStill-equipment-preview.png"))
 
 func _reset_presentation():
+	CapacityPages.clear(self);set_meta("capacity_corpse_hold",{})
 	set_meta("ink_journal_tab","guide");set_meta("ink_stage_id","bamboo_pass");set_meta("ink_stage_page",0);set_meta("ink_guide_step",1);set_meta("expedition_view","route")
 	battle_resources={};hero_support_text="";hero_support_time=0.0
 	if is_instance_valid(character_preview):character_preview.cast_time=0.0

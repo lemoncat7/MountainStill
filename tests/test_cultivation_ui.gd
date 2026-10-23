@@ -230,6 +230,8 @@ func run() -> void:
 	check(not scene.state.gear.get_item(6).is_empty() and scene.state.herbs == State.MAX_RESOURCE, "A capped resource balance preserves the item instead of wasting its value")
 	check("未分解" in scene.toast, "Rejected salvage provides visible feedback")
 	scene.state.herbs = salvage_herbs + salvage_value
+	check(scene.drawer_name == "capacity", "Capped salvage opens precise capacity guidance")
+	press("capacity_cancel") # Return only; decomposition still needs a fresh explicit confirmation.
 	press("salvage_item")
 	scene.salvage_dialog.get_ok_button().pressed.emit()
 	await process_frame
@@ -251,6 +253,9 @@ func run() -> void:
 	var dew_before: int = scene.state.dew
 	press("wardrobe_adventure")
 	press("open_chest")
+	check(scene.drawer_name == "capacity" and scene.state.chest_count == 1, "Full-bag chest warns before consuming")
+	check(scene.state.herbs == herbs_before and scene.state.dew == dew_before, "Full-bag warning grants nothing automatically")
+	press("capacity_retry") # Explicitly accept the disclosed existing conversion for one box.
 	check(scene.state.gear.inventory.size() == Ledger.CAPACITY, "Full-bag chest keeps exactly the capacity of owned items")
 	check(scene.state.gear.equipped == full_worn, "Full-bag reward cannot evict worn equipment")
 	check(scene.state.herbs == herbs_before + 5 and scene.state.dew == dew_before + 1, "Full-bag gear converts safely to resources")

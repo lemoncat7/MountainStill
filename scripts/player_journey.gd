@@ -114,7 +114,7 @@ static func status(s) -> Dictionary:
 		final.complete = true
 		return final
 	if not chapter.pending_rewards.is_empty():
-		return _goal("pending_reward", "收下已得的首通心意", "此章已经通关，首通赠礼尚未入袋。", "腾出行囊或资源空间后再领取；不会丢失，也不会因为反复打开书页重复发放。", "查看首通心意", "route", String(chapter.pending_rewards[0]), "growth")
+		return _goal("pending_reward", "收下已得的首通心意", "此章已经通关，首通赠礼尚未入袋。", ("领取前需整理："+preload("res://scripts/reward_capacity.gd").chapter(s,String(chapter.pending_rewards[0])).description+"。到首通心意页查看，奖励保留。") if preload("res://scripts/reward_capacity.gd").chapter(s,String(chapter.pending_rewards[0])).blocked else "首通心意需亲点领取；不会因翻页重复发放。", "查看首通心意", "route", String(chapter.pending_rewards[0]), "growth")
 	if bool(chapter.story_resolved):
 		if s.realm < s.MAX_REALM: return _breakthrough(s, "home", "六印已齐，将本程所得修为逐阶化入境界，归真后回家落笔。")
 		return _goal("epilogue", "亲写归山终章", "六印与归真齐备，这一卷由你亲手结束。", "写下终章后仍可培养、收藏、游历和重访旧路。它不会开启新付费内容或自动出发。", "翻阅归山终章", "ending", "", "home", "六章皆通 · 十六阶圆满")

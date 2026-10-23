@@ -180,7 +180,7 @@ static func build_expedition(h,x:float,y:float):
 		button(h,"chapter_reward","收下本章首通心意",Rect2(x+225,y+207,379,26),func():
 			var result:Dictionary=h.state.claim_chapter_reward(str(selected_chapter(h).get("id","")))
 			if bool(result.get("ok",false)):h._save_loadout();h._notice("首通心意已收入行囊。","loot");h._refresh_drawer()
-			else:h._notice("行囊暂满；整理一些草露或木箱后再来，奖励会保留。"),"背包满时保留首通奖励；可以稍后领取",true)
+			else:h.CapacityPages.open(h,"chapter",{"id":str(selected_chapter(h).get("id",""))},str(result.get("reason",""))),"背包满时保留首通奖励；可以稍后领取",true)
 	elif bool(chapter_status(h).get("story_resolved",false)):
 		button(h,"chapter_ending","翻阅归山终章 ↗",Rect2(x+225,y+207,379,26),func():h.set_meta("ink_journal_tab","ending");h._toggle_drawer("practice"),"六章之后，回望这一路；归真后可亲手写下结语",true)
 	if str(h.get_meta("expedition_view","route"))=="opportunity" and not opportunity.is_empty():
@@ -193,7 +193,7 @@ static func build_expedition(h,x:float,y:float):
 				if bool(result.get("ok",false)):
 					h._save_loadout();h._notice(str(result.get("name","这一段山缘"))+" · "+h.InkPages._reward_text(result.get("rewards",{})).replace("灵气",str(opportunity.get("energy_name","灵气"))),"loot");h.set_meta("expedition_view","route");h._refresh_drawer()
 					if h.encounter_phase=="opportunity":h._close_drawer()
-				elif str(result.get("reason",""))=="resource_full":h._notice("行囊暂满，整理后再来。机缘会一直保留。"),str(choice.get("description",""))+" · "+h.InkPages._reward_text(choice.get("rewards",{})).replace("灵气",str(opportunity.get("energy_name","灵气"))),true)
+				elif str(result.get("reason",""))=="resource_full":h.CapacityPages.open(h,"opportunity",{"id":id,"run_id":int(opportunity.get("run_id",-1)),"stage_id":str(opportunity.get("stage_id",""))},"resource_full"),str(choice.get("description",""))+" · "+h.InkPages._reward_text(choice.get("rewards",{})).replace("灵气",str(opportunity.get("energy_name","灵气"))),true)
 		if is_instance_valid(h.buttons.get("expedition_opportunity")):h.buttons.expedition_opportunity.visible=false
 
 static func draw_expedition(h,x:float,y:float,a:float):

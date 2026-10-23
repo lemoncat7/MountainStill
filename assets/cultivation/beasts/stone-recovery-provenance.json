@@ -1,0 +1,40 @@
+{
+  "source": "sources/creek-bridge-boss-settle-original.png",
+  "sha256": "47954c0d03050e0c1ebfb2b0b515740ab13c81bd1ff10d576462705e90b58abf",
+  "crop": [
+    208,
+    308,
+    1144,
+    1152
+  ],
+  "scale": 0.20260663507109006,
+  "size": [
+    190,
+    171
+  ],
+  "placement": [
+    33,
+    61
+  ],
+  "canvas": [
+    256,
+    256
+  ],
+  "purpose": "Approved limited stone-boss recovery keypose; independently inspected in static registration and native stepped/live motion.",
+  "operations": [
+    "rectangular crop",
+    "uniform LANCZOS resize",
+    "transparent canvas placement"
+  ],
+  "runtime": "creek_bridge_boss_settle.png",
+  "ground_anchor": [
+    121,
+    232
+  ],
+  "generator": "OpenAI built-in image_gen",
+  "approval_scope": "One boss recovery keypose only; old attack-to-recovery head shift remains; not continuous skeletal animation.",
+  "review": "Independent native static and stepped animation review; original art untouched.",
+  "pipeline": "tools/prepare_stone_recovery.py",
+  "prompt": "Edit original creek_bridge_boss_idle only: tiny left-front stone fist lift to a relaxed chest-height bent-elbow post-punch settling pose; retain squat compact torso, short legs, crouched stance, original foot positions, face/head size, jade mane, reeds, stone patterns, outline/detail. No body elongation or redesign. Original visible height171px/head calibration55px. Same square sprite padding, baseline232/256, transparent background. No ring/glow/text/new objects.",
+  "prompt_kind": "faithful brief summary of final built-in edit request"
+}

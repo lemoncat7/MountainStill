@@ -210,6 +210,11 @@ func sample_enemy_motion(action: Dictionary, phase: Dictionary, clock: float, mo
 		elif name == "contact": impact = 1.0
 		elif name == "recovery": impact = 1.0-smoothstep(0.0,1.0,p)
 		pose_key = "windup" if name == "windup" else ("attack" if name in ["strike","contact"] or (name == "recovery" and p < 0.34) else "idle")
+		# A painted bent-elbow beat before lowering the arm. The same source
+		# key is consumed by drawing AND pixel-exact contact geometry. This is
+		# discrete keypose recovery, not a renderer-only blend or a new clock.
+		if _species == "river_stone" and bool(enemy.get("boss",false)) and name == "recovery" and p >= 0.34 and p < 0.78:
+			pose_key = "settle"
 		offset.x = -maxf(0.0,float(motion.get("actor_lunge",0.0))-float(motion_state.get("hero_lunge",0.0))*0.42)
 		if authored:
 			var sampled := sample_body_pose(action,phase,clock)
@@ -274,6 +279,10 @@ func sample_enemy_motion(action: Dictionary, phase: Dictionary, clock: float, mo
 	elif name == "recovery":
 		clearance_weights["attack"] = 1.0-smoothstep(0.34,0.60,p)
 		clearance_weights["idle"] = smoothstep(0.12,0.34,p)
+		if _species == "river_stone" and bool(enemy.get("boss",false)) and not interrupted and not action.is_empty() and not bool(motion_state.get("finished",false)):
+			# Reserve the adjacent painted stance, while the visible/current
+			# settle key itself always has full weight throughout its hold.
+			clearance_weights["settle"] = smoothstep(0.20,0.34,p) if p < 0.34 else 1.0-smoothstep(0.78,0.92,p)
 	motion.clearance_weights = clearance_weights
 	motion.merge({"visual_offset":offset,"visual_rotation":rotation,"visual_scale":Vector2.ONE,"pose_key":pose_key,
 		"effect_kind":effect,"effect_progress":amount,"effect_radius":34.0 if bool(enemy.get("boss",false)) else 22.0},true)

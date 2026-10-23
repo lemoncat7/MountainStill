@@ -721,6 +721,27 @@
         128,
         232
       ]
+    },
+    "creek_bridge_boss_settle": {
+      "alpha_bbox": [
+        33,
+        61,
+        223,
+        232
+      ],
+      "head_landmark": [
+        58,
+        113,
+        117,
+        164
+      ],
+      "head_diameter": 54.85435,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        121,
+        232
+      ],
+      "calibration_basis": "Idle body-height import; static +7px sole registration; native key-pose review. Legacy face/contact window retained, not a newly measured full skull."
     }
   }
 }

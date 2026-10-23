@@ -2,7 +2,7 @@ extends Node
 ## Downloads only. UpdateStore/UI must explicitly activate staged content.
 const Policy = preload("res://scripts/update_policy.gd")
 const RateLimit = preload("res://scripts/update_rate_limit.gd")
-const CURRENT_VERSION = "1.3.17-test.1"
+const CURRENT_VERSION = "1.3.18-test.1"
 const ROOT = "user://updates/"
 const PART = ROOT + "download.part"
 const PENDING = ROOT + "pending.json"
@@ -44,6 +44,9 @@ func _ready() -> void:
 		channel = "testing" if preferences.get_value("updates", "channel", "stable") == "testing" else "stable"
 	_cooldown_timer = Timer.new()
 	_cooldown_timer.one_shot = true
+	# Quota deadlines use monotonic real time, independent of gameplay pause/speed.
+	_cooldown_timer.ignore_time_scale = true
+	_cooldown_timer.process_mode = Node.PROCESS_MODE_ALWAYS
 	_cooldown_timer.timeout.connect(_cooldown_expired)
 	add_child(_cooldown_timer)
 	_restore_cooldown()
@@ -432,8 +435,11 @@ func _restore_cooldown() -> void:
 
 func _cooldown_expired() -> void:
 	# One shot only: expiration re-enables a manual retry; it never sends a request.
-	if rate_limit_remaining() > 0:
-		_cooldown_timer.start(rate_limit_remaining())
+	var remaining_msec = _cooldown_until_msec - _ticks_msec()
+	if remaining_msec > 0:
+		# Display rounds up to seconds; scheduling must not add a whole second
+		# when a frame wakes just before the monotonic deadline.
+		_cooldown_timer.start(maxf(0.001, float(remaining_msec) / 1000.0))
 		return
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(COOLDOWN))
 	if status == _cooldown_notice:

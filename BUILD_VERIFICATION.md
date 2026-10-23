@@ -1,3 +1,27 @@
+# v1.3.18-test.1 构建验证
+
+本轮仅限流到期提示Timer精度小修。601项运行时/资源/config对v17逐项比较，仅Service、Store版本、project版本、export版本4项不同；战斗、美术、UI、Bootstrap、Guard、Policy、限流解析器均不变。完整包内容优先选择仍只是发布目录之外的设计，不属于本轮代码。
+
+## 本轮源码与独立验证
+- 主实现1169文件freeze与实际构建字节匹配；Service SHA256 `9e8cdb4cc3cc83cfecf3012e74ff2b8488424f94efcb0a6c24d6efd6491878d4`。
+- 定时器以实际剩余毫秒重排，忽略游戏time_scale并在暂停期间运行。7ms/1ms提前回调仍拦截请求，不提前放行、不自动请求。主源码deadline19项通过，HTTP67、Service47、Store41、Policy160、解析55及界面/代理/Guard等相关检查通过；测试夹具初次未导入字体/复用脏目录的失败记录保留，修夹具后重跑，没有降低产品保护。
+- 独立审查48项与真实HTTP两进程重开通过；正常/暂停/0.1/0倍速提前150ms唤醒后仍等至截止，所观察延迟7–8ms仅该独立headless夹具，不是全局承诺。
+- 独立原生Linux/XFCE llvmpipe、Dummy audio实际游戏GUI：自然42922ms、403+暂停31ms、0.1倍速19ms；注入7/1ms重排精确0.007/0.001秒、画面观察30/32ms。960×540及实际F2条带1200×400/125%、三页帮助与旧能力mock说明完整可用，正常保存退出。GUI不代替真实旧安装链；本轮GUI未复测慢下载取消或持久重启，后者由下述实际包测试补足。
+
+## 最终实际发行载荷
+- 全新导出Windows x86_64/macOS universal，67脚本/109依赖路径逐项当前。601运行时/资源/config SHA贯穿导出与封包。空项目加载实际Win EXE内载荷和Mac ZIP内PCK，无源码fallback；336活动资源、retract/settle两图256²/import remap/ctex/sole锚及各8次实际CanvasItem绘制通过。
+- 两平台实际包直接执行deadline测试各19/19：Win自然/暂停/慢速延迟8/8/14ms，Mac8/14/7ms。额外实际包内Service localhost HTTP各67/0、两独立进程恢复等待/连点抑制通过，production Policy/Guard校验manifest/SHA/大小/ABI1/schema4通过。真实传输仅在外部测试fixture映射localhost，不冒充GitHub公网。
+- 两平台实际包收势contract22851/0、石灵机制3239/0、奖励228/19、装备153/UI12166/cache5、容量67/693/7238、正常bootstrap与注入确认失败暂停/释放安全路径均通过。这不是重新跑全部游戏平衡矩阵，也不抹除既有两条summit节奏失败或性能预算限制。
+- 旧公开v1.3.10/v1.3.17各Windows/macOS原载荷，普通存档与100装备首通待领/已搜满尸体两场景、每例两次启动，共16次mixed启动通过；原bootstrap/store及内建版本不变。gear、战术/报告、容量失败原子性、显式整理/领取、尸体hold跨保存重启及不重复领奖均通过。v10正确显示完整安装需求；v17保留其已安装限流能力，但PCK不会升级旧Service的Timer精度。
+- 完整v18+既有合法v17 active PCK，两平台各两次启动通过：gameplay仍v17，active不被擅自清除，gear/战术/存档保留；实际新Service在树暂停+0.1游戏速度下13ms早醒重排、截止前拦截、到期无新增请求通过，游戏实例实测延迟30/30/31/32ms。不能宣传始终1ms或7ms响应；界面仍受帧调度影响。
+- 原main `1ebc8363fb0b04ec9d3fc374d28070a93d56f025` 的8个CI文件按SHA保留，CI固定v17，不证明v18原生包已跑。最终三ZIP逐成员路径/CRC/原始字节敏感扫描、源码与601hash/CI8核对和七资产SHA清单由最终封包检查完成。
+
+## 安装与证据边界
+仅完整安装包更新受保护Service；已有v16/v17玩家无需为此提示精度每版重装。旧gameplay PCK兼容，存档目录/ABI/schema不变。没有实现sidecar/完整包优先选择。尚未声称原生Windows/macOS GUI/GPU/DPI/签名公证、全局性能或正式版稳定性通过；公网链及发布后原生CI须另有真实证据。
+
+---
+## 以下为历史v17（及其继承v16）记录，不作为v18新跑证据
+
 # v1.3.17-test.1 测试包验证（最终行为候选B）
 
 - 基于v16 clean源码，保留main5916171全部8个CI文件；其原生CI固定v16，不是v17实包证明。

@@ -59,7 +59,9 @@ func run():
 	service.check_updates()
 	await settle(service)
 	var before = service._generation
-	await create_timer(2.15).timeout
+	var expiry_deadline = Time.get_ticks_msec() + 4000
+	while not service.status.contains("等待已结束") and Time.get_ticks_msec() < expiry_deadline:
+		await process_frame
 	check(service.rate_limit_remaining() == 0 and service._generation == before, "expiry never auto requests")
 	check(service.status.contains("等待已结束"), "expiry makes retry understandable")
 	service.fixture_mode = "valid"

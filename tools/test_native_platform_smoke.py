@@ -32,12 +32,13 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_eight_tests_preserve_previous_coverage(self):
+    def test_nine_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
             'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
+            'test_practice_control_contribution.gd',
         })
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
@@ -50,6 +51,20 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
             self.assertIsNone(re.fullmatch(pattern, line), line)
         self.assertTrue(smoke.unexpected_errors(
             'ERROR: navigation failed', 'test_chapter_practice_navigation.gd'))
+
+
+class ControlContributionMarkerTests(unittest.TestCase):
+    def test_control_marker_requires_positive_checks_and_zero_failures(self):
+        pattern = smoke.TESTS['test_practice_control_contribution.gd']
+        self.assertIsNotNone(re.fullmatch(pattern,
+            'Practice control contribution: 4973 checks, 0 failures'))
+        for line in ('', 'Practice control contribution: 0 checks, 0 failures',
+                     'Practice control contribution: 4973 checks, 1 failures',
+                     'Practice control contribution: 4973 checks, 0 failures EXTRA'):
+            self.assertIsNone(re.fullmatch(pattern, line), line)
+        self.assertTrue(smoke.unexpected_errors(
+            'ERROR: CONTROL CONTRIBUTION: bad delta',
+            'test_practice_control_contribution.gd'))
 
 
 if __name__ == '__main__':

@@ -131,13 +131,14 @@ def session(binary,root,inputroot,label,processes,interactive=False):
                     captures.append((path,result))
                 # Formal pause is an offline legal setting; do not toggle it here.
                 event('Click',ClientX=268,ClientY=514)
-                capture('arrival-guide',(202,20,700,280))
+                capture('arrival-guide',(202,20,700,140))
                 event('Key',Key='I')
                 event('Click',ClientX=583,ClientY=47)
                 event('Click',ClientX=536,ClientY=94)
                 event('Click',ClientX=292,ClientY=263)
                 event('Key',Key='Space')  # Session-only pause, requires visual review.
-                capture('mirror-practice',(0,0,960,540))
+                capture('mirror-controls',(16,10,700,72))
+                capture('mirror-combat',(300,300,400,240))
                 event('Key',Key='Esc')
                 event('Key',Key='G')     # Ignored by practice: final save establishes return.
             else:
@@ -214,7 +215,7 @@ def main():
             for path,metadata in captures:budget-=gui.frame_png(path,budget)
             if result['failure']:raise RuntimeError(result['failure'])
             if assertions:raise RuntimeError('SAVE_ASSERTIONS_FAILED: '+repr(assertions))
-            if len(captures)!=2:raise RuntimeError('MISSING_REQUIRED_SCREENSHOTS')
+            if len(captures)!=3:raise RuntimeError('MISSING_REQUIRED_SCREENSHOTS')
             status='INPUT_OBSERVED_REQUIRES_INDEPENDENT_IMAGE_REVIEW'
     except Exception as exception:
         error=type(exception).__name__+': '+str(exception)

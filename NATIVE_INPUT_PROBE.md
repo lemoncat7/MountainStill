@@ -35,9 +35,12 @@ belong to the exact window. SendInput down/up uses one packet; inserted counts
 alone do not establish game callbacks. Helpers are precompiled once in immediate
 owned RUNNER_TEMP child; DLLs/PNG paths reject aliases/reparse/preexisting output.
 
-Two native-pixel UI crops retain complete source coordinates/window metadata:
-guide(202,20,700,280), actualtrial(0,0,960,540). No resize or unrelated full desktop.
-Combined PNG cap1MiB; reject over limit. Parent independent hash/size+visual review
+Three native-pixel UI crops retain complete source coordinates/window metadata:
+guide header(202,20,700,140), trial controls/label(16,10,700,72),
+trial character/enemy/ground(300,300,400,240). No resize or unrelated full desktop.
+The three raw32bpp pixel buffers total977600bytes (+452scanline filters);
+PNG/deflate overhead remains well below the1MiB ceiling. Original first-run
+fullguide remains separate evidence, not silently replaced. Combined PNG cap1MiB; reject over limit. Parent independent hash/size+visual review
 is mandatory. No screenshot is user-facing by default.
 
 Each game process retains43s work/45s close-request/55s hard owned-stop bounds;

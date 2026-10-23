@@ -63,6 +63,16 @@ class InputContract(unittest.TestCase):
         self.assertEqual(command[command.index('-TargetPid')+1],'42')
         self.assertEqual(command[command.index('-WindowId')+1],'33')
         self.assertEqual(command[command.index('-ClientX')+1],'20')
+    def test_original_pixel_crop_payload_budget(self):
+        import inspect
+        rois=[(202,20,700,140),(16,10,700,72),(300,300,400,240)]
+        raw=sum(w*h*4+h for x,y,w,h in rois)
+        self.assertEqual(raw,978052)
+        self.assertLess(raw+3*8192,probe.gui.PNG_BUDGET)
+        for x,y,w,h in rois:
+            self.assertLessEqual(x+w,960);self.assertLessEqual(y+h,540)
+            self.assertIn(str((x,y,w,h)).replace(' ',''),inspect.getsource(probe.session))
+        self.assertIn("len(captures)!=3",inspect.getsource(probe.main))
     def test_command_own_window(self):
         c=probe.input_command(Path('/tmp/owned'),42,'Key',33,Key='G')
         self.assertIn('-WindowId',c);self.assertIn('33',c);self.assertIn(str(Path('/tmp/owned')/'input.dll'),c)
@@ -113,7 +123,7 @@ class IndependentFailurePaths(unittest.TestCase):
                 self.assertEqual(result['close']['status'],'CLOSE_REQUEST_SENT')
                 self.assertLess(result['elapsed_seconds'],45)
                 if delivered:
-                    self.assertIsNone(result['failure']);self.assertEqual(len(captures),2)
+                    self.assertIsNone(result['failure']);self.assertEqual(len(captures),3)
                 else:
                     self.assertIn('INPUT_ENVIRONMENT_UNAVAILABLE',result['failure']);self.assertEqual(captures,[])
                 probe.read_save.assert_not_called()

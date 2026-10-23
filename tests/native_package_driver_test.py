@@ -4,7 +4,9 @@ import io
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import native_package_smoke as smoke
@@ -22,7 +24,24 @@ class DriverSafety(unittest.TestCase):
 
     def test_reject_unsafe_names(self):
         for name in ('../evil', '/abs', 'C:/evil', 'a\\b', 'a/../b', './b', 'a//b', 'CON.txt', 'x. /b', 'x./b'):
-            with self.subTest(name=name), self.archive(name) as bundle:
+            # ZipInfo normalizes OS-native separators on Windows at construction
+            # and on read. Inject the exact metadata string after construction so
+            # this unit test actually exercises the rejected spelling on every OS.
+            info = zipfile.ZipInfo('placeholder')
+            info.filename = name
+            info.file_size = 1
+            bundle = SimpleNamespace(infolist=lambda: [info])
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                smoke.safe_members(bundle)
+
+    def test_windows_separator_normalization_still_rejects_traversal(self):
+        # Exercise zipfile's Windows-specific canonicalization even on Linux.
+        with patch('zipfile.os.sep', '\\'):
+            with self.archive('a\\b') as bundle:
+                self.assertEqual(bundle.infolist()[0].filename, 'a/b')
+                self.assertEqual(len(smoke.safe_members(bundle)), 1)
+            with self.archive('..\\evil') as bundle:
+                self.assertEqual(bundle.infolist()[0].filename, '../evil')
                 with self.assertRaises(ValueError):
                     smoke.safe_members(bundle)
 

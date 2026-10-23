@@ -30,9 +30,9 @@ func _initialize():
  prewarm_checks()
  var stone = module("river_stone",true)
  for kind in ["charge","sweep","burst"]:
-  for p in [-1.0,0.0,.199,.2,.339999,.34,.340001,.5,.779999,.78,.780001,.92,1.0,2.0]:
+  for p in [-1.0,0.0,.199,.2,.339999,.34,.340001,.5,.559999,.56,.560001,.65,.779999,.78,.780001,.92,1.0,2.0]:
    var motion := sample(stone,kind,p)
-   var expected := "attack" if p < .34 else ("settle" if p < .78 else "idle")
+   var expected := "attack" if p < .20 else ("retract" if p < .34 else ("settle" if p < .78 else "idle"))
    check(motion.pose_key == expected,"boss %s %.6f pose"%[kind,p])
    check(is_equal_approx(float(motion.clearance_weights[expected]),1.0),"visible key full clearance")
    check(motion.visual_scale == Vector2.ONE,"no anatomy scaling")
@@ -54,10 +54,10 @@ func _initialize():
     for p in [.339999,.34,.5,.779999,.78,1.0]:
      var motion := sample(other,kind,p)
      check(motion.pose_key == ("attack" if p < .34 else "idle"),"other species/normal unchanged")
-     check(not motion.clearance_weights.has("settle"),"no other settle clearance")
+     check(not motion.clearance_weights.has("settle") and not motion.clearance_weights.has("retract"),"no other optional recovery clearance")
  var action:Dictionary = stone.definition().moves.charge.duplicate(true)
  action.kind = "charge"
- var phase := {"name":"recovery","progress":.5,"index":0}
+ var phase := {"name":"recovery","progress":.65,"index":0}
  var state := {"motion":{"actor_lunge":4.0,"nested":{"sentinel":[1,2]}},"hero_lunge":2.0}
  var before := [action.duplicate(true),phase.duplicate(true),state.duplicate(true)]
  var a:Dictionary = stone.sample_enemy_motion(action,phase,10.,state)
@@ -67,6 +67,7 @@ func _initialize():
  var empty:Dictionary = stone.sample_enemy_motion({},phase,10.,{})
  check(empty.pose_key == "idle" and not empty.clearance_weights.has("settle"),"empty action cannot enable settle")
  geometry_checks(a)
+ geometry_checks(sample(stone,"charge",.27),"creek_bridge_boss_retract",115.)
  var rotated := a.duplicate(true)
  rotated.visual_rotation = -.045
  rotated.visual_offset = Vector2(-17.,2.)
@@ -74,17 +75,17 @@ func _initialize():
  terminal_checks()
  print("Stone recovery contract: %d checks, %d failures"%[checks,failures])
  quit(1 if failures else 0)
-func geometry_checks(motion:Dictionary)->void:
+func geometry_checks(motion:Dictionary,key:String=KEY,anchor_x:float=121.)->void:
  var definition := {"route_id":"creek_bridge","boss":true,"engagement_distance":128.,"feet_y_delta":3.}
  var data:Dictionary = Geometry._body_data(motion,definition)
- check(data.key == KEY,"geometry uses actual settle image, not idle fallback")
- var expected:Rect2 = Beast.draw_rect(KEY,Vector2(256,256),174.)
+ check(data.key == key,"geometry uses actual settle image, not idle fallback")
+ var expected:Rect2 = Beast.draw_rect(key,Vector2(256,256),174.)
  check(data.rect == expected,"renderer/geometry rect identical")
- var anchor:Array = Beast.landmarks(KEY).ground_anchor
- check(float(anchor[0]) == 121.0 and float(anchor[1]) == 232.0,"reviewed sole registration")
- check(data.rect.position.is_equal_approx(-Vector2(121,232)*174./256.),"registration applied exactly")
+ var anchor:Array = Beast.landmarks(key).ground_anchor
+ check(float(anchor[0]) == anchor_x and float(anchor[1]) == 232.0,"reviewed sole registration")
+ check(data.rect.position.is_equal_approx(-Vector2(anchor_x,232)*174./256.),"registration applied exactly")
  check(not data.articulated,"single painted source not mesh")
- check(data.pixel_mask_key == KEY+"|alpha","separate source mask identity")
+ check(data.pixel_mask_key == key+"|alpha","separate source mask identity")
  var idle:Dictionary = Geometry._body_data({"pose_key":"idle"},definition)
  check(idle.key != data.key and idle.pixel_mask_key != data.pixel_mask_key,"idle/settle caches cannot alias")
  var again:Dictionary = Geometry._body_data(motion,definition)
@@ -103,37 +104,38 @@ func geometry_checks(motion:Dictionary)->void:
    if solid and not found:
     probe.point = world
     var measured:Dictionary = Geometry.measure({"strike_provider":probe},motion,definition)
-    check(measured.contact and measured.enemy_pose == KEY,"real contact measure hits settle source")
+    check(measured.contact and measured.enemy_pose == key,"real contact measure hits settle source")
     found = true
  check(found,"settle has hittable source pixels")
  var sources:Array = Geometry._clearance_sources(motion,definition)
  var current := false
  for item in sources:
-  if item.data.key == KEY:
+  if item.data.key == key:
    current = true
    check(is_equal_approx(item.weight,1.0),"actual visible geometry fully reserved")
  check(current,"clearance includes actual settle source")
 
 func terminal_checks()->void:
- for defeated in ["hero","enemy"]:
-  var duel = Duel.new()
-  var hero := {"hp":10000,"max_hp":10000,"attack":2,"defense":1,"battle_resources":{"qi":0.0},"active_skills":[],"passive_methods":[],"weapon_skill":{}}
-  var enemy := {"hp":10000,"max_hp":10000,"attack":2,"defense":1,"boss":true,"route_id":"creek_bridge","engagement_distance":120.0,"dodge_chance":0.0,"guard_chance":0.0}
-  duel.start(hero,enemy,"mist","unarmed",377)
-  var saw_settle := false
-  for frame in range(1200):
-   duel.advance(.025)
-   if duel.pose().enemy.get("pose_key","") == "settle":
-    saw_settle = true
-    break
-  check(saw_settle,"real timeline reaches reviewed settle before terminal test")
-  # Force only HP for a deterministic terminal boundary; normal advance owns
-  # completion and normal pose sampling must suppress the active recovery.
-  if defeated == "hero": duel.hero_hp = 0
-  else: duel.enemy_hp = 0
-  duel.advance(3.0)
-  check(duel.finished,"real timeline processes "+defeated+" death")
-  check(duel.pose().enemy.pose_key != "settle","finished real timeline cannot start/retain recovery")
+ for recovery_key in ["retract","settle"]:
+  for defeated in ["hero","enemy"]:
+   var duel = Duel.new()
+   var hero := {"hp":10000,"max_hp":10000,"attack":2,"defense":1,"battle_resources":{"qi":0.0},"active_skills":[],"passive_methods":[],"weapon_skill":{}}
+   var enemy := {"hp":10000,"max_hp":10000,"attack":2,"defense":1,"boss":true,"route_id":"creek_bridge","engagement_distance":120.0,"dodge_chance":0.0,"guard_chance":0.0}
+   duel.start(hero,enemy,"mist","unarmed",377)
+   var saw_settle := false
+   for frame in range(1200):
+    duel.advance(.025)
+    if duel.pose().enemy.get("pose_key","") == recovery_key:
+     saw_settle = true
+     break
+   check(saw_settle,"real timeline reaches reviewed recovery key before terminal test")
+   # Force only HP for a deterministic terminal boundary; normal advance owns
+   # completion and normal pose sampling must suppress the active recovery.
+   if defeated == "hero": duel.hero_hp = 0
+   else: duel.enemy_hp = 0
+   duel.advance(3.0)
+   check(duel.finished,"real timeline processes "+defeated+" death")
+   check(duel.pose().enemy.pose_key not in ["retract","settle"],"finished real timeline cannot start/retain recovery")
 
 func prewarm_checks()->void:
  # Run first, so another contact test cannot satisfy a missing prewarm.
@@ -145,6 +147,8 @@ func prewarm_checks()->void:
  check(not Geometry._source_records.has(KEY+"|sprite"),"normal prewarm does not introduce boss settle")
  check(not Geometry._source_records.has("creek_bridge_settle|sprite"),"normal prewarm does not request absent normal settle")
  check(not Geometry._images.has(KEY),"normal prewarm does not load boss settle image")
+ check(not Geometry._images.has("creek_bridge_boss_retract"),"normal prewarm does not load boss retract")
+ check(not Geometry._source_records.has("creek_bridge_retract|sprite"),"normal prewarm does not request absent retract")
  var boss := {"route_id":"creek_bridge","boss":true,"engagement_distance":128.}
  var before := boss.duplicate(true)
  Geometry.prewarm(boss)
@@ -153,6 +157,8 @@ func prewarm_checks()->void:
  check(Geometry._images.has(KEY),"boss prewarm caches settle image")
  check(Geometry._front_rows.has(KEY),"boss prewarm compiles settle alpha rows")
  check(Geometry._source_records[KEY+"|sprite"].key == KEY,"prewarmed key is real settle not fallback")
+ check(Geometry._source_records.has("creek_bridge_boss_retract|sprite"),"boss prewarm compiles retract source")
+ check(Geometry._images.has("creek_bridge_boss_retract"),"boss prewarm caches retract image")
  var count := Geometry._source_records.size()
  Geometry.prewarm(boss)
  check(Geometry._source_records.size() == count,"repeat prewarm reuses immutable source")

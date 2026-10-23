@@ -24,7 +24,7 @@ func _init() -> void:
 	var hash = FileAccess.get_sha256(pack)
 	var target = store.directory.path_join(hash + ".pck")
 	DirAccess.rename_absolute(pack, target)
-	var record = {"schema":1,"version":"1.3.16-test.2","engine":"4.6.3","platform":"windows","kind":"pck","asset":"MountainStill-windows.pck","size":FileAccess.get_file_as_bytes(target).size(),"sha256":hash,"restart_required":true,"save_schema":4,"bootstrap":1,"path":target}
+	var record = {"schema":1,"version":"1.3.17-test.2","engine":"4.6.3","platform":"windows","kind":"pck","asset":"MountainStill-windows.pck","size":FileAccess.get_file_as_bytes(target).size(),"sha256":hash,"restart_required":true,"save_schema":4,"bootstrap":1,"path":target}
 	check(store.validate(record), "valid pack")
 	for field in ["engine", "platform", "kind", "sha256", "path", "version", "save_schema", "bootstrap", "schema", "restart_required", "size"]:
 		var bad = record.duplicate(); bad[field] = "invalid"
@@ -35,7 +35,7 @@ func _init() -> void:
 	check(store.pending().is_empty(), "pending consumed")
 	check(not store.activate_pending(), "double activation refused")
 	check(store.startup().get("sha256") == hash, "first restart selects update")
-	check(store.current_version() == "1.3.16-test.2", "running version")
+	check(store.current_version() == "1.3.17-test.2", "running version")
 	put(store.save_path, "new save"); put(store.save_path + ".bak", "new backup")
 	var snapshot_prefix = str(store._read("previous.json").snapshot.prefix)
 	put(store.directory.path_join("recovered-newer-" + snapshot_prefix + ".tmp"), "interrupted partial copy")

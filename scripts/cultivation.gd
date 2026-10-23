@@ -268,7 +268,7 @@ func _ready():
 		if ResourceLoader.exists(panorama_path):route_panoramas[id]=load(panorama_path)
 		var scroll_path="res://assets/cultivation/routes/"+id+"_scroll.png"
 		if ResourceLoader.exists(scroll_path):route_scroll_assets[id]=load(scroll_path)
-		for pose in ["idle","windup","attack","boss_idle","boss_windup","boss_attack","boss_settle"]:
+		for pose in ["idle","windup","attack","boss_idle","boss_windup","boss_attack","boss_retract","boss_settle"]:
 			var beast_path="res://assets/cultivation/beasts/"+id+"_"+pose+".png"
 			if ResourceLoader.exists(beast_path):beast_assets[id+"_"+pose]=load(beast_path)
 	if ResourceLoader.exists("res://assets/cultivation/routes/bamboo_pass_panorama.png"):bamboo_panorama=load("res://assets/cultivation/routes/bamboo_pass_panorama.png")

@@ -23,7 +23,8 @@ static func prewarm(definition:Dictionary)->void:
  var route:=str(definition.get("route_id","bamboo_pass"))
  # Compile the optional stone-boss recovery source before its first visible
  # frame/clearance preview, rather than paying the cold alpha scan mid-fight.
- if route=="creek_bridge" and bool(definition.get("boss",false)):_body_data({"pose_key":"settle"},definition)
+ if route=="creek_bridge" and bool(definition.get("boss",false)):
+  for key in ["retract","settle"]:_body_data({"pose_key":key},definition)
  var authored_samples:Array=[]
  if route=="bamboo_pass":authored_samples=[["moss_pounce","windup",.5,0.0],["moss_pounce","strike",.5,0.0],["moss_pounce","contact",0.0,0.0],["moss_slam","windup",.8,0.0],["moss_rush","strike",.5,1.0],["moss_rush","strike",.5,-1.0]]
  elif route=="cloud_slope":authored_samples=[["crane_peck","windup",.5,0.0],["crane_peck","contact",0.0,0.0],["crane_sweep","windup",.5,0.0],["crane_sweep","contact",0.0,0.0],["crane_dive","windup",.8,0.0],["crane_dive","contact",0.0,0.0]]

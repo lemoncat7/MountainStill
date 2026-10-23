@@ -742,6 +742,27 @@
         232
       ],
       "calibration_basis": "Idle body-height import; static +7px sole registration; native key-pose review. Legacy face/contact window retained, not a newly measured full skull."
+    },
+    "creek_bridge_boss_retract": {
+      "alpha_bbox": [
+        11,
+        61,
+        245,
+        232
+      ],
+      "head_landmark": [
+        76,
+        118,
+        135,
+        169
+      ],
+      "head_diameter": 54.85435,
+      "reference_head_diameter": 54.85435,
+      "ground_anchor": [
+        115,
+        232
+      ],
+      "calibration_basis": "Uniform171px-body import; independent native identity/proportion/step review. Ground x115 fits BOTH sole midpoint interpolation, not head-only correction. Head window follows legacy face/upper-contact-region semantics, NOT whole-skull measurement."
     }
   }
 }

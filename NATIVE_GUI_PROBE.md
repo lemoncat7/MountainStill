@@ -15,10 +15,9 @@ The default new userdata directory is atomically claimed; any pre-existing path
 blocks launch. Only owned synthetic userdata is removed. Auto-update network
 checking is disabled via normal user preference to retain the pinned app.
 
-Launch arguments: `--verbose --max-fps 60 --quit-after 1800`. This is graphical,
+Launch arguments: `--verbose --max-fps 60 --quit-after 600`. This is graphical,
 not headless or simulated fixed FPS. Collect startup/renderer logs, visible
-PID-owned window geometry and actual DPI/scale, then native-pixel crops at about
-5 and 12 seconds. Termination begins at 55 seconds with up to four seconds reserved for kill/reap (60-second budget); terminate only our launched process
+PID-owned window geometry and actual DPI/scale, then full visible native-pixel window/client captures. First capture follows a late-resource load hint by two seconds, or falls back at 30 seconds; the second follows eight seconds later, at most 45 seconds. A resource hint is NOT proof of rendering. The lower 600 physical-frame quit budget allows normal exit on slower runners without simulated FPS. Termination begins at 55 seconds with up to four seconds reserved for kill/reap (60-second budget); terminate only our launched process
 (tree on Windows). Normal `--quit-after` exit is **not** UI-close validation.
 
 Windows: read input desktop; local helper thread DPI context; GDI BitBlt
@@ -28,9 +27,8 @@ uses ScreenCaptureKit display capture. A negative preflight stops capture and
 never requests permission. Capture includes the display, not an isolated window
 alpha image. Read-only display/window inspection; no System Events commands.
 
-Images are at most two unscaled native-pixel application-top-left crops,
-720 x 480 maximum each. Combined PNG bytes must be <= 1 MiB. Oversize captures
-are rejected, never downsampled. This may omit UI; do not infer full visibility.
+Images are at most two unscaled native-pixel captures of the entire visible application client area (Windows) or window (macOS), intersected with the desktop/display. Metadata says whether the full area is onscreen. A 16-million-pixel allocation limit rejects abnormal geometry. Combined PNG bytes must be <= 1 MiB. Oversize captures
+are rejected, never downsampled. Offscreen portions may still be omitted; do not infer full visibility when the metadata says clipped.
 Logs contain framed base64, 4000 characters per data line:
 `BEGIN_GUI_PNG <name> <bytes> <sha256>` ... `END_GUI_PNG <name>`.
 Use only this disposable synthetic public-app runner; not a personal desktop.
@@ -58,7 +56,7 @@ signed/notarized installation, or formal-release readiness.
 ## Local verification and next gate
 `python tests/native_gui_driver_test.py` checks framing budget, pin, launch args,
 permission-contract structure and guard rejection outside disposable CI.
-Python compile tests are offline only. Windows C#/PowerShell and Apple Swift/
+Python compile tests are offline only. First real run 39920191118 compiled all helpers and captured five images, but ALL platforms remained inconclusive: Windows cropped out the main scene, macOS captured splash, all reached the deadline. These deficiencies motivated full-area/later capture; that revised behavior still requires another real run. Windows C#/PowerShell and Apple Swift/
 ScreenCaptureKit compilation and runtime remain unverified until actual runners.
 No GUI evidence is manufactured from Linux/headless tests.
 Official API context: GitHub hosted runner and billing docs; Microsoft
@@ -66,3 +64,14 @@ BitBlt / GetDpiForWindow; Apple ScreenCaptureKit,
 CGPreflightScreenCaptureAccess and NSScreen.backingScaleFactor.
 
 Implementation note: managed CopyFromScreen rejects combined SourceCopy/CaptureBlt flags; direct BitBlt preserves layered-window capture without security changes.
+
+## Diagnostic preservation (revision 2)
+Logs include launch PID, window owner PID, termination/reap details, first16k
+and last24k game-log characters. The first run did not establish a child-process
+mismatch. Owned userdata deletion retries only the exact PermissionError-failing
+operation; it never recreates/adopts an ownership marker after partial deletion.
+Cleanup diagnostics are a separate result field, never replace primary failures.
+Only exact WASAPI startup errors attributed to the WASAPI source are treated as
+an audio environment limitation when the log explicitly reports automatic dummy
+fallback. Other errors remain application/engine failures requiring triage.
+The engine's automatic ANGLE/dummy fallback is recorded, never forced by flags.

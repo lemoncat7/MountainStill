@@ -18,6 +18,9 @@ public class GuiProbe {
  [DllImport("user32.dll")] public static extern IntPtr OpenInputDesktop(uint flags, bool inherit, uint access);
  [DllImport("user32.dll")] public static extern bool CloseDesktop(IntPtr h);
  [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr value);
+ [DllImport("user32.dll")] public static extern bool GetClientRect(IntPtr h, out Rect r);
+ [DllImport("user32.dll")] public static extern bool ClientToScreen(IntPtr h, ref Point p);
+ public struct Point { public int X, Y; }
  public struct Rect { public int Left, Top, Right, Bottom; }
  public static IntPtr Find(uint wanted) {
   IntPtr found = IntPtr.Zero;
@@ -38,7 +41,13 @@ try {
  if ($h -eq [IntPtr]::Zero) { @{status='CAPTURE_INCONCLUSIVE';reason='no_visible_pid_window'} | ConvertTo-Json -Compress; exit 0 }
  $r = New-Object GuiProbe+Rect
  [void][GuiProbe]::GetWindowRect($h,[ref]$r)
- $w = [Math]::Min(720,$r.Right-$r.Left); $height = [Math]::Min(480,$r.Bottom-$r.Top)
+ $client = New-Object GuiProbe+Rect
+ $origin = New-Object GuiProbe+Point
+ if (-not [GuiProbe]::GetClientRect($h,[ref]$client) -or -not [GuiProbe]::ClientToScreen($h,[ref]$origin)) { throw 'Client geometry unavailable' }
+ $full = New-Object System.Drawing.Rectangle($origin.X,$origin.Y,($client.Right-$client.Left),($client.Bottom-$client.Top))
+ $area = [System.Drawing.Rectangle]::Intersect($full,[System.Windows.Forms.SystemInformation]::VirtualScreen)
+ $w = $area.Width; $height = $area.Height
+ if ($w -le 0 -or $height -le 0 -or $w*$height -gt 16000000) { throw 'Unsafe or empty capture dimensions' }
  $bitmap = New-Object System.Drawing.Bitmap($w,$height)
  $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
  try {
@@ -48,7 +57,7 @@ try {
   $dest = [IntPtr]::Zero
   try {
    $dest = $graphics.GetHdc()
-   if (-not [GuiProbe]::BitBlt($dest,0,0,$w,$height,$source,$r.Left,$r.Top,0x40CC0020)) { throw 'Composited desktop BitBlt failed' }
+   if (-not [GuiProbe]::BitBlt($dest,0,0,$w,$height,$source,$area.X,$area.Y,0x40CC0020)) { throw 'Composited desktop BitBlt failed' }
   } finally {
    if ($dest -ne [IntPtr]::Zero) { $graphics.ReleaseHdc($dest) }
    [void][GuiProbe]::ReleaseDC([IntPtr]::Zero,$source)
@@ -56,5 +65,5 @@ try {
   $bitmap.Save($OutputPath,[System.Drawing.Imaging.ImageFormat]::Png)
  } finally { $graphics.Dispose(); $bitmap.Dispose() }
  $screens = @([System.Windows.Forms.Screen]::AllScreens | ForEach-Object { @{x=$_.Bounds.X;y=$_.Bounds.Y;width=$_.Bounds.Width;height=$_.Bounds.Height;primary=$_.Primary} })
- @{status='CAPTURE_READY';screens=$screens;window_width=($r.Right-$r.Left);window_height=($r.Bottom-$r.Top);dpi=[GuiProbe]::GetDpiForWindow($h);pixel_width=$w;pixel_height=$height;session_id=(Get-Process -Id $TargetPid).SessionId;capture='composited desktop native-pixel top-left application crop'} | ConvertTo-Json -Compress
+ @{status='CAPTURE_READY';screens=$screens;owner_pid=$TargetPid;client_width=$full.Width;client_height=$full.Height;client_fully_onscreen=($area -eq $full);window_width=($r.Right-$r.Left);window_height=($r.Bottom-$r.Top);dpi=[GuiProbe]::GetDpiForWindow($h);pixel_width=$w;pixel_height=$height;session_id=(Get-Process -Id $TargetPid).SessionId;capture='composited desktop full visible client area, native pixels'} | ConvertTo-Json -Compress
 } catch { @{status='CAPTURE_INCONCLUSIVE';reason=$_.Exception.Message} | ConvertTo-Json -Compress }

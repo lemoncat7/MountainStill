@@ -21,7 +21,10 @@ import ScreenCaptureKit
       // Capture composited DISPLAY, not isolated window; native-pixel bounded crop.
       let area = window.frame.intersection(display.frame)
       let scale = CGFloat(display.width) / display.frame.width
-      let width = min(area.width, 720 / scale), height = min(area.height, 480 / scale)
+      let width = area.width, height = area.height
+      guard width * height * scale * scale <= 16000000 else {
+        report(["status":"CAPTURE_INCONCLUSIVE", "reason":"capture_dimensions_exceed_safety_limit"]); return
+      }
       let rect = CGRect(x:area.minX - display.frame.minX, y:area.minY - display.frame.minY, width:width, height:height)
       let config = SCStreamConfiguration()
       config.sourceRect = rect
@@ -32,10 +35,10 @@ import ScreenCaptureKit
       let bitmap = NSBitmapImageRep(cgImage:image)
       guard let data = bitmap.representation(using:.png, properties:[:]) else { throw NSError(domain:"png", code:1) }
       try data.write(to:URL(fileURLWithPath:output), options:.atomic)
-      report(["status":"CAPTURE_READY", "screens":screens, "window_id":window.windowID,
+      report(["status":"CAPTURE_READY", "screens":screens, "window_id":window.windowID, "owner_pid":pid, "window_fully_onscreen":area == window.frame,
         "window_width_points":window.frame.width, "window_height_points":window.frame.height,
         "display_scale":scale,"pixel_width":image.width,"pixel_height":image.height,
-        "capture":"composited display native-pixel top-left application crop"])
+        "capture":"composited display full visible window, native pixels"])
     } catch { report(["status":"CAPTURE_INCONCLUSIVE", "reason":String(describing:error)]) }
   }
   static func report(_ object:[String:Any]) {

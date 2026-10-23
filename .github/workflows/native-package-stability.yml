@@ -1,0 +1,48 @@
+name: Native v20 package stability precheck
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: native-v20-package-stability
+  cancel-in-progress: false
+
+jobs:
+  native-stability:
+    if: github.repository == 'lemoncat7/MountainStill' && github.event.repository.private == false
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2025
+            python: python
+          - runner: macos-15
+            python: python3
+          - runner: macos-15-intel
+            python: python3
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Fetch exact public source without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init source
+          git -C source -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Offline safety and stability driver contracts
+        run: |
+          ${{ matrix.python }} source/tests/native_package_driver_test.py
+          ${{ matrix.python }} source/tests/native_process_metrics_test.py
+          ${{ matrix.python }} source/tests/native_package_stability_test.py
+      - name: Pinned actual package twenty-minute lifecycle observation
+        run: ${{ matrix.python }} source/tools/native_package_stability.py

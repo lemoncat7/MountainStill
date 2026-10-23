@@ -119,16 +119,113 @@ import Foundation
       throw Failure("input_state_uncertain_after_down; stopped_without_up: " + ((error as? Failure)?.message ?? String(describing:error)))
     }
   }
+  // CG is top-origin; AppKit hit-test is bottom-origin. Do not flip the event.
+  static func appKitHitPoint(cgPoint: CGPoint, cgBounds: CGRect, appKitBounds: CGRect) throws -> CGPoint {
+    let values = [cgPoint.x,cgPoint.y,cgBounds.minX,cgBounds.minY,cgBounds.width,cgBounds.height,
+      appKitBounds.minX,appKitBounds.minY,appKitBounds.width,appKitBounds.height,appKitBounds.maxY]
+    guard values.allSatisfy({ $0.isFinite && $0 == $0.rounded() }),
+      cgBounds.origin == .zero, appKitBounds.origin == .zero,
+      cgBounds.width > 0, cgBounds.height > 0, cgBounds.size == appKitBounds.size,
+      cgPoint.x >= 0, cgPoint.y >= 0, cgPoint.x < cgBounds.width, cgPoint.y < cgBounds.height else {
+      throw Failure("unknown_or_nonintegral_single_screen_coordinate_mapping")
+    }
+    return CGPoint(x:cgPoint.x,y:appKitBounds.maxY-cgPoint.y)
+  }
+  static func coordinateSelfTests() throws {
+    let small = CGRect(x:0,y:0,width:1024,height:768)
+    let large = CGRect(x:0,y:0,width:1920,height:1080)
+    guard try appKitHitPoint(cgPoint:CGPoint(x:280,y:583),cgBounds:small,appKitBounds:small) == CGPoint(x:280,y:185),
+      try appKitHitPoint(cgPoint:CGPoint(x:280,y:583),cgBounds:large,appKitBounds:large) == CGPoint(x:280,y:497) else {
+      throw Failure("coordinate_positive_selftest_failed")
+    }
+    let cases: [(CGPoint,CGRect,CGRect)] = [
+      (CGPoint(x:280,y:583),CGRect(x:1,y:0,width:1024,height:768),small),
+      (CGPoint(x:280,y:583),small,CGRect(x:0,y:1,width:1024,height:768)),
+      (CGPoint(x:280,y:583),small,large),
+      (CGPoint(x:CGFloat.nan,y:583),small,small),
+      (CGPoint(x:280,y:583),small,CGRect(x:0,y:0,width:1024,height:CGFloat.nan)),
+      (CGPoint(x:-1,y:583),small,small),
+      (CGPoint(x:1024,y:583),small,small),
+      (CGPoint(x:280,y:768),small,small),
+      (CGPoint(x:280.5,y:583),small,small)
+    ]
+    for item in cases {
+      do {
+        _ = try appKitHitPoint(cgPoint:item.0,cgBounds:item.1,appKitBounds:item.2)
+      } catch { continue }
+      throw Failure("coordinate_negative_selftest_failed")
+    }
+  }
+  @MainActor static func sessionHitGuard(_ target: Target, point: CGPoint, diagnostics: inout [String:Any]) throws -> [String:Any] {
+    try validate(target)
+    guard NSScreen.screens.count == 1, let screen = NSScreen.screens.first,
+      screen.backingScaleFactor == 1, target.client.contains(point),
+      (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == target.display.displayID else {
+      throw Failure("session_click_requires_one_verified_scale1_screen_and_client_point")
+    }
+    let appKitPoint = try appKitHitPoint(cgPoint:point,cgBounds:CGDisplayBounds(target.display.displayID),appKitBounds:screen.frame)
+    guard screen.frame.origin == .zero,
+      target.display.frame == CGRect(origin:.zero,size:screen.frame.size) else {
+      throw Failure("unknown_screen_origin_or_display_size")
+    }
+    let hit = NSWindow.windowNumber(at:appKitPoint,belowWindowWithWindowNumber:0)
+    diagnostics["hit_window_id"]=hit
+    diagnostics["hit_point_appkit"]=[appKitPoint.x,appKitPoint.y]
+    diagnostics["click_screen"]=[point.x,point.y]
+    let entries = CGWindowListCopyWindowInfo([.optionOnScreenOnly],kCGNullWindowID) as? [[String:Any]] ?? []
+    let matches = entries.filter { ($0[kCGWindowNumber as String] as? NSNumber)?.intValue == hit }
+    if let owner = matches.first?[kCGWindowOwnerPID as String] as? NSNumber { diagnostics["hit_owner_pid"]=owner.int32Value }
+    else { diagnostics["hit_owner_pid"]=NSNull() }
+    guard hit > 0, hit == Int(target.id) else { throw Failure("interactive_hit_target_not_owned_window") }
+    guard matches.count == 1,
+      (matches[0][kCGWindowOwnerPID as String] as? NSNumber)?.int32Value == target.pid else {
+      throw Failure("interactive_hit_owner_pid_unconfirmed")
+    }
+    return ["hit_window_id":hit,"hit_owner_pid":target.pid,
+      "hit_point_appkit":[appKitPoint.x,appKitPoint.y],"click_screen":[point.x,point.y],
+      "hit_test":"NSWindow.windowNumber(at:belowWindowWithWindowNumber:0)",
+      "hit_test_is_momentary_not_delivery_guarantee":true]
+  }
+  @MainActor static func guideClickSession(_ args:[String:String], target:Target,
+      posted: inout Int, diagnostics: inout [String:Any]) throws {
+    guard try number(args,"ClientX") == 268, try number(args,"ClientY") == 514 else {
+      throw Failure("only_arrival_guide_client_point_268_514_allowed")
+    }
+    let point = CGPoint(x:target.client.minX+268,y:target.client.minY+514)
+    guard let move = CGEvent(mouseEventSource:nil,mouseType:.mouseMoved,mouseCursorPosition:point,mouseButton:.left),
+      let down = CGEvent(mouseEventSource:nil,mouseType:.leftMouseDown,mouseCursorPosition:point,mouseButton:.left),
+      let up = CGEvent(mouseEventSource:nil,mouseType:.leftMouseUp,mouseCursorPosition:point,mouseButton:.left) else {
+      throw Failure("session_mouse_event_creation_failed")
+    }
+    move.flags=[];down.flags=[];up.flags=[]
+    down.setIntegerValueField(.mouseEventClickState,value:1)
+    up.setIntegerValueField(.mouseEventClickState,value:1)
+    diagnostics["route"]="cgSessionEventTap"
+    diagnostics["click_client"]=[268,514]
+    diagnostics["atomic_pair"]=false
+    for event in [move,down,up] {
+      // Up must not reject our own down. Ownership/preflight/hit guards still apply.
+      if posted < 2 { try idleInput() }
+      let hit = try sessionHitGuard(target,point:point,diagnostics:&diagnostics)
+      diagnostics.merge(hit) { _,new in new }
+      event.post(tap:.cgSessionEventTap)
+      posted += 1
+      diagnostics["posted_events"]=posted
+    }
+  }
   @MainActor static func main() async {
     var action = "unknown"
+    var sessionPosted = 0
+    var sessionDiagnostics: [String:Any] = [:]
     do {
       try officialRunner()
       let args = try arguments()
       action = args["Action"] ?? ""
-      guard ["Preflight","Inspect","Key","Click","Capture"].contains(action) else { throw Failure("action_not_allowlisted") }
+      guard ["Preflight","Inspect","Key","Click","Capture","GuideClickSession"].contains(action) else { throw Failure("action_not_allowlisted") }
       try permissions()
       if action == "Preflight" {
-        report(["status":"PREFLIGHT_READY","post_event_access":true,"screen_capture_access":true,"permission_requested":false,"input_posted":false]); return
+        try coordinateSelfTests()
+        report(["status":"PREFLIGHT_READY","post_event_access":true,"screen_capture_access":true,"permission_requested":false,"input_posted":false,"coordinate_selftests_passed":true,"coordinate_selftests_positive":2,"coordinate_selftests_negative":9]); return
       }
       let t = try await target(args)
       try validate(t,requireForeground:false)
@@ -138,7 +235,11 @@ import Foundation
       }
       try validate(t)
       var result:[String:Any] = ["status":"INSPECT_READY","action":action,"owner_pid":t.pid,"window_id":t.id,"outer_frame":array(t.outer),"client_frame":array(t.client),"client_to_screen":[t.client.minX,t.client.minY],"client_geometry_source":"derived_from_SCouter_plus_offline_saved_client","client_geometry_is_os_direct":false,"title_height_points":t.outer.height-540,"coordinate_units":"points_equal_native_pixels_at_scale1","coordinate_origin":"global_top_left","backing_scale":t.scale,"foreground_owned":true,"permission_requested":false,"input_delivery_does_not_prove_callback":true]
-      if action == "Key" {
+      if action == "GuideClickSession" {
+        try guideClickSession(args,target:t,posted:&sessionPosted,diagnostics:&sessionDiagnostics)
+        result.merge(sessionDiagnostics) { _,new in new }
+        result["status"]="INPUT_SENT"
+      } else if action == "Key" {
         let keys:[String:CGKeyCode] = ["I":34,"G":5,"Space":49,"Esc":53]
         guard let name = args["Key"], let code = keys[name], let down = CGEvent(keyboardEventSource:nil,virtualKey:code,keyDown:true), let up = CGEvent(keyboardEventSource:nil,virtualKey:code,keyDown:false) else { throw Failure("invalid_key_or_event") }
         down.flags=[];up.flags=[]
@@ -174,7 +275,13 @@ import Foundation
       }
       report(result)
     } catch {
-      report(["status":"INPUT_UNAVAILABLE","action":action,"reason":(error as? Failure)?.message ?? String(describing:error),"retry_allowed":false,"input_state_uncertain":((error as? Failure)?.message ?? "").hasPrefix("input_state_uncertain_after_down")])
+      var failure: [String:Any] = ["status":"INPUT_UNAVAILABLE","action":action,"reason":(error as? Failure)?.message ?? String(describing:error),"retry_allowed":false,"input_state_uncertain":((error as? Failure)?.message ?? "").hasPrefix("input_state_uncertain_after_down") || (action == "GuideClickSession" && sessionPosted == 2)]
+      if action == "GuideClickSession" {
+        failure.merge(sessionDiagnostics) { _,new in new }
+        failure["posted_events"]=sessionPosted
+        failure["route"]="cgSessionEventTap"
+      }
+      report(failure)
     }
   }
   static func report(_ value:[String:Any]) {

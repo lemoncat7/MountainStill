@@ -77,10 +77,13 @@ def formal_projection(saved):
             if k not in ('settings','saved_at','arrival_seen','activity')}
 
 
-def final_assertions(before, after):
+def final_assertions(before, after, guide_only=False):
     errors=[]
     if before.get('arrival_seen') is not False or after.get('arrival_seen') is not True:errors.append('arrival_seen_not_false_to_true')
-    if before.get('activity')!='meditate' or after.get('activity')!='gather':errors.append('formal_return_G_not_persisted')
+    if guide_only:
+        if after.get('activity')!=before.get('activity'):errors.append('guide_changed_formal_activity')
+        if after.get('settings')!=before.get('settings'):errors.append('guide_changed_settings')
+    elif before.get('activity')!='meditate' or after.get('activity')!='gather':errors.append('formal_return_G_not_persisted')
     if after.get('settings',{}).get('paused') is not True:errors.append('formal_pause_not_preserved')
     if formal_projection(before)!=formal_projection(after):errors.append('formal_gameplay_changed_while_paused')
     return errors
@@ -115,7 +118,7 @@ def same_input_target(reference, result, pid):
             and result.get('foreground_owned') is True)
 
 
-def session(binary,root,inputroot,label,processes,interactive=False):
+def session(binary,root,inputroot,label,processes,interactive=False,guide_only=False):
     process=None;pty_log=None;started=time.monotonic();captures=[];events=[];geometry={};close={};failure=None;forced=False
     logfile=root/(label+'.log')
     def elapsed():return time.monotonic()-started
@@ -155,6 +158,7 @@ def session(binary,root,inputroot,label,processes,interactive=False):
                     result=helper(input_command(inputroot,process.pid,action,window,macos=sys.platform=='darwin',**kw),2)
                     events.append(result);emit('NATIVE_INPUT_EVENT',result)
                     if result.get('status')!='INPUT_SENT' or not same_input_target(inspect,result,process.pid):raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: '+str(result.get('reason','input target changed or not confirmed')))
+                    if guide_only and (result.get('action')!='GuideClickSession' or result.get('route')!='cgSessionEventTap' or result.get('posted_events')!=3 or result.get('hit_window_id')!=window or result.get('hit_owner_pid')!=process.pid):raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: session route hit confirmation missing')
                     time.sleep(1.0)
                 def capture(name,roi):
                     path=inputroot/(name+'.png')
@@ -164,17 +168,18 @@ def session(binary,root,inputroot,label,processes,interactive=False):
                     if result.get('status')!='CAPTURE_READY' or not same_input_target(inspect,result,process.pid):raise RuntimeError('CAPTURE_UNAVAILABLE_OR_TARGET_CHANGED')
                     captures.append((path,result))
                 # Formal pause is an offline legal setting; do not toggle it here.
-                event('Click',ClientX=268,ClientY=514)
+                event('GuideClickSession' if guide_only else 'Click',ClientX=268,ClientY=514)
                 capture('arrival-guide',(202,20,700,140))
-                event('Key',Key='I')
-                event('Click',ClientX=583,ClientY=47)
-                event('Click',ClientX=536,ClientY=94)
-                event('Click',ClientX=292,ClientY=263)
-                event('Key',Key='Space')  # Session-only pause, requires visual review.
-                capture('mirror-controls',(16,10,700,72))
-                capture('mirror-combat',(300,300,400,240))
-                event('Key',Key='Esc')
-                event('Key',Key='G')     # Ignored by practice: final save establishes return.
+                if not guide_only:
+                    event('Key',Key='I')
+                    event('Click',ClientX=583,ClientY=47)
+                    event('Click',ClientX=536,ClientY=94)
+                    event('Click',ClientX=292,ClientY=263)
+                    event('Key',Key='Space')  # Session-only pause, requires visual review.
+                    capture('mirror-controls',(16,10,700,72))
+                    capture('mirror-combat',(300,300,400,240))
+                    event('Key',Key='Esc')
+                    event('Key',Key='G')     # Ignored by practice: final save establishes return.
             else:
                 time.sleep(.5)
     except Exception as error:
@@ -213,9 +218,11 @@ def session(binary,root,inputroot,label,processes,interactive=False):
 
 def main():
     gui.configure_output();processes=[];owned=False;userdata=None;token=uuid.uuid4().hex;status='CAPTURE_INCONCLUSIVE';error=None;cases=[];cleanup=[]
+    guide_only='--macos-guide-click' in sys.argv
     try:
+        if guide_only and (sys.platform!='darwin' or platform.machine()!='arm64' or '--macos-input' in sys.argv):raise RuntimeError('GUIDE_DIAGNOSTIC_REQUIRES_MAC_ARM_ONLY')
         if os.environ.get('GITHUB_ACTIONS')!='true' or os.environ.get('RUNNER_ENVIRONMENT')!='github-hosted' or os.environ.get('GITHUB_REPOSITORY')!='lemoncat7/MountainStill':raise RuntimeError('OFFICIAL_REPOSITORY_RUNNER_REQUIRED')
-        if sys.platform=='darwin' and '--macos-input' not in sys.argv:
+        if sys.platform=='darwin' and '--macos-input' not in sys.argv and not guide_only:
             with tempfile.TemporaryDirectory(prefix='mountainstill-input-',dir=os.environ['RUNNER_TEMP']) as tmp:
                 binary=Path(tmp)/'preflight';arch=platform.machine()
                 if arch not in ('arm64','x86_64'):raise RuntimeError('UNSUPPORTED_ARCH')
@@ -242,6 +249,7 @@ def main():
                 prepared=native_json(input_command(inputroot,0,'Preflight',macos=True),3)
                 emit('MAC_SAME_HELPER_INPUT_PREFLIGHT',prepared)
                 if prepared.get('status')!='PREFLIGHT_READY':raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: existing permission absent')
+                if guide_only and (prepared.get('coordinate_selftests_passed') is not True or prepared.get('coordinate_selftests_positive')!=2 or prepared.get('coordinate_selftests_negative')!=9):raise RuntimeError('COORDINATE_SELFTEST_NOT_VERIFIED')
             name,sha,exe,size=gui.PACKAGES[sys.platform];archive=root/name;download(archive,size,sha);extract(archive,root/'app');binary=root/'app'/exe
             userdata=userdata_path();claim_userdata(userdata,token);owned=True
             (userdata/'updates').mkdir();(userdata/'updates'/'preferences.cfg').write_text('[updates]\nauto_check=false\n',encoding='utf-8')
@@ -260,9 +268,9 @@ def main():
             before['settings']['paused']=True
             (userdata/'cultivation_save.json').write_text(json.dumps(before,ensure_ascii=False),encoding='utf-8')
             emit('OFFLINE_INPUT_BASELINE',{'only_setting_changed':'paused=true','sha256':hashlib.sha256(json.dumps(before,sort_keys=True).encode()).hexdigest(),'arrival_seen':before.get('arrival_seen'),'activity':before.get('activity')})
-            result,captures=session(binary,root,inputroot,'native-input',processes,True);cases.append(result)
+            result,captures=session(binary,root,inputroot,'guide-click' if guide_only else 'native-input',processes,True,guide_only=guide_only);cases.append(result)
             after=offline_save(userdata,token,processes)
-            assertions=final_assertions(before,after)
+            assertions=final_assertions(before,after,guide_only=guide_only)
             emit('OFFLINE_INPUT_SAVE_BEFORE',before)
             emit('OFFLINE_INPUT_SAVE_AFTER',after)
             emit('OFFLINE_INPUT_ASSERTIONS',{'errors':assertions,'arrival_seen':after.get('arrival_seen'),'activity':after.get('activity'),'paused':after.get('settings',{}).get('paused'),'save_read_only_after_all_processes_terminal':True})
@@ -270,8 +278,8 @@ def main():
             for path,metadata in captures:budget-=gui.frame_png(path,budget)
             if result['failure']:raise RuntimeError(result['failure'])
             if assertions:raise RuntimeError('SAVE_ASSERTIONS_FAILED: '+repr(assertions))
-            if len(captures)!=3:raise RuntimeError('MISSING_REQUIRED_SCREENSHOTS')
-            status='INPUT_OBSERVED_REQUIRES_INDEPENDENT_IMAGE_REVIEW'
+            if len(captures)!=(1 if guide_only else 3):raise RuntimeError('MISSING_REQUIRED_SCREENSHOTS')
+            status='GUIDE_CLICK_REQUIRES_INDEPENDENT_IMAGE_REVIEW' if guide_only else 'INPUT_OBSERVED_REQUIRES_INDEPENDENT_IMAGE_REVIEW'
     except Exception as exception:
         error=type(exception).__name__+': '+str(exception)
         if any((c.get('exit_code') is not None and c['exit_code']!=0 and not c.get('forced_timeout')) or (c.get('failure') and 'APPLICATION_ERRORS' in c['failure']) for c in cases) or 'SAVE_ASSERTIONS_FAILED' in error:
@@ -286,7 +294,7 @@ def main():
             try:gui.cleanup_owned_userdata(userdata,token)
             except Exception as exception:cleanup.append(str(exception))
         elif owned:cleanup.append('live_process_userdata_retained')
-        emit('NATIVE_INPUT_RESULT',{'status':status,'error':error,'cleanup_errors':cleanup,'case_count':len(cases),'pin':gui.TAG,'scope':'OS-synthetic input, not physical human input, HiDPI or 60-minute stability'})
+        emit('NATIVE_INPUT_RESULT',{'status':status,'error':error,'cleanup_errors':cleanup,'case_count':len(cases),'pin':gui.TAG,'scope':'single macOS ARM guide mouse click only; not full navigation or trial' if guide_only else 'OS-synthetic input, not physical human input, HiDPI or 60-minute stability'})
     return 1 if error or cleanup else 0
 
 if __name__=='__main__':sys.exit(main())

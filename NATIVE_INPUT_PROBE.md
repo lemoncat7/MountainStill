@@ -139,3 +139,49 @@ owned fd ends. Logs remain available for post-exit scanning; no save is read liv
 Local PTY tests demonstrate transport behavior with disposable Python children,
 not actual macOS game readiness. Actual two-Mac retry remains necessary; prior
 failure stays archived even if this transport succeeds.
+
+## Current diagnostic: one ARM guide mouse click only
+The previous Mac full-loop attempt39993694879 did NOT open the guide or trial;
+all six images and failed save assertions remain in internal QA. PTY transport
+observed readiness, but posted events were not proof of correct game callbacks.
+The Mac workflow now runs only macos-15 ARM with --macos-guide-click. It is NOT
+a retry of the full keyboard/trial loop. Existing Windows behavior is unchanged.
+
+After the same normally-exited fresh/geometry seeds and offlinepaused=true,
+post only a mouse move/down/up to the guide note(client268,514), via the normal
+session event stream. No keyboard, I/G/Esc, trial or alternative-coordinate
+fallback. A single original700x140guide ROI plus normal exit/offlinearrival_seen
+false-to-true is required; formal activity, entire settings and resource state
+must stay unchanged. The same20/43/45/55secondlimits and1MiBPNGbudget apply.
+
+Every individual move/down/up requires existing samehelper posting/capture
+preflight, exactownedPID/window/geometry, foregroundowner and the official
+NSWindow mouse-down hit-test at the point returning the exactownedwindow.
+Windowidentity is also tied to PID using CGwindowinfo. Unlike rectangle-only
+z-order, this API accounts for transparent/ignoresMouseEvents windows. Unknown
+or obstructed target stops, including between down/up; never force a release
+past failed guards. Only one scale1screen with compatible zeroorigin geometry
+is accepted, with explicitCGtop-left toAppKitbottom-left conversion. No AX/TCC
+requests, display changes, eventtap installation or production-package edits.
+
+Apple's post(tap:) documents entry into the event stream; routing through
+WindowServer rather than process-specific posting is a plausible correction
+for missingwindowassociation, NOT guaranteed by the docs or yet verified.
+Godot4.6.3 reads NSEvent.locationInWindow and maps clientHeight-localY.
+No blindglobalYflip, fabricatedwindowfields, Unicodepatch or tapfallback.
+If this bounded diagnostic fails, report the tool capability limitation rather
+than cycling through alternate coordinates/taps. A helper guard/check result
+is not gamecallback evidence; root must inspect the actualguideimage.
+
+Sources:
+- https://developer.apple.com/documentation/coregraphics/cgevent/post(tap:)
+- https://developer.apple.com/documentation/appkit/nswindow/windownumber(at:belowwindowwithwindownumber:)
+- https://developer.apple.com/documentation/appkit/nsevent/locationinwindow
+- https://github.com/godotengine/godot/blob/4.6.3-stable/platform/macos/godot_content_view.mm
+- https://github.com/godotengine/godot/blob/4.6.3-stable/platform/macos/display_server_macos.mm
+
+The same compiled Swift helper's Preflight executes2positive/9negative pure
+coordinate fixtures before any game launch. Guide mode requires those reported
+counts and success; Python source-contract tests do not substitute for executing
+Swift. This localLinuxenvironment cannot compile AppKit: nativecompilation and
+these Swift fixtures remain pending the approved ARM job.

@@ -1,4 +1,4 @@
-name: Native macOS OS input probe
+name: Native macOS guide click diagnostic
 on:
   workflow_dispatch:
 permissions: {}
@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: [macos-15, macos-15-intel]
+        runner: [macos-15]
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
@@ -33,5 +33,5 @@ jobs:
         run: |
           python3 source/tests/native_input_driver_test.py
           python3 source/tests/native_input_pty_test.py
-      - name: Observe pinned v20 macOS input under existing permissions only
-        run: python3 source/tools/native_input_probe.py --macos-input
+      - name: Observe one pinned v20 ARM guide mouse click under existing permissions only
+        run: python3 source/tools/native_input_probe.py --macos-guide-click

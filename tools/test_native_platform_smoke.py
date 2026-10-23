@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Driver output regression; runnable without Godot or a Windows host."""
 import io
+import json
+import contextlib
 import re
 import sys
 import unittest
@@ -32,13 +34,14 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_ten_tests_preserve_previous_coverage(self):
+    def test_eleven_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
             'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
+            'test_provider_lifecycle_guard.gd',
         })
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
@@ -79,6 +82,28 @@ class ExactPlannerMarkerTests(unittest.TestCase):
             self.assertIsNone(re.fullmatch(pattern, bad), bad)
         self.assertTrue(smoke.unexpected_errors('ERROR: planner mismatch',
                                               'test_exact_planner_guard.gd'))
+
+
+class ProviderLifecycleGateTests(unittest.TestCase):
+    def output(self):
+        from qa_verify_provider_lifecycle import EXPECTED_CASES
+        result = {'schema': 1, 'checks': 62, 'failures': 0, 'cases': EXPECTED_CASES, 'engine': '4.6.3.stable.official'}
+        return ''.join('PROVIDER_LIFECYCLE_CASE ' + c + '\n' for c in EXPECTED_CASES) + 'PROVIDER_LIFECYCLE_RESULT ' + json.dumps(result) + '\n'
+
+    def test_structured_contract_not_marker_alone(self):
+        test = 'test_provider_lifecycle_guard.gd'
+        self.assertTrue(smoke.test_passed(0, self.output(), test))
+        for value in [self.output().replace('"checks": 62', '"checks": 0'), self.output().replace('"failures": 0', '"failures": 1'), self.output() + self.output(), 'PROVIDER_LIFECYCLE_RESULT {}\n']:
+            self.assertFalse(smoke.test_passed(0, value, test))
+        self.assertFalse(smoke.test_passed(1, self.output(), test))
+
+    def test_real_zero_exit_script_error_on_either_stream_is_rejected(self):
+        for stream in ['stdout', 'stderr']:
+            command = 'import sys;sys.stdout.write(' + repr(self.output()) + ');sys.' + stream + '.write("SCRIPT ERROR: freed provider\\n")'
+            with contextlib.redirect_stdout(io.StringIO()):
+                code, output = smoke.run([sys.executable, '-c', command], 10)
+            self.assertEqual(code, 0)
+            self.assertFalse(smoke.test_passed(code, output, 'test_provider_lifecycle_guard.gd'))
 
 
 if __name__ == '__main__':

@@ -37,10 +37,10 @@ redirects Windows/macOS. Only that unique directory is deleted afterwards.
 The checkout and normal game save directory are untouched.
 
 The driver imports source resources and runs cultivation, scene geometry/assets,
-stone-recovery contract, chapter-to-practice navigation, practice control contribution, exact planner guard, practice-host isolation, shutdown lifecycle, update
+stone-recovery contract, chapter-to-practice navigation, practice control contribution, exact planner guard, freed-provider lifecycle, practice-host isolation, shutdown lifecycle, update
 policy and update-store tests. A passing exit code, exact success-line pattern
 with positive check count, and no unexpected engine error/leak diagnostic are
-all required. Currently the expected-error allowlist is empty: these ten
+all required. Currently the expected-error allowlist is empty: these eleven
 fault-injection tests do not need general `ERROR:` suppression. Missing markers,
 timeouts and crashes fail closed. Other test failures do not prevent remaining
 selected tests from running; a setup/isolation/import failure stops gameplay checks.
@@ -62,3 +62,5 @@ Official runner/cost references:
 - https://docs.github.com/en/actions/reference/runners/github-hosted-runners
 - https://docs.github.com/en/billing/concepts/product-billing/github-actions
 - https://github.com/godotengine/godot-builds/releases/tag/4.6.3-stable
+
+The freed-provider lifecycle test requires the exact ordered 17 cases and JSON summary (62 checks, zero failures), not a success marker alone. Both stdout and stderr are merged and scanned; any SCRIPT ERROR rejects even exit 0 plus a nominal 62/0 summary. This is source headless lifecycle coverage, not GUI or exported-package provider validation.

@@ -12,6 +12,8 @@ import sys
 import tempfile
 import uuid
 
+from qa_verify_provider_lifecycle import validate as validate_provider_lifecycle
+
 TESTS = {
     'test_cultivation.gd': r'Cultivation tests: [1-9]\d* checks, 0 failures',
     'test_scene_art_layout.gd': r'Scene original-art layout: [1-9]\d* checks, 0 failures \(geometry/resource, not native graphics\)',
@@ -19,6 +21,7 @@ TESTS = {
     'test_chapter_practice_navigation.gd': r'Chapter practice navigation: [1-9]\d* checks, 0 failures',
     'test_practice_control_contribution.gd': r'Practice control contribution: [1-9]\d* checks, 0 failures',
     'test_exact_planner_guard.gd': r'Exact planner guard: [1-9]\d* checks, 0 failures; neutral early returns=[1-9]\d*, exact ties=\d+',
+    'test_provider_lifecycle_guard.gd': None,  # Structured 17-case / 62-check contract.
     'test_practice_host.gd': r'Practice host: [1-9]\d* checks, 0 failures',
     'test_shutdown_lifecycle.gd': r'Shutdown lifecycle: [1-9]\d* checks, 0 failures',
     'update_policy_test.gd': r'update_policy: [1-9]\d* checks passed',
@@ -33,6 +36,15 @@ def unexpected_errors(output, test):
     allowed = EXPECTED_ERRORS.get(test, ())
     return [line for line in output.splitlines()
             if ERROR.search(line.strip()) and line.strip() not in allowed]
+
+
+def test_passed(code, output, test):
+    if code != 0 or unexpected_errors(output, test):
+        return False
+    if test == 'test_provider_lifecycle_guard.gd':
+        # run() merges stderr into stdout before validation; both streams are gated.
+        return validate_provider_lifecycle(code, output, '')['passed']
+    return re.search('^' + TESTS[test] + '$', output, re.M) is not None
 
 
 def run(command, timeout):
@@ -112,7 +124,7 @@ def main():
             for test, marker in TESTS.items():
                 print(f'\n=== {test} ===', flush=True)
                 code, output = run(common + ['--script', 'res://tests/' + test], 60)
-                okay = code == 0 and re.search('^' + marker + '$', output, re.M) and not unexpected_errors(output, test)
+                okay = test_passed(code, output, test)
                 results.append((test, 'PASS' if okay else 'FAIL'))
     except Exception as error:
         print(f'Native smoke aborted: {error}', flush=True)

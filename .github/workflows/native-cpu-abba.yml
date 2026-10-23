@@ -2,6 +2,11 @@ name: Native headless CPU ABBA
 
 on:
   workflow_dispatch:
+    inputs:
+      windows_only:
+        description: Only rerun Windows after harness failure; preserve prior Mac measurements
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -16,22 +21,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - runner: windows-2025
-            python: python
-            asset: Godot_v4.6.3-stable_win64.exe.zip
-            sha256: e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90
-            executable: Godot_v4.6.3-stable_win64_console.exe
-          - runner: macos-15
-            python: python3
-            asset: Godot_v4.6.3-stable_macos.universal.zip
-            sha256: 30630f3e9b11e10b35c1f90ba8814185dcec43fae1a48345159be7552c64bfe8
-            executable: Godot.app/Contents/MacOS/Godot
-          - runner: macos-15-intel
-            python: python3
-            asset: Godot_v4.6.3-stable_macos.universal.zip
-            sha256: 30630f3e9b11e10b35c1f90ba8814185dcec43fae1a48345159be7552c64bfe8
-            executable: Godot.app/Contents/MacOS/Godot
+        runner: ${{ inputs.windows_only && fromJSON('["windows-2025"]') || fromJSON('["windows-2025","macos-15","macos-15-intel"]') }}
+        include: ${{ inputs.windows_only && fromJSON('[{"runner":"windows-2025","python":"python","asset":"Godot_v4.6.3-stable_win64.exe.zip","sha256":"e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90","executable":"Godot_v4.6.3-stable_win64_console.exe"}]') || fromJSON('[{"runner":"windows-2025","python":"python","asset":"Godot_v4.6.3-stable_win64.exe.zip","sha256":"e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90","executable":"Godot_v4.6.3-stable_win64_console.exe"},{"runner":"macos-15","python":"python3","asset":"Godot_v4.6.3-stable_macos.universal.zip","sha256":"30630f3e9b11e10b35c1f90ba8814185dcec43fae1a48345159be7552c64bfe8","executable":"Godot.app/Contents/MacOS/Godot"},{"runner":"macos-15-intel","python":"python3","asset":"Godot_v4.6.3-stable_macos.universal.zip","sha256":"30630f3e9b11e10b35c1f90ba8814185dcec43fae1a48345159be7552c64bfe8","executable":"Godot.app/Contents/MacOS/Godot"}]') }}
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
@@ -46,6 +37,8 @@ jobs:
           echo "NATIVE_CPU_JOB_STARTED=$(date +%s)" >> "$GITHUB_ENV"
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           git init source
+          git -C source config core.autocrlf false
+          git -C source config core.eol lf
           git -C source -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git "$SOURCE_SHA"
           git -C source checkout --detach FETCH_HEAD
           test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"

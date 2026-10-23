@@ -128,4 +128,33 @@ class BenchmarkTests(unittest.TestCase):
                 b.run([sys.executable, '-c', 'import time;time.sleep(5)'], .05, b.Log())
 
 
+class CheckoutBytesTests(unittest.TestCase):
+    def test_crlf_checkout_rejected_and_explicit_lf_restores_frozen_bytes(self):
+        import hashlib
+        import subprocess
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def git(*args):
+                return subprocess.check_output(['git', '-C', directory, *args], stderr=subprocess.DEVNULL)
+            git('init', '-q')
+            git('config', 'user.name', 'Fixture')
+            git('config', 'user.email', 'fixture@example.invalid')
+            for name, digest in b.PROBE_SHA256.items():
+                raw = (Path(__file__).resolve().parents[1] / 'tools/native_cpu_probes' / name).read_bytes()
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), digest)
+                (root / name).write_bytes(raw)
+            git('-c', 'core.autocrlf=false', 'add', '.')
+            git('commit', '-qm', 'fixture')
+            for name in b.PROBE_SHA256: (root / name).unlink()
+            git('-c', 'core.autocrlf=true', 'checkout', '--', '.')
+            for name, digest in b.PROBE_SHA256.items():
+                self.assertNotEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest)
+                (root / name).unlink()
+            git('config', 'core.autocrlf', 'false')
+            git('config', 'core.eol', 'lf')
+            git('checkout', '--', '.')
+            for name, digest in b.PROBE_SHA256.items():
+                self.assertEqual(hashlib.sha256((root / name).read_bytes()).hexdigest(), digest)
+
+
 if __name__ == '__main__': unittest.main()

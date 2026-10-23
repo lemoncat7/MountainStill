@@ -1,10 +1,12 @@
 extends Node
 ## Downloads only. UpdateStore/UI must explicitly activate staged content.
 const Policy = preload("res://scripts/update_policy.gd")
-const CURRENT_VERSION = "1.3.15-test.1"
+const RateLimit = preload("res://scripts/update_rate_limit.gd")
+const CURRENT_VERSION = "1.3.16-test.1"
 const ROOT = "user://updates/"
 const PART = ROOT + "download.part"
 const PENDING = ROOT + "pending.json"
+const COOLDOWN = ROOT + "rate-limit.cfg"
 signal changed
 signal content_applied(data: Dictionary)
 var status = "更新由你决定；存档始终保留在本地。"
@@ -28,6 +30,9 @@ var _redirects = 0
 var _url = ""
 var _limit = 0
 var _last_progress = -1
+var _cooldown_until_msec = 0
+var _cooldown_timer: Timer
+var _cooldown_notice = ""
 
 func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(ROOT))
@@ -37,6 +42,11 @@ func _ready() -> void:
 	if preferences.load(ROOT + "preferences.cfg") == OK:
 		auto_check = bool(preferences.get_value("updates", "auto_check", true))
 		channel = "testing" if preferences.get_value("updates", "channel", "stable") == "testing" else "stable"
+	_cooldown_timer = Timer.new()
+	_cooldown_timer.one_shot = true
+	_cooldown_timer.timeout.connect(_cooldown_expired)
+	add_child(_cooldown_timer)
+	_restore_cooldown()
 	downloaded = FileAccess.file_exists(PENDING)
 	var active_content = _read_content_pointer(ROOT + "content-active.json")
 	if not active_content.is_empty():
@@ -70,6 +80,7 @@ func set_channel(value: String) -> void:
 
 func check_updates() -> void:
 	if busy: return
+	if _blocked_by_cooldown(): return
 	if platform_name() == "":
 		_finish("此平台不提供游戏内更新；目前支持 Windows 和 macOS。")
 		return
@@ -87,6 +98,7 @@ func check_updates() -> void:
 
 func download_update() -> void:
 	if busy or candidate.is_empty(): return
+	if _blocked_by_cooldown(): return
 	busy = true
 	_phase = "pack"
 	status = "正在下载更新；下载完成后仍需你确认应用。"
@@ -149,7 +161,20 @@ func _completed(result: int, code: int, headers: PackedStringArray, body: Packed
 		_start(location, _limit, true)
 		return
 	if code in [403, 429]:
-		_fail("GitHub 请求受限，请稍后重试；游戏不受影响。")
+		# HTTPRequest streams pack responses (including HTTP error JSON) to PART.
+		# Read only a small diagnostic body; it is never staged or executed.
+		var error_body = body
+		if _phase == "pack" and FileAccess.file_exists(PART):
+			var error_file = FileAccess.open(PART, FileAccess.READ)
+			if error_file != null and error_file.get_length() <= 8192:
+				error_body = error_file.get_buffer(error_file.get_length())
+			if error_file != null: error_file.close()
+		var limited = RateLimit.response(code, headers, error_body, _wall_seconds())
+		if not limited.is_empty():
+			_begin_cooldown(limited.seconds)
+			_fail(rate_limit_message())
+		else:
+			_fail("GitHub 拒绝访问（HTTP 403），未确认限流。可重试或检查网络访问权限；游戏不受影响。")
 		return
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
 		_fail("更新连接失败（HTTP %d）；请检查网络后重试。" % code)
@@ -354,3 +379,64 @@ func _configure_environment_proxy(request_node: HTTPRequest) -> void:
 	if value.is_empty(): value = OS.get_environment("http_proxy")
 	proxy = parse_proxy(value)
 	if not proxy.is_empty(): request_node.set_http_proxy(proxy.host, proxy.port)
+
+# The shared public API quota belongs to the network, not the selected channel.
+# This file is updater-local metadata, never part of the save or update journal.
+func _wall_seconds() -> float:
+	return Time.get_unix_time_from_system()
+
+func _ticks_msec() -> int:
+	return Time.get_ticks_msec()
+
+func rate_limit_remaining() -> int:
+	return maxi(0, ceili(float(_cooldown_until_msec - _ticks_msec()) / 1000.0))
+
+func rate_limit_message() -> String:
+	if rate_limit_remaining() <= 0: return ""
+	return _cooldown_notice
+
+func _blocked_by_cooldown() -> bool:
+	if rate_limit_remaining() <= 0: return false
+	_finish(rate_limit_message())
+	return true
+
+func _begin_cooldown(seconds: int, persist: bool = true) -> void:
+	var delay = clampi(seconds, 1, 3600)
+	_cooldown_until_msec = _ticks_msec() + delay * 1000
+	var offset = int(Time.get_time_zone_from_system().get("bias", 0)) * 60
+	var until = Time.get_datetime_string_from_unix_time(int(_wall_seconds()) + delay + offset).replace("T", " ")
+	_cooldown_notice = "GitHub 暂时限流；约 %s 后可重试（本机时间）。" % until
+	if persist:
+		var record = ConfigFile.new()
+		record.set_value("limit", "recorded", _wall_seconds())
+		record.set_value("limit", "seconds", delay)
+		# Failing to persist cannot prevent play or apply a partially staged update.
+		record.save(COOLDOWN)
+	if is_instance_valid(_cooldown_timer): _cooldown_timer.start(delay)
+
+func _restore_cooldown() -> void:
+	var record = ConfigFile.new()
+	if record.load(COOLDOWN) != OK: return
+	var recorded = record.get_value("limit", "recorded", 0)
+	var seconds = record.get_value("limit", "seconds", 0)
+	if not (recorded is float or recorded is int) or not (seconds is float or seconds is int): return
+	if not is_finite(float(recorded)) or not is_finite(float(seconds)) or recorded <= 0 or seconds < 1 or seconds > 3600: return
+	var elapsed = _wall_seconds() - float(recorded)
+	# Backwards wall-clock jumps cannot cause unbounded waiting across launches.
+	var remaining = mini(int(seconds), 60) if elapsed < 0 else ceili(float(seconds) - elapsed)
+	if remaining > 0:
+		_begin_cooldown(remaining, false)
+		status = rate_limit_message()
+	else:
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(COOLDOWN))
+
+func _cooldown_expired() -> void:
+	# One shot only: expiration re-enables a manual retry; it never sends a request.
+	if rate_limit_remaining() > 0:
+		_cooldown_timer.start(rate_limit_remaining())
+		return
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(COOLDOWN))
+	if status == _cooldown_notice:
+		status = "限流等待已结束，可重新检查更新；不会自动下载。"
+	_cooldown_notice = ""
+	changed.emit()

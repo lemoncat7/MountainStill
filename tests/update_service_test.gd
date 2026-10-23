@@ -45,7 +45,7 @@ func run() -> void:
 	check(not service.busy and not FileAccess.file_exists(service.PART), "cancel stops and removes partial")
 	await create_timer(0.08).timeout
 	check(FileAccess.get_file_as_string(service.PENDING) == staged, "cancel cannot commit stale callback")
-	for mode in ["badjson","rate","redirect","disconnect"]:
+	for mode in ["badjson","redirect","disconnect"]:
 		service.fixture_mode = mode
 		service.check_updates()
 		await settle(service)

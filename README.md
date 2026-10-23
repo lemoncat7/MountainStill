@@ -35,3 +35,8 @@ v1.3.15-test.1 石灵首领收势测试包 · 第一卷「山河归心」。静�
 ## 验证
 
 本版新增 `tests/test_equipment_comparison_state.gd` 与 `tests/test_equipment_comparison_ui.gd`。运行 `godot --headless --path . --script tests/test_combat_tactics.gd`、`test_combat_report.gd`、`test_combat_report_host.gd`、`test_combat_insight_state.gd` 和 `test_combat_insight_ui.gd`。完整回归另包括既有战斗、存档、窗口和更新测试；部分更新测试需要本地HTTP夹具/真实PCK，敏感度测试必须使用当前源代码实际测得的快照。见 [构建与验证状态](BUILD_VERIFICATION.md)。
+
+
+## v1.3.16-test.1 更新器可读反馈
+
+公共 GitHub 限流识别/有界等待需新版完整安装包；旧PCK更新提供兼容说明。详见 [UPDATE_RATE_LIMIT.md](UPDATE_RATE_LIMIT.md) 和 [BUILD_VERIFICATION.md](BUILD_VERIFICATION.md)。

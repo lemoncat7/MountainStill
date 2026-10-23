@@ -2289,7 +2289,7 @@ func _draw_portal(feet:Vector2,foreground:bool):
 var update_panel: AcceptDialog
 func _open_updates():
 	if not is_instance_valid(update_panel):
-		update_panel = preload("res://scripts/update_panel.gd").new()
+		update_panel = preload("res://scripts/release_panel.gd").new()
 		add_child(update_panel)
 		update_panel.setup(self)
 	update_panel.popup_centered()

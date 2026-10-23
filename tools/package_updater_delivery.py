@@ -6,13 +6,13 @@ from release_file_policy import exclusion_reason
 ROOT = Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('output', type=Path)
-p.add_argument('--version', default='1.3.15-test.1')
+p.add_argument('--version', default='1.3.16-test.1')
 a = p.parse_args()
 out = a.output.resolve(); out.mkdir(parents=True, exist_ok=True)
 build = ROOT / 'builds/updater-release'
 subprocess.run([sys.executable, str(ROOT/'tools/verify_updater_artifacts.py'), str(build)], check=True)
 subprocess.run([sys.executable, str(ROOT/'tools/package_source.py')], check=True)
-docs = [ROOT/n for n in ['README.md','FIRST_TEST_README.md','BUILD_VERIFICATION.md','PUBLICATION_NOTES.md']]
+docs = [ROOT/n for n in ['README.md','FIRST_TEST_README.md','BUILD_VERIFICATION.md','PUBLICATION_NOTES.md','UPDATE_RATE_LIMIT.md']]
 docs += sorted(p for p in (ROOT/'docs').rglob('*') if p.is_file() and exclusion_reason(p.relative_to(ROOT)) is None)
 prefix = f'MountainStill-v{a.version}'
 win = out / (prefix+'-Windows-x86_64.zip')

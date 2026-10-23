@@ -1,36 +1,35 @@
-# v1.3.12-test.1 本地构建与载荷验证（2026-10-22）
+# v1.3.13-test.1 换装比较：构建验证
+
+本轮为测试包，不是已达到正式性能门槛的稳定版。功能范围见 [换装比较说明](docs/EQUIPMENT-COMPARISON-v1.3.13.md)。
+
+## 本轮全新导出
+
+2026-10-23 在 Linux / Godot 4.6.3.stable.official.7d41c59c4 使用此前已核对官方 SHA-512 的官方模板完整重导。首次候选随后因小数显示修复作废，最终载荷包含微增/微降及装备吐纳35%上限说明：equipment_comparison_pages.gd SHA-256 `ab8cd40ff8a52c70bfc563de4e23d997a42bf18b9d80b4a17a2438f5f0a17ae5`。未复用旧应用产物。
+
+- 运行时/项目/导出与入口场景共66文件在构建前后逐哈希一致。
+- 导出依赖核对63源码文件、105依赖路径均存在并与当前源码一致。
+- Windows PE AMD64、macOS Universal x86_64/arm64、版本1.3.13、可执行权限与ad-hoc资源结构通过。
+- 两PCK均为78300384 bytes，SHA-256 `ce299ccc96bad5a0f9fc69e258825a4c6858d3954f516433a31724eec889d8d2`；manifest分别绑定平台，实际大小/哈希及policy/guard通过。
+
+## 实际发行载荷测试
+
+使用空项目目录，从新Windows EXE和macOS app内实际PCK加载，不以源码补运行依赖。两平台各334资源审计项通过；各运行装备状态153、UI12166、重绘缓存5项，全部零失败。满行箧开页计算一次、180次实际CanvasItem重绘不重复计算、显式翻页计算一次；仅为Linux headless观察，不是原生GPU或帧预算保证。
+
+两平台各通过宝物状态228、真实host19项；外部host测试仅把extends改为同一测试base绝对路径以保持测试文件不进入PCK，断言不变、diff/base哈希留证。两实际载荷各通过启动健康标记删除失败注入：预期exit1且只允许明确的注入ERROR，失败游戏暂停/释放。正常路径不允许SCRIPT ERROR、ERROR、ObjectDB/资源退出残留。
+
+## 真实旧安装升级与存档
+
+实际公开1.3.10、已发布1.3.12的Windows/macOS包合计四种旧安装，分别以旧State创建schema4存档，经旧不可变bootstrap挂载本轮真实PCK，并再次启动，共8次升级/重启验证。旧bootstrap/store字节和builtin版本不变，ABI1/schema4保留。
+
+herbs777、dew333、暂停设置与完整gear账本保留；新版本写入herbs779后重启读回。1.3.12非默认frugal战术及合法战报保留；1.3.10缺战术字段，正确迁移balanced。每次实际执行试招20 ticks并结束，正式State快照/存档SHA不变，试招保存被拒绝。active健康提交且pending/booting清除。
+
+## 发行边界
+
+七资产包括两平台完整ZIP、干净源码ZIP、两PCK、manifest和SHA256SUMS。共用发行过滤规则排除cache/fontconfig、isolated目录、日志、用户数据与凭据类型；合法windup-isolated美术原图保留。最终必须审查每个ZIP成员（包括二进制），核对CRC、大小、SHA、源文件一致性及敏感模式。
+
+上述不是原生Windows/macOS测试，不宣称Apple公证或开发者签名。包更新仍需重启，不是任意脚本无重启替换。本轮没有重新做一小时soak或正式CPU/GPU性能验收；上版128.023ms最坏同步tick及既有两项节奏断言不能被本次UI功能解决，不能沿用上版长测冒充本轮证据。
 
 
-这是整合试招、石灵提示和 round2 性能优化的**测试包**，不是首个正式稳定版。最坏同步逻辑 tick 仍不满足 33.3 ms 目标；不能把性能改善表述为正式性能达标。完整功能、原生 Linux 和性能实测由本轮整合 QA 记录提供。
+## 整合与原生界面证据分层
 
-## 最终导出
-
-- Linux / Godot `4.6.3.stable.official.7d41c59c4`，使用此前匹配官方 SHA-512 的官方导出模板；重新完整导出，没有复用上一版本的应用包。
-- GUI 定位音频退出残留后，整合版修复关窗生命周期与音频释放，`cultivation.gd` SHA-256 为 `ebf19da98e3218cb4b497d252ade06e99a83bfd36276f2a119bff411262dd729`。修前导出仅用于预验证，已失去最终交付资格；本文件对应修后重新导出和全新测试数据目录。随后全回归发现稀有掉落材料键问题，改为显式 String 键后再次重导、使用全新目录重测；最终 State SHA-256 为 `2d7df34d83bddf03f2c75d791a47b6bd44364d41724fb1d3a9f05b53791ee16d`。材料账本的严格校验未放宽。
-- 62 份源码和 104 条依赖路径逐项存在、与当前源码一致。Windows PE AMD64、macOS Universal x86_64 + arm64、版本 1.3.12、可执行权限与 ad-hoc 资源结构通过。
-- 两个平台的更新 PCK 均为 78287824 bytes，SHA-256 均为 `6dd53e378fa509e82eda299e1b290e4448a18046d215b9b32046e6a72a6eba3f`。内容平台无关，仍由 manifest 分别绑定 windows/macos；manifest 大小和 SHA 与实际文件匹配。
-
-## 实际载荷与升级
-
-- 从新 Windows EXE 和新 macOS app PCK 直接加载，使用空项目路径而非源码补依赖；每个平台 334 个活动资源全部加载，透明天空/人物落脚资源校验通过。新游戏启动标记为 1.3.12-test.1。
-- 使用真实旧 1.3.9、1.3.10 公开包及本轮恢复的 1.3.11 包，两平台合计六种旧安装。每种先用旧 State 创建 schema 4 存档，使用旧 bootstrap 挂载实际新 PCK，再用全新进程二次启动，共十二次升级/重启验证。
-- 原存档 herbs=777、dew=333、暂停设置保持；新版本存入 herbs=779，第二次启动正确读回。1.3.11 的非默认 frugal 战术与合法历史战报样本保留。旧 bootstrap/store 内容 hash 与 builtin 版本保持不变，ABI 1/schema 4 未改变。
-- 十二次启动均实际启动试招并运行 20 个模拟 tick，结束后正式 State snapshot 和原存档 SHA 不变；正式保存不得在试招中写入。新脚本可实例化，更新 active journal 正确，pending/booting 正常清理。
-- 两个更新 PCK 的 policy/guard 验证通过。两个新平台实际载荷均覆盖启动健康标记删除失败注入：预期退出码 1、唯一预期注入 ERROR、暂停并释放失败游戏断言通过。不能把这些预期 ERROR 当作普通正常启动。
-- 正常载荷验证拒绝 SCRIPT ERROR、ERROR、ObjectDB 残留和 resources still in use；故障注入仅允许上面的预期错误。
-
-- 两个实际平台载荷均执行稀有掉落专项：State 228 checks / 0 failures，真实 host 19 checks / 0 failures，覆盖真实拾取、容量重试和检查点流程。
-- host 测试原本 extends `res://tests/test_battle_resource_host.gd`，测试文件按设计不在发行包内；仅把外部测试副本这一行换成同一测试 base 的绝对路径，断言字节不变。桥接 diff/base hash 与原始结果保存在 `docs/qa/quality-2026-10-22/build-validation/`。运行时仍只解析真实 main-pack，未使用源码补运行依赖。
-
-## 交付与限制
-
-七资产为 Windows ZIP、macOS ZIP、干净源码 ZIP、两平台 PCK、manifest、SHA256SUMS。最终打包核对 CRC、大小、SHA、源码逐文件一致性及敏感模式，排除缓存、临时存档、日志、凭据和旧构建。
-
-上述载荷验证是 Linux Godot 加载实际导出内容，**不是原生 Windows/macOS 实机测试**；不宣称 Apple 公证、开发者签名或长期运行稳定性已经完成。更新包仍明确 `restart_required: true`，不是任意脚本无重启替换。公开提交与 Release 发布由主任务统一处理，本地构建流程本身没有执行公开操作。
-
-
-## 最终整合 QA 与一小时循环验证
-
-最终整合结果见 `docs/QUALITY-v1.3.12-INTEGRATION-QA.md` 及该文引用的 SOAK.md 原始证据。相同冻结运行时执行 3602.175 秒、1531 轮、21180 项检查，零失败、exit 0，前后 64 文件哈希一致。每轮重置夹具、每 10 轮重建宿主，因此这仅是 headless 生命周期/状态循环稳定性验证，不是自然连续游玩、完整通关或原生 Windows/macOS 长测。RSS 增长 12.016 MiB，末 15 分钟斜率 +0.03444 MiB/min；不能宣称零内存增长或无泄漏。
-
-最坏 CPU 同步 tick 为 128.023 ms，仍未达到正式版 33.3 ms 门槛；两个既有节奏断言保留。故本轮交付仍为 **1.3.12-test.1 测试包**，不标记正式稳定版。
+本轮整合回归、180场/10798事件基线对照及原生界面证据见 [本轮QA](docs/QA-v1.3.13-COMPARISON.md)。100入口中99成功，既有节奏2断言保留；微差最终显示版另以实际载荷UI12166/cache5验证。原生Linux主13图/战斗锁/34页为显示修正前候选；仅吐纳微差与装备35%说明修订后，最终ab8cd40…ae5版追加2图原生960页2验证。不能把全部13图说成最终hash拍摄，也不能外推原生Windows/macOS或真实音频设备验收。

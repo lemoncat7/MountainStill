@@ -1,8 +1,8 @@
 # 山隐 · Mountain Still
 
-v1.3.12-test.1 整合候选 · 第一卷「山河归心」。静坐、采药、炼丹、学习功法、通脉、历练与制作。无需账号、没有内购或广告；离线可玩，版本检查可关闭。
+v1.3.13-test.1 换装比较测试包 · 第一卷「山河归心」。静坐、采药、炼丹、学习功法、通脉、历练与制作。无需账号、没有内购或广告；离线可玩，版本检查可关闭。
 
-**当前整合候选尚未公开发布。** 包含交锋札、已解锁敌人的无奖励试招、石灵石甲/破绽提示及精确规划缓存。当前合并版仍需独立验证；不把此前分支测试当作本版通过。见 [本版说明](docs/QUALITY-v1.3.12.md)。
+**本版新增换装比较。** 在衣冠选择真实持有装备后，可比较同部位换装后的实效属性与招式条件，不自动穿戴、不虚构战力评分。保留交锋札、无奖励试招、石灵机制提示及原画。候选质量检查与发布状态以本版构建记录为准。见 [功能说明](docs/EQUIPMENT-COMPARISON-v1.3.13.md)。
 
 ## 运行与窗口
 
@@ -13,6 +13,10 @@ v1.3.12-test.1 整合候选 · 第一卷「山河归心」。静坐、采药、�
 ## 开始游玩
 
 从静修、采药和炼丹积累资源，再学习、装配功法和经脉。历练须主动出发，胜利后搜寻遗物，收获才进入行囊。暂停冻结战斗；归山保留已获得的进度，下次从未完成处继续。已有10部功法、22个穴位、六章路线，本版不额外堆叠属性或改换原画。
+
+## 换装比较
+
+衣冠选中物品 → “换装比较 ↗”。属性页显示攻击、防御、闪避（百分点）和吐纳修为；翻页查看兵器形制、自带招、武式与主动栏条件。强化已计入，空槽、同件与满行箧均可比较。只在亲自点击“穿上此物”时换装，交锋中只可翻阅；旧物保留，不消耗材料或重置真气/冷却。
 
 ## 交锋札
 
@@ -30,4 +34,4 @@ v1.3.12-test.1 整合候选 · 第一卷「山河归心」。静坐、采药、�
 
 ## 验证
 
-运行 `godot --headless --path . --script tests/test_combat_tactics.gd`、`test_combat_report.gd`、`test_combat_report_host.gd`、`test_combat_insight_state.gd` 和 `test_combat_insight_ui.gd`。完整回归另包括既有战斗、存档、窗口和更新测试；部分更新测试需要本地HTTP夹具/真实PCK，敏感度测试必须使用当前源代码实际测得的快照。见 [构建与验证状态](BUILD_VERIFICATION.md)。
+本版新增 `tests/test_equipment_comparison_state.gd` 与 `tests/test_equipment_comparison_ui.gd`。运行 `godot --headless --path . --script tests/test_combat_tactics.gd`、`test_combat_report.gd`、`test_combat_report_host.gd`、`test_combat_insight_state.gd` 和 `test_combat_insight_ui.gd`。完整回归另包括既有战斗、存档、窗口和更新测试；部分更新测试需要本地HTTP夹具/真实PCK，敏感度测试必须使用当前源代码实际测得的快照。见 [构建与验证状态](BUILD_VERIFICATION.md)。

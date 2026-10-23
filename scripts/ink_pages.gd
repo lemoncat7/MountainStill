@@ -15,6 +15,7 @@ const RARITY_NAMES = {"common":"凡品", "uncommon":"灵品", "rare":"珍品", "
 const RARITY_INK = {"common":Color("777568"), "uncommon":Color("5c8266"), "rare":Color("60768b"), "epic":Color("976c89")}
 const Adventure = preload("res://scripts/adventure_pages.gd")
 const CombatTiming = preload("res://scripts/combat_timing.gd")
+const EquipmentComparison = preload("res://scripts/equipment_comparison_pages.gd")
 const CombatInsight = preload("res://scripts/combat_insight_pages.gd")
 const TABS = ["equipment", "expedition", "adventure", "technique", "meridian", "bag"]
 const TAB_NAMES = ["衣冠", "历练", "游历", "功法", "经脉", "行囊"]
@@ -79,10 +80,11 @@ static func build_wardrobe(h, x:float, y:float, _r:Rect2):
 	for i in range(TABS.size()):
 		var category:String = TABS[i]
 		_hit(h,"wardrobe_"+category,TAB_NAMES[i],Rect2(x+621,y+65+i*33,29,30),func():
-			h.wardrobe_tab=category;h.set_meta("combat_insight_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
+			h.wardrobe_tab=category;h.set_meta("combat_insight_open",false);h.set_meta("equipment_comparison_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
 	match str(h.wardrobe_tab):
 		"equipment":
-			if CombatInsight.is_open(h): CombatInsight.build(h,x,y)
+			if EquipmentComparison.is_open(h): EquipmentComparison.build(h,x,y)
+			elif CombatInsight.is_open(h): CombatInsight.build(h,x,y)
 			else: _build_equipment(h,x,y)
 		"expedition": Adventure.build_expedition(h,x,y)
 		"meridian": Adventure.build_meridian(h,x,y)
@@ -103,6 +105,8 @@ static func _draw_evasion_summary(h,x:float,y:float,a:float):
 	_txt(h,"速度%.0f（基准100） · 闪避：基础%.1f/身法%.1f/装备%.1f/经脉%.1f · 点开详解"%[float(timing.speed),float(rates.base)*100,float(rates.movement)*100,float(rates.equipment)*100,float(rates.meridian)*100],Vector2(x+111,y+41),10,a,FADED)
 
 static func _build_equipment(h, x:float, y:float):
+	var compare: Button = h._qbutton(h.drawer,"compare_selected","换装比较 ↗",Rect2(x+178,y+55,151,24),func():EquipmentComparison.open(h),"比较所选物品与当前同部位装备的实际属性和招式条件；不自动穿戴")
+	compare.disabled=h.state.gear.get_item(h.selected_item).is_empty()
 	_hit(h,"evasion_stat","战斗属性",Rect2(x+111,y+9,493,37),func():CombatInsight.open(h),"点开属性来源、战术与最近战报\n"+evasion_hint(h))
 	var slots:Array = ["head","chest","legs","feet","weapon"]
 	for i in range(5):
@@ -129,10 +133,10 @@ static func _build_equipment(h, x:float, y:float):
 		var id:int = int(item.id)
 		var worn:bool = id in h.state.gear.equipped.values()
 		var label:String = str(item.get("name","装备"))+" · "+str(RARITY_NAMES.get(item.rarity,"凡品"))+("  已穿戴" if worn else "")
-		_hit(h,"item_"+str(i),label,Rect2(x+353,y+78+i*43,252,41),func():
+		_hit(h,"item_"+str(i),label,Rect2(x+353,y+78+i*41,252,39),func():
 			h.selected_item=id;h.selected_slot=str(item.slot);_touch(h);h._refresh_drawer(),"查看此物的形制与属性，再选择穿上")
-	h._qbutton(h.drawer,"items_prev","‹",Rect2(x+353,y+211,30,23),func():h.inventory_page=maxi(0,int(h.inventory_page)-1);_touch(h);h._refresh_drawer(),"前一页").disabled=h.inventory_page<=0
-	h._qbutton(h.drawer,"items_next","›",Rect2(x+575,y+211,30,23),func():h.inventory_page+=1;_touch(h);h._refresh_drawer(),"后一页").disabled=(h.inventory_page+1)*3>=items.size()
+	h._qbutton(h.drawer,"items_prev","‹",Rect2(x+353,y+202,30,31),func():h.inventory_page=maxi(0,int(h.inventory_page)-1);_touch(h);h._refresh_drawer(),"前一页").disabled=h.inventory_page<=0
+	h._qbutton(h.drawer,"items_next","›",Rect2(x+575,y+202,30,31),func():h.inventory_page+=1;_touch(h);h._refresh_drawer(),"后一页").disabled=(h.inventory_page+1)*3>=items.size()
 	var selected:Dictionary = h.state.gear.get_item(h.selected_item)
 	var equip:Button = h._qbutton(h.drawer,"equip_selected","已穿戴" if h.selected_item in h.state.gear.equipped.values() else ("交锋后穿戴" if _live_loadout_locked(h) else "穿上此物"),Rect2(x+530,y+238,74,27),func():
 		if _guard_live_loadout(h):return
@@ -148,7 +152,7 @@ static func _build_equipment(h, x:float, y:float):
 	var enhancement:int = int(selected.get("enhancement",0))
 	var method:String=str(h.get_meta("enhancement_method","herbs"))
 	var quote:Dictionary=h.state.enhancement_quote(h.selected_item,method)
-	_hit(h,"enhancement_method","切换淬炼材料",Rect2(x+355,y+222,250,14),func():
+	_hit(h,"enhancement_method","切换淬炼材料",Rect2(x+388,y+222,180,14),func():
 		h.set_meta("enhancement_method","materials" if method=="herbs" else "herbs");h._refresh_drawer(),"点击在草露温养与灵材淬炼间切换。两者提升同一件装备，必定成功，不消耗原装备。")
 	var enhance:Button = h._qbutton(h.drawer,"enhance_item","已淬满" if enhancement>=5 else "淬炼 +%d"%(enhancement+1),Rect2(x+437,y+238,84,27),func():
 		if h.selected_item in h.state.gear.equipped.values() and _guard_live_loadout(h):return
@@ -177,7 +181,10 @@ static func draw_wardrobe(h, x:float, y:float, a:float):
 		if not pending.is_empty():subtitle="调息重修 %.0f秒 · 旧心法生效 · 通习 %d/%d · 同修 %d/%d"%[ceilf(float(pending.get("remaining",0))),attuned.size(),h.state.attunement_capacity(),training.size(),h.state.training_capacity()]
 		_book_header(h,"功 法 录",subtitle,x,y,605,a)
 	elif h.wardrobe_tab=="equipment":
-		if CombatInsight.is_open(h):
+		if EquipmentComparison.is_open(h):
+			_book_header(h,"换 装 比","",x,y,605,a)
+			_txt(h,"当前搭配 → 候选搭配，仅替换同一部位",Vector2(x+111,y+37),12,a,FADED)
+		elif CombatInsight.is_open(h):
 			_book_header(h,"交 锋 札","",x,y,605,a)
 			_txt(h,"看清搭配，选择下一场的打法",Vector2(x+111,y+37),12,a,FADED)
 		else:
@@ -199,7 +206,8 @@ static func draw_wardrobe(h, x:float, y:float, a:float):
 		_txt(h,label.substr(1,1),p+Vector2(7,26),12,a,RED if chosen else FADED,true)
 	match str(h.wardrobe_tab):
 		"equipment":
-			if CombatInsight.is_open(h): CombatInsight.draw(h,x,y,a)
+			if EquipmentComparison.is_open(h): EquipmentComparison.draw(h,x,y,a)
+			elif CombatInsight.is_open(h): CombatInsight.draw(h,x,y,a)
 			else: _draw_equipment(h,x,y,a)
 		"expedition": Adventure.draw_expedition(h,x,y,a)
 		"meridian": Adventure.draw_meridian(h,x,y,a)
@@ -209,7 +217,6 @@ static func draw_wardrobe(h, x:float, y:float, a:float):
 
 static func _draw_equipment(h, x:float, y:float, a:float):
 	_txt(h,"身 上",Vector2(x,y+71),10,a,FADED)
-	_txt(h,"物 谱",Vector2(x+180,y+71),10,a,FADED)
 	_txt(h,"行 箧",Vector2(x+358,y+71),10,a,FADED)
 	_rule(h,Vector2(x+164,y+63),Vector2(x+164,y+265),a)
 	_rule(h,Vector2(x+337,y+63),Vector2(x+337,y+265),a)
@@ -257,20 +264,20 @@ static func _draw_equipment(h, x:float, y:float, a:float):
 		var idx:int = int(h.inventory_page)*3+i
 		if idx>=items.size(): break
 		var entry:Dictionary = items[idx]
-		var yy:float = y+78+i*43
+		var yy:float = y+78+i*41
 		var selected:bool = h.selected_item==int(entry.id)
 		if selected:
-			h.draw_colored_polygon(PackedVector2Array([Vector2(x+353,yy+2),Vector2(x+603,yy),Vector2(x+604,yy+40),Vector2(x+355,yy+41)]),Color(JADE,a*.055))
+			h.draw_colored_polygon(PackedVector2Array([Vector2(x+353,yy+2),Vector2(x+603,yy),Vector2(x+604,yy+38),Vector2(x+355,yy+39)]),Color(JADE,a*.055))
 		_item_art(h,entry,Rect2(x+358,yy+3,36,34),a)
 		_txt(h,str(entry.get("name","装备")),Vector2(x+405,yy+18),13,a,INK,true)
 		var rarity:Color = RARITY_INK.get(str(entry.rarity),FADED)
 		_txt(h,str(RARITY_NAMES.get(entry.rarity,"凡品"))+" · "+str(SLOT_NAMES.get(entry.slot,"衣物"))+(" · 已穿戴" if int(entry.id) in h.state.gear.equipped.values() else ""),Vector2(x+405,yy+33),9,a,rarity)
 		if selected: _seal(h,"选",Vector2(x+579,yy+10),a,19)
-		_rule(h,Vector2(x+355,yy+42),Vector2(x+604,yy+42),a*.7)
+		_rule(h,Vector2(x+355,yy+40),Vector2(x+604,yy+40),a*.7)
 	_center(h,"第 %d / %d 页  ·  %d 件"%[h.inventory_page+1,maxi(1,ceili(items.size()/3.0)),items.size()],Rect2(x+389,y+207,180,15),10,a,FADED)
 	if not item.is_empty() and int(item.get("enhancement",0))<5:
 		var quote:Dictionary=h.state.enhancement_quote(h.selected_item,str(h.get_meta("enhancement_method","herbs")))
-		_center(h,_ellipsis(_cost_text(quote.get("costs",[]))+"  ↔ 切换",246,9),Rect2(x+355,y+222,250,13),9,a,JADE if bool(quote.get("can_enhance",false)) else FADED)
+		_center(h,_ellipsis(_cost_text(quote.get("costs",[]))+"  ↔ 切换",176,9),Rect2(x+388,y+222,180,13),9,a,JADE if bool(quote.get("can_enhance",false)) else FADED)
 
 static func state_signature(h) -> String:
 	# Progress is painted every frame; only control availability rebuilds paper.

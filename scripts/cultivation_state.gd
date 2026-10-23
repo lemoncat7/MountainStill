@@ -316,6 +316,60 @@ func equip_item(instance_id: int) -> bool:
 	return gear.equip_item(instance_id)
 
 
+func equipment_comparison(instance_id: int) -> Dictionary:
+	# Owned instances only. Never temporarily equip on the live state: even a
+	# save/restore round trip can normalize combat resources or award progress.
+	var item := gear.get_item(instance_id)
+	if item.is_empty():
+		return {"ok": false, "reason": "missing"}
+	if not str(item.get("slot", "")) in Equipment.SLOTS:
+		return {"ok": false, "reason": "invalid_slot"}
+	var previous := gear.equipped_item(str(item.slot))
+	var preview = _equipment_comparison_state()
+	var before: Dictionary = preview.stats()
+	var before_gear: Dictionary = preview.gear_stats()
+	preview.equip_item(instance_id)
+	return {
+		"ok": true, "item": item.duplicate(true), "equipped_item": previous.duplicate(true),
+		"same_item": int(previous.get("id", -1)) == instance_id,
+		"before": before, "after": preview.stats(),
+		"before_gear": before_gear, "after_gear": preview.gear_stats(),
+		"inventory_count": inventory.size(), "inventory_capacity": Equipment.CAPACITY,
+	}
+
+
+func _equipment_comparison_state():
+	# Explicit dependency snapshot for stats(), qi_rate(), evasion_stats() and
+	# technique descriptors. All formulas remain in those official methods.
+	# Constructors initialize only independent objects; no live RNG is read or
+	# advanced. Do not use _snapshot/_restore_and_award here (both can mutate).
+	var preview = get_script().new()
+	preview.gear.inventory = gear.inventory.duplicate(true)
+	preview.gear.equipped = gear.equipped.duplicate(true)
+	preview.realm = realm
+	preview.qi = qi
+	preview.merit = merit
+	preview.combat_tactic = combat_tactic
+	preview.technique = technique
+	preview.technique_levels = technique_levels.duplicate(true)
+	preview.equipped_heart = equipped_heart
+	preview.equipped_weapon_art = equipped_weapon_art
+	preview.equipped_actives = equipped_actives.duplicate()
+	preview.equipped_passives = equipped_passives.duplicate()
+	preview.attuned_techniques = attuned_techniques.duplicate()
+	preview.meridian_opened = meridian_opened.duplicate(true)
+	preview.buffs = buffs.duplicate(true)
+	preview.lifetime_seconds = lifetime_seconds
+	preview.activity = activity
+	preview.recipe = recipe
+	preview._gather_clock = _gather_clock
+	preview._dew_clock = _dew_clock
+	preview._brew_clock = _brew_clock
+	preview.stage_clears = stage_clears.duplicate(true)
+	preview.ending_finished_at = ending_finished_at
+	return preview
+
+
 func unequip_slot(slot: String) -> bool:
 	return gear.unequip_slot(slot)
 

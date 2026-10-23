@@ -1,0 +1,147 @@
+{"version": "1.3.10-test.1", "platform": "windows", "archive_sha256": "3e205642eeec563189ef61b08d4db178145b4a048a496acfb300225452e5dd57", "payload_sha256": "dacdd0e8c6220cdcd8c2348a4e2b46e03b3816d1ba761c3ccc059cc602554ec5"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.10-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1 / 更新已准备；重启后生效
+EQUIPMENT_OLD_UPDATE: 1.3.10-test.1 windows first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+EQUIPMENT_OLD_UPDATE: 1.3.10-test.1 windows second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.10-test.1-windows
+{"version": "1.3.10-test.1", "platform": "macos", "archive_sha256": "3d4845692ba5790155eab15c3a7d30376a429177874848c98dfe859721087a7d", "payload_sha256": "843531055a1fbe87d5eb6cf6b21c80d7ec79a5729e1677e402fe216eaf771918"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.10-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1 / 更新已准备；重启后生效
+EQUIPMENT_OLD_UPDATE: 1.3.10-test.1 macos first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+EQUIPMENT_OLD_UPDATE: 1.3.10-test.1 macos second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.10-test.1-macos
+{"version": "1.3.12-test.1", "platform": "windows", "archive_sha256": "edf976f3dde6148970650c8c2e415fc8c787ca8ac2cd1757db2d4e0946446f0c", "payload_sha256": "8a44e08fc07870e2766a1c738f825e00614a8c4fffbb1676f4c92371677c8c72"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.12-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1 / 更新已准备；重启后生效
+EQUIPMENT_OLD_UPDATE: 1.3.12-test.1 windows first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+EQUIPMENT_OLD_UPDATE: 1.3.12-test.1 windows second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.12-test.1-windows
+{"version": "1.3.12-test.1", "platform": "macos", "archive_sha256": "b76ebdc26f8bbc94fb886d357b2e7fea1c43f8c2ff59c4ea21d24b62e41c461e", "payload_sha256": "5c3c68b7d1aa46f60e7c99f3a8bc10f70e7e9fcf19b98cffcdc2ac98cfac3313"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.12-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1 / 更新已准备；重启后生效
+EQUIPMENT_OLD_UPDATE: 1.3.12-test.1 macos first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+EQUIPMENT_OLD_UPDATE: 1.3.12-test.1 macos second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.12-test.1-macos
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: exported diorama preserves clear sky and opaque character footing.
+PASS: all 334 active resources load from the exported payload; legacy prototype resources are absent.
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+ERROR: TEST injected marker removal failure。启动确认未完成，请重启恢复。
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _show_failure (res://scripts/update_bootstrap.gd:61)
+       [1] _show_failure (/workspace/scratch/778a2592935f/equipment-v1313/tests/bootstrap_health_failure_test.gd:4)
+       [2] _start (res://scripts/update_bootstrap.gd:52)
+BOOTSTRAP HEALTH FAILURE: marker removal failure pauses and frees game PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search state: 228 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search host: 19 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Equipment comparison state: 153 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Equipment comparison UI: 12166 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Equipment comparison isolated observation: 180 frames 2997.81 ms; full inventory quote mean 0.480 ms (not a native GPU/frame-budget guarantee)
+Equipment comparison cache: 5 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: exported diorama preserves clear sky and opaque character footing.
+PASS: all 334 active resources load from the exported payload; legacy prototype resources are absent.
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.13-test.1
+ERROR: TEST injected marker removal failure。启动确认未完成，请重启恢复。
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _show_failure (res://scripts/update_bootstrap.gd:61)
+       [1] _show_failure (/workspace/scratch/778a2592935f/equipment-v1313/tests/bootstrap_health_failure_test.gd:4)
+       [2] _start (res://scripts/update_bootstrap.gd:52)
+BOOTSTRAP HEALTH FAILURE: marker removal failure pauses and frees game PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search state: 228 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search host: 19 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Equipment comparison state: 153 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Equipment comparison UI: 12166 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Equipment comparison isolated observation: 180 frames 3158.53 ms; full inventory quote mean 0.370 ms (not a native GPU/frame-budget guarantee)
+Equipment comparison cache: 5 checks, 0 failures
+
+EQUIPMENT FINAL: new full payloads, actual published old 1.3.10/1.3.12 both platforms twice+save PASS; Linux not native Windows/macOS

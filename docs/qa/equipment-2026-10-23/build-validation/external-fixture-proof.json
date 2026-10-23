@@ -1,0 +1,7 @@
+{
+  "original_sha256": "366381050e1642cea17163ba104f2a52a475a84832a103ab6555ab89b1c55def",
+  "adapted_sha256": "7cc670ed51debb62ad89c37d0018e190dd4ded3ec7d318bcf6e73279f16d27d1",
+  "base_sha256": "20ce02e1cdbaf1c6dd55f3351893c0baaccbaebb368747beaace2a5dc39d5f18",
+  "diff": "--- \n+++ \n@@ -1,4 +1,4 @@\n-extends \"res://tests/test_battle_resource_host.gd\"\n+extends \"/workspace/scratch/778a2592935f/equipment-v1313/tests/test_battle_resource_host.gd\"\n ## The 1% treasure branch must not leave a fully searched body unclaimable.\n func fixture(style:String=\"sword\",actives:Array=[],realm:int=4):\n  super.fixture(style,actives,realm)\n",
+  "runtime_resolution": "Only actual main-pack, empty project; one external test inheritance line changed, assertions unchanged"
+}

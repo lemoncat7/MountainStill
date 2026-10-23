@@ -4,7 +4,7 @@ import argparse, hashlib, json
 from pathlib import Path
 p=argparse.ArgumentParser()
 p.add_argument('directory',type=Path)
-p.add_argument('--version',default='1.3.12-test.1')
+p.add_argument('--version',default='1.3.13-test.1')
 p.add_argument('--content',action='store_true',help='Build a strict JSON content-only manifest (no restart)')
 a=p.parse_args()
 packages={}

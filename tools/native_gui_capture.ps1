@@ -1,4 +1,4 @@
-param([int]$TargetPid, [string]$OutputPath, [int]$Palette, [switch]$RequestClose)
+param([int]$TargetPid, [string]$OutputPath, [int]$Palette, [switch]$RequestClose, [switch]$GeometryOnly)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
@@ -62,14 +62,26 @@ try {
   exit 0
  }
  $r = New-Object GuiProbe+Rect
- [void][GuiProbe]::GetWindowRect($h,[ref]$r)
+ if (-not [GuiProbe]::GetWindowRect($h,[ref]$r)) { throw 'Outer geometry unavailable' }
  $client = New-Object GuiProbe+Rect
  $origin = New-Object GuiProbe+Point
  if (-not [GuiProbe]::GetClientRect($h,[ref]$client) -or -not [GuiProbe]::ClientToScreen($h,[ref]$origin)) { throw 'Client geometry unavailable' }
  $full = New-Object System.Drawing.Rectangle($origin.X,$origin.Y,($client.Right-$client.Left),($client.Bottom-$client.Top))
  $screen = [System.Windows.Forms.SystemInformation]::VirtualScreen
+ $targetScreen = [System.Windows.Forms.Screen]::FromHandle($h)
+ $bounds = $targetScreen.Bounds
+ $work = $targetScreen.WorkingArea
+ $dpi = [GuiProbe]::GetDpiForWindow($h)
+ $outer = New-Object System.Drawing.Rectangle($r.Left,$r.Top,($r.Right-$r.Left),($r.Bottom-$r.Top))
+ $screens = @([System.Windows.Forms.Screen]::AllScreens | ForEach-Object { @{x=$_.Bounds.X;y=$_.Bounds.Y;width=$_.Bounds.Width;height=$_.Bounds.Height;primary=$_.Primary} })
+ $metadata = @{screens=$screens;owner_pid=$TargetPid;window_id=$h.ToInt64();outer_frame=@($r.Left,$r.Top,$outer.Width,$outer.Height);client_frame=@($full.X,$full.Y,$full.Width,$full.Height);screen_frame=@($bounds.X,$bounds.Y,$bounds.Width,$bounds.Height);work_area=@($work.X,$work.Y,$work.Width,$work.Height);coordinate_units='physical_pixels';coordinate_origin='global_top_left';outer_geometry_source='GetWindowRect';client_geometry_source='GetClientRect+ClientToScreen';backing_scale=($dpi/96.0);dpi=$dpi;client_width=$full.Width;client_height=$full.Height;window_width=$outer.Width;window_height=$outer.Height;client_fully_onscreen=([System.Drawing.Rectangle]::Intersect($full,$screen) -eq $full);window_fully_onscreen=([System.Drawing.Rectangle]::Intersect($outer,$screen) -eq $outer);session_id=(Get-Process -Id $TargetPid).SessionId}
+ if ($GeometryOnly) { $metadata.status='GEOMETRY_READY'; $metadata | ConvertTo-Json -Compress -Depth 5; exit 0 }
+ if (-not $metadata.window_fully_onscreen) { throw 'Full target window is not onscreen' }
  $expanded = New-Object System.Drawing.Rectangle(($r.Left-16),($r.Top-16),($r.Right-$r.Left+32),($r.Bottom-$r.Top+32))
  $background = [System.Drawing.Rectangle]::Intersect($expanded,$screen)
+ $area = $background
+ $w = $area.Width; $height = $area.Height
+ if ($w -le 0 -or $height -le 0 -or [long]$w*$height -gt 16000000) { throw 'Unsafe or empty capture dimensions' }
  $board = New-Object CheckerboardForm
  $board.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::None
  $board.ShowInTaskbar = $false
@@ -83,10 +95,6 @@ try {
  while ($wait.ElapsedMilliseconds -lt 350) { [System.Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 20 }
  $behind = [GuiProbe]::GetWindow($h,2)
  if ($behind -ne $board.Handle) { throw 'Backdrop is not directly behind target; inconclusive' }
- $cropWidth = [Math]::Min(720,$background.Width)
- $area = New-Object System.Drawing.Rectangle(($background.X+[int](($background.Width-$cropWidth)/2)),$background.Y,$cropWidth,$background.Height)
- $w = $area.Width; $height = $area.Height
- if ($w -le 0 -or $height -le 0 -or $w*$height -gt 16000000) { throw 'Unsafe or empty capture dimensions' }
  $bitmap = New-Object System.Drawing.Bitmap($w,$height)
  $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
  try {
@@ -103,6 +111,8 @@ try {
   }
   $bitmap.Save($OutputPath,[System.Drawing.Imaging.ImageFormat]::Png)
  } finally { $graphics.Dispose(); $bitmap.Dispose() }
- $screens = @([System.Windows.Forms.Screen]::AllScreens | ForEach-Object { @{x=$_.Bounds.X;y=$_.Bounds.Y;width=$_.Bounds.Width;height=$_.Bounds.Height;primary=$_.Primary} })
- @{status='CAPTURE_READY';screens=$screens;owner_pid=$TargetPid;window_id=$h.ToInt64();backdrop_id=$board.Handle.ToInt64();directly_behind_target=$true;palette=$Palette;colors=@('#33CCD6','#DB4DC9');checker_pixels=48;backdrop_frame=@($background.X,$background.Y,$background.Width,$background.Height);crop_frame=@($area.X,$area.Y,$area.Width,$area.Height);top_control_pixels=[Math]::Max(0,$r.Top-$area.Top);bottom_control_pixels=[Math]::Max(0,$area.Bottom-$r.Bottom);client_width=$full.Width;client_height=$full.Height;client_fully_onscreen=([System.Drawing.Rectangle]::Intersect($full,$screen) -eq $full);window_width=($r.Right-$r.Left);window_height=($r.Bottom-$r.Top);dpi=[GuiProbe]::GetDpiForWindow($h);pixel_width=$w;pixel_height=$height;session_id=(Get-Process -Id $TargetPid).SessionId;capture='composited desktop center native pixels full vertical scene plus available checkerboard control strips'} | ConvertTo-Json -Compress
-} catch { @{status='CAPTURE_INCONCLUSIVE';reason=$_.Exception.Message} | ConvertTo-Json -Compress } finally { if ($null -ne $board) { $board.Close(); $board.Dispose() } }
+ $metadata.status='CAPTURE_READY'
+ $captureMetadata = @{backdrop_id=$board.Handle.ToInt64();directly_behind_target=$true;palette=$Palette;colors=@('#33CCD6','#DB4DC9');checker_pixels=48;backdrop_frame=@($background.X,$background.Y,$background.Width,$background.Height);crop_frame=@($area.X,$area.Y,$area.Width,$area.Height);top_control_pixels=[Math]::Max(0,$r.Top-$area.Top);bottom_control_pixels=[Math]::Max(0,$area.Bottom-$r.Bottom);left_control_pixels=[Math]::Max(0,$r.Left-$area.Left);right_control_pixels=[Math]::Max(0,$area.Right-$r.Right);pixel_width=$w;pixel_height=$height;capture='composited desktop full target window native pixels plus available 16px checkerboard controls; no scaling'}
+ foreach ($key in $captureMetadata.Keys) { $metadata[$key] = $captureMetadata[$key] }
+ $metadata | ConvertTo-Json -Compress -Depth 5
+} catch { @{status='CAPTURE_INCONCLUSIVE';reason=$_.Exception.Message} | ConvertTo-Json -Compress } finally { if ($null -ne $board) { $board.Close(); $board.Dispose() }; if ($null -ne $old -and $old -ne [IntPtr]::Zero) { [void][GuiProbe]::SetThreadDpiAwarenessContext($old) } }

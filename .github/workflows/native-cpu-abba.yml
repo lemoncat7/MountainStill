@@ -1,0 +1,97 @@
+name: Native headless CPU ABBA
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: native-headless-cpu-abba
+  cancel-in-progress: false
+
+jobs:
+  native-cpu:
+    if: github.repository == 'lemoncat7/MountainStill' && github.event.repository.private == false
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2025
+            python: python
+            asset: Godot_v4.6.3-stable_win64.exe.zip
+            sha256: e39986a178d585ce7ac198fb8de6ea436366dc0cc00e594810c2e3e104c04b90
+            executable: Godot_v4.6.3-stable_win64_console.exe
+          - runner: macos-15
+            python: python3
+            asset: Godot_v4.6.3-stable_macos.universal.zip
+            sha256: 30630f3e9b11e10b35c1f90ba8814185dcec43fae1a48345159be7552c64bfe8
+            executable: Godot.app/Contents/MacOS/Godot
+          - runner: macos-15-intel
+            python: python3
+            asset: Godot_v4.6.3-stable_macos.universal.zip
+            sha256: 30630f3e9b11e10b35c1f90ba8814185dcec43fae1a48345159be7552c64bfe8
+            executable: Godot.app/Contents/MacOS/Godot
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Fetch exact public source without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          echo "NATIVE_CPU_JOB_STARTED=$(date +%s)" >> "$GITHUB_ENV"
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init source
+          git -C source -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
+          git -C source -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git a0f1ff4e066b1d0697d5918037bfc9902f004d5a 75827e1b51b799194fd8d81e8c52ed7e19adf3bf
+      - name: Download and verify pinned official Godot
+        env:
+          GODOT_ASSET: ${{ matrix.asset }}
+          GODOT_SHA256: ${{ matrix.sha256 }}
+        run: |
+          set -euo pipefail
+          ${{ matrix.python }} - <<'PY'
+          import hashlib, os, pathlib, subprocess, sys, time, urllib.error, urllib.request, zipfile
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'godot-native-smoke'
+          root.mkdir()
+          archive = root / os.environ['GODOT_ASSET']
+          url = 'https://github.com/godotengine/godot-builds/releases/download/4.6.3-stable/' + archive.name
+          for attempt in range(3):
+              try:
+                  with urllib.request.urlopen(url, timeout=45) as response, archive.open('wb') as target:
+                      downloaded = 0
+                      while chunk := response.read(1024 * 1024):
+                          downloaded += len(chunk)
+                          if downloaded > 256 * 1024 * 1024:
+                              raise SystemExit('Godot archive exceeds 256 MiB bound')
+                          target.write(chunk)
+                  break
+              except (urllib.error.URLError, TimeoutError, ConnectionError):
+                  if attempt == 2:
+                      raise
+                  time.sleep(2 ** attempt)
+          actual = hashlib.sha256(archive.read_bytes()).hexdigest()
+          if actual != os.environ['GODOT_SHA256']:
+              raise SystemExit('Godot SHA256 mismatch; refusing execution')
+          print('Verified official Godot 4.6.3 SHA256:', actual)
+          with zipfile.ZipFile(archive) as bundle:
+              if sum(item.file_size for item in bundle.infolist()) > 768 * 1024 * 1024:
+                  raise SystemExit('Godot expanded archive exceeds 768 MiB bound')
+          if sys.platform == 'darwin':
+              subprocess.run(['ditto', '-x', '-k', str(archive), str(root)], check=True)
+          else:
+              with zipfile.ZipFile(archive) as bundle:
+                  bundle.extractall(root)
+          PY
+      - name: Fixed-tag serial CPU benchmark and semantic equivalence
+        env:
+          GODOT_EXECUTABLE: ${{ matrix.executable }}
+        run: |
+          set -euo pipefail
+          ${{ matrix.python }} source/tools/native_cpu_benchmark.py --repo source --work "$RUNNER_TEMP/native-cpu-abba" --require-free-gib 4 --godot "$RUNNER_TEMP/godot-native-smoke/$GODOT_EXECUTABLE"

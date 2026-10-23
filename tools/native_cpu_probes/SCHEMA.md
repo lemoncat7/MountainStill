@@ -1,0 +1,17 @@
+# Native CPU probes v1
+
+Copy bench.gd as native_cpu_bench.gd and semantic_probe.gd as native_cpu_semantic_probe.gd into each fixed-tag project's root. Both directly preload production Duel/Rig, with no source patch or extension.
+
+## Timing
+Args: --route= --weapon= --ticks=480 --warmups=1 --trials=3 --label= --report=. Fixed cases bamboo_pass/sword,cloud_slope/unarmed,cloud_slope/fan. Driver must reject any other settings and must not pass --profiler. Scene inputs seed377,mist,boss true,hero420/11/1,enemy780/8/1,dodge/guard0. One fresh process per ABBA block; one warmup plus three measured fresh-Duel trials per block, process caches shared.
+
+schema mountainstill.cpu.v1; results[] and warmup_results[] preserve prior fields. Each records trial_index (zero-based within phase), phase warmup/measured, seed377, reset fresh_duel_process_caches_retained. Each adds samples {advance_us,pose_us,rig_us,tick_us}, four 480-length arrays. Stats tick/advance/pose/rig use nearest-rank p50/p95 and sum microseconds. total_ms remains entire loop wall time (including sample appends and event/checksum bookkeeping, excluding later stats() computation), not equal to tick.total_us/1000. setup_us separately measures Duel.new/start. Sample arrays serialized after timing, but retained across trials until process exit; this changes retained memory versus the old summary-only runner, symmetrically for A/B. headless CPU only, not render FPS.
+
+## Untimed gameplay trace
+Args --route= --weapon= --report= [--trace-prefix=]. Fixed 480ticks,seed377,1/60; two trials (cold process then warm process). Canonical direct-production state, no trace subclass. schema mountainstill.gameplay-trace.v1; route,weapon,technique,seed,ticks,dt,engine,os,architecture,source_sha256,duel_fields. trials[] each contains trial,cache_phase,ticks,trace_sha256,events_sha256,tick_hashes[480]{tick,state_sha256,event_sha256},trace_bytes. Optional .bin artifact per trial holds entire canonical rows.
+
+Every tick row includes complete emitted events,pose,Rig, all non-object Duel variable names explicitly frozen in FIELDS (including lanes, pending, cooldown/qi/combat state), RNG/enemy RNG state, module role/key (including null role slots) + script/selection_count/context/definition, Report values/actions/contacts. module_registry arbitrary internals and object/cache byte equality are NOT covered; nested Objects become class+script path. No arbitrary Object memory/full-engine-state claim.
+
+canonical recursively type-tags every value; dictionaries represented as ordered key/value entry arrays, preserving key type AND insertion order; gameplay arrays preserve order. var_to_bytes uses Godot Variant scalar/vector floating representation (not JSON float conversion); typed-container metadata and arbitrary NaN payload preservation are not asserted. Hash rows immediately, and store deep canonical snapshots before next advance. Timing never includes this probe. Per-tick state hash includes events. Complete trace hash also captures tick count/order. OS/path/timing metadata outside hashed trace.
+
+Compare A(v20)/B(v21) same-host, matching cold/warm trials and per-tick hashes/events; never require cross-OS hash equality. Compare engine/hash metadata separately. No report/parse/crash/mismatched shapes is failure, not skipped success. Cold and warm equality can be inspected additionally; no actual cross-version equality may be inferred from timing checksum alone.

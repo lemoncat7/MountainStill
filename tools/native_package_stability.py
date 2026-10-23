@@ -143,11 +143,13 @@ def read_log_bounded(path):
     return data.decode('utf-8', errors='replace')
 
 
-def session(binary, root, label, frames, minimum, timeout, rows_out, registry):
+def session(binary, root, label, frames, minimum, timeout, rows_out, registry, diagnostic=False):
     logfile = root / (label + '.engine.log')
     stdoutfile = root / (label + '.stdout.log')
     command = [str(binary), '--headless', '--verbose', '--log-file', str(logfile),
                '--max-fps', '60', '--quit-after', str(frames)]
+    if diagnostic:
+        command.append('--print-fps')
     process = None
     started = time.monotonic()
     launch_epoch = time.time()
@@ -226,6 +228,7 @@ def session(binary, root, label, frames, minimum, timeout, rows_out, registry):
     finally:
         if process is not None and process.poll() is None:
             stop_failed_process(process)
+            emit('FAILED_PROCESS_CLEANUP',dict(phase=label,pid=process.pid,forced=True,exit_code=process.poll(),status='NOT_NORMAL_EXIT_NOT_PASS'))
         # Bounded complete engine evidence, including on failure; never save payload contents.
         for path in (stdoutfile, logfile):
             if path.exists():
@@ -236,6 +239,8 @@ def session(binary, root, label, frames, minimum, timeout, rows_out, registry):
                     if len(data)>LOG_BUDGET:
                         raise RuntimeError('LOG_BUDGET_EXCEEDED during terminal output')
                     emit('LOG_METADATA', dict(phase=label, file=path.name, bytes=len(data), sha256=hashlib.sha256(data).hexdigest()))
+                    if diagnostic:
+                        emit('FPS_DIAGNOSTIC', dict(phase=label, file=path.name, **fps_summary(data.decode('utf-8', errors='replace'))))
                     for line in data.decode('utf-8', errors='replace').splitlines():
                         for offset in range(0, max(len(line),1), 3000):
                             print('ENGINE_LOG ' + line[offset:offset+3000], flush=True)
@@ -296,8 +301,48 @@ def progress(seed, after, backup, offline_upper):
                 autosave_lifetime_delta=after['lifetime_seconds']-backup['lifetime_seconds'])
 
 
+def fps_summary(text):
+    # Godot 4.6.3 main.cpp prints integer process-frame bucket counts. These are
+    # NOT rendered FPS, exact total frames, or a GUI performance measurement.
+    values = [int(x) for x in re.findall(r'^Project FPS: ([0-9]{1,6}) \([0-9]+(?:\.[0-9]+)? mspf\)\s*$', text, re.M)]
+    return dict(bucket_count=len(values), first=values[0] if values else None,
+                last=values[-1] if values else None, minimum=min(values) if values else None,
+                maximum=max(values) if values else None,
+                mean=sum(values)/len(values) if values else None,
+                reported_bucket_frames=sum(values),
+                exact_total_frames='NOT_OBSERVED; initial buckets suppressed and final bucket may be buffered',
+                interpretation='process loop diagnostic only; NOT rendered FPS or stability pass')
+
+
+def failed_save_diagnostic(save, fixture, registry):
+    # Only after session finally has confirmed termination; never read a live
+    # Windows atomic-save sequence or emit arbitrary save payload/settings.
+    if not registry or any(p.poll() is None for p in registry):
+        raise RuntimeError('Diagnostic refused: child exit unconfirmed')
+    after = save_snapshot(save)
+    backup = save_snapshot(Path(str(save)+'.bak'))
+    return dict(status='FAILED_PHASE_ONLY_NOT_PASS', normal_exit_confirmed=False,
+                owned_exit_codes=[p.poll() for p in registry],
+                # Diagnostic mode is macOS ARM only: Popen uses -9 for SIGKILL.
+                # Literal avoids referencing a POSIX-only signal constant in Windows unit tests.
+                forced_sigkill_observed=any(p.poll()==-9 for p in registry),
+                lifetime_gain=after['lifetime_seconds']-fixture['lifetime_seconds'],
+                gathered_gain=after.get('counters',{}).get('gathered',0)-fixture.get('counters',{}).get('gathered',0),
+                fox_returns_gain=after['journey_completed']-fixture['journey_completed'],
+                herbs_gain=after['herbs']-fixture['herbs'], dew_gain=after['dew']-fixture['dew'],
+                autosave_lifetime_delta=after['lifetime_seconds']-backup['lifetime_seconds'],
+                saved_at_delta_from_fixture=after['saved_at']-fixture['saved_at'],
+                saved_at_age_seconds=time.time()-after['saved_at'],
+                gather_retained=after.get('activity')=='gather',
+                normal_power_retained=after.get('settings',{}).get('low_power') is False,
+                note='may include startup offline progress; forced exit is not a successful lifecycle')
+
+
 def main():
     configure_output()
+    diagnostic = sys.argv[1:] == ['--arm-diagnostic']
+    if sys.argv[1:] and not diagnostic:
+        raise RuntimeError('Unsupported arguments')
     results = []
     all_rows = []
     registry = []
@@ -308,6 +353,8 @@ def main():
         if (os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('RUNNER_ENVIRONMENT') != 'github-hosted'
                 or os.environ.get('GITHUB_REPOSITORY') != 'lemoncat7/MountainStill' or sys.platform not in PACKAGES):
             raise RuntimeError('Only official disposable repository Windows/macOS CI VMs supported')
+        if diagnostic and (sys.platform != 'darwin' or platform.machine().lower() not in ('arm64','aarch64')):
+            raise RuntimeError('ARM diagnostic must run only on native macOS ARM64')
         emit('PLATFORM', dict(os=sys.platform, architecture=platform.machine(), cpus=os.cpu_count(), tag=TAG))
         userdata = userdata_path()
         emit('USERDATA', dict(actual_os_path=str(userdata)))
@@ -319,7 +366,7 @@ def main():
             root = Path(scratch)
             binary = download_pinned(root)
             save = userdata/'cultivation_save.json'
-            idle = session(binary,root,'seed_idle',1800,20,90,all_rows,registry)
+            idle = session(binary,root,'seed_idle',1800,20,90,all_rows,registry,diagnostic)
             seed = save_snapshot(save)
             if seed.get('realm') != 0:
                 raise RuntimeError('Fixture assumption failed: new seed no longer realm0')
@@ -327,12 +374,20 @@ def main():
             save.write_text(json.dumps(fixture,ensure_ascii=False,allow_nan=False),encoding='utf-8')
             emit('EXTERNAL_FIXTURE',dict(activity='gather',journey='bamboo',remaining=300,repeat=True,
                                          source='only this job first boot save',scripts_injected=False))
-            long = session(binary,root,'gather_fox',LONG_FRAMES,MIN_WALL_SECONDS,LONG_TIMEOUT_SECONDS,all_rows,registry)
+            try:
+                long = session(binary,root,'gather_fox',LONG_FRAMES,MIN_WALL_SECONDS,LONG_TIMEOUT_SECONDS,all_rows,registry,diagnostic)
+            except Exception:
+                if diagnostic:
+                    try:
+                        emit('FAILED_SAVE_DIAGNOSTIC',failed_save_diagnostic(save,fixture,registry))
+                    except Exception as diagnostic_error:
+                        emit('FAILED_SAVE_DIAGNOSTIC_UNAVAILABLE',dict(type=type(diagnostic_error).__name__))
+                raise
             after = save_snapshot(save)
             backup = save_snapshot(Path(str(save)+'.bak'))
             evidence = progress(fixture,after,backup,long['ready_epoch']-fixture['saved_at']+1)
             emit('LIVE_PROGRESS', evidence)
-            restart = session(binary,root,'restart',1800,20,90,all_rows,registry)
+            restart = session(binary,root,'restart',1800,20,90,all_rows,registry,diagnostic)
             restored = save_snapshot(save)
             restored_backup = save_snapshot(Path(str(save)+'.bak'))
             for key in ('lifetime_seconds','herbs','dew','journey_completed','journey_bond'):

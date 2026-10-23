@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
 import native_package_stability as gate
 
@@ -18,6 +18,32 @@ def state(life=30):
 
 
 class StabilityContracts(unittest.TestCase):
+    def test_fps_diagnostic_not_rendered_or_exact_frames(self):
+        value=gate.fps_summary('Project FPS: 44 (22.73 mspf)\nProject FPS: 45 (22.22 mspf)\n')
+        self.assertEqual(value['bucket_count'],2)
+        self.assertEqual(value['reported_bucket_frames'],89)
+        self.assertEqual(value['mean'],44.5)
+        self.assertIn('NOT_OBSERVED',value['exact_total_frames'])
+        for text in ('ENGINE_LOG Project FPS: 40 (25 mspf)','Project FPS: NaN (1 mspf)','Project FPS: -1 (1 mspf)'):
+            self.assertEqual(gate.fps_summary(text)['bucket_count'],0)
+
+    def test_failed_diagnostic_never_reads_live_save(self):
+        with patch.object(gate,'save_snapshot') as reader:
+            for registry in ([],[Mock(poll=Mock(return_value=None))]):
+                with self.assertRaises(RuntimeError):gate.failed_save_diagnostic(Path('unused'),state(),registry)
+            reader.assert_not_called()
+
+    def test_failed_diagnostic_finite_bounded_summary_no_pass(self):
+        with tempfile.TemporaryDirectory() as root:
+            path=Path(root)/'save.json';after=state(100);after['secret_unrelated']='MUST_NOT_EMIT'
+            path.write_text(json.dumps(after));Path(str(path)+'.bak').write_text(json.dumps(state(90)))
+            result=gate.failed_save_diagnostic(path,state(),[Mock(poll=Mock(return_value=-9))])
+            self.assertEqual(result['lifetime_gain'],70)
+            self.assertTrue(result['forced_sigkill_observed'])
+            self.assertFalse(result['normal_exit_confirmed'])
+            self.assertEqual(result['status'],'FAILED_PHASE_ONLY_NOT_PASS')
+            self.assertNotIn('MUST_NOT_EMIT',json.dumps(result))
+
     def test_real_wall_gate_not_frame_count(self):
         gate.require_terminal(0,1200,1200)
         for code,wall in ((0,1199.99),(0,None),(124,1300),(1,1300)):

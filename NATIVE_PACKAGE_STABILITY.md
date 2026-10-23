@@ -45,3 +45,31 @@ python tests/native_package_stability_test.py
 ```
 
 Actual platform results must reach terminal states before reporting validation. A green scoped run is not first-stable readiness, GUI acceptance, indefinite leak freedom or performance certification.
+
+## ARM-only diagnostic continuation (first run preserved)
+
+Run 39959733545: Windows and Intel passed this scoped precheck; ARM reached the
+1500-second watchdog and was forcibly cleaned up. That is a failure, not a crash
+proof or successful lifecycle. Full original logs are preserved in the QA archive.
+
+Manual input `target=arm-diagnostic` (default) selects only the existing `macos-15`
+runner and additionally enables `--print-fps`. `target=all` retains the original
+three-runner observation without diagnostic mode. No automatic trigger was added.
+The exact v20 ZIP pins, normal-power gathering/fox fixture, 78000 frames,
+1200-second required post-readiness wall time, 300-second warmup, 1500-second
+watchdog, and 30-minute job timeout are unchanged.
+
+The diagnostic reports the engine's process-frame buckets from Godot 4.6.3
+`main/main.cpp` (`Project FPS` output). These are NOT rendered FPS, exact total
+frames or a GUI performance result: initial buckets are suppressed and buffered
+output may omit the tail. Each log is summarized separately; duplicate engine
+and stdout streams must not be summed. All logs retain the existing 12 MiB budget.
+
+If the long phase fails, first complete its existing failure cleanup and confirm
+all owned processes have terminated. Only then read bounded primary/backup saves
+from the job-created directory, emitting selected numeric deltas and fixed boolean
+checks, never arbitrary state. Mark this `FAILED_PHASE_ONLY_NOT_PASS`; forced
+SIGKILL is explicitly recorded. No restart or PASS is fabricated after failure.
+Unavailable/invalid save evidence is reported without replacing the original error.
+No SIGINT, new runtime control endpoint, script injection, lower frame count,
+low-power substitution, threshold relaxation, additional dependencies or permissions.

@@ -2,6 +2,15 @@ name: Native v20 package stability precheck
 
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'ARM diagnostic only, or original three-platform precheck'
+        type: choice
+        required: true
+        default: arm-diagnostic
+        options:
+          - arm-diagnostic
+          - all
 
 permissions: {}
 
@@ -16,13 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - runner: windows-2025
-            python: python
-          - runner: macos-15
-            python: python3
-          - runner: macos-15-intel
-            python: python3
+        include: ${{ fromJSON(inputs.target == 'arm-diagnostic' && '[{"runner":"macos-15","python":"python3"}]' || '[{"runner":"windows-2025","python":"python"},{"runner":"macos-15","python":"python3"},{"runner":"macos-15-intel","python":"python3"}]') }}
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
@@ -45,4 +48,11 @@ jobs:
           ${{ matrix.python }} source/tests/native_process_metrics_test.py
           ${{ matrix.python }} source/tests/native_package_stability_test.py
       - name: Pinned actual package twenty-minute lifecycle observation
-        run: ${{ matrix.python }} source/tools/native_package_stability.py
+        env:
+          OBSERVATION_TARGET: ${{ inputs.target }}
+        run: |
+          if [ "$OBSERVATION_TARGET" = arm-diagnostic ]; then
+            ${{ matrix.python }} source/tools/native_package_stability.py --arm-diagnostic
+          else
+            ${{ matrix.python }} source/tools/native_package_stability.py
+          fi

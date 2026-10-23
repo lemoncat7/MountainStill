@@ -62,7 +62,16 @@ def user_data_base():
     return Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share'))
 
 
+def configure_output():
+    # Windows redirected Actions stdout can default to a narrow code page even
+    # though Godot output was decoded as UTF-8. Keep full Unicode diagnostics.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, 'reconfigure'):
+            stream.reconfigure(encoding='utf-8', errors='backslashreplace')
+
+
 def main():
+    configure_output()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--godot', required=True)
     parser.add_argument('--project', type=Path, default=Path(__file__).resolve().parents[1])

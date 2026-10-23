@@ -123,3 +123,24 @@ Windows/macOS visual evidence.
 Local tests validate safety, pins, fixture isolation, exact/clamped expectations,
 Mac client-evidence limits and mocked lifecycle; they do not compile/run native
 AppKit/WinForms here. Native jobs and independent images are the next gate.
+
+## V5 Windows helper preparation retry
+
+Run39954270853 supplied actual-v20 normal/strip macOS ARM/Intel images and normal
+exits, independently reviewed for initial-scene proportions. Windows stopped
+safely after the seed boot: its geometry helper exceeded4seconds and no measured
+workarea existed; no Windows multi-size result is claimed. The close helper
+also exceeded2seconds although the owned process subsequently exited0.
+
+The narrow retry compiles the existing Windows C# helper once before starting
+any game process. Runtime calls load only capture.dll in the owned immediate
+RUNNER_TEMP/mountainstill-gui-* directory; unexpected paths, reparse points,
+existing compile output and failed preparation stop the probe. This removes
+repeated compiler startup from the geometry/capture/close budgets without
+extending those budgets or the55second owned-process safety limit. Native
+Windows compilation remains unverified until the actual runner retry.
+
+Manual workflow boolean windows_only=true selects only the already-approved
+windows-2025 runner; defaultfalse retains the fixed three-runner matrix. It does
+not accept arbitrary runner labels or change permissions. Prior macOS evidence
+and Windows failures remain separate; green Actions alone never means GUI pass.

@@ -1,8 +1,8 @@
-param([int]$TargetPid, [string]$OutputPath, [int]$Palette, [switch]$RequestClose, [switch]$GeometryOnly)
+param([int]$TargetPid, [string]$OutputPath, [int]$Palette, [switch]$RequestClose, [switch]$GeometryOnly, [switch]$PrepareAssembly, [string]$NativeAssembly)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
-Add-Type -ReferencedAssemblies System.Windows.Forms,System.Drawing @'
+$nativeSource = @'
 using System;
 using System.Runtime.InteropServices;
 public class CheckerboardForm : System.Windows.Forms.Form {
@@ -41,6 +41,27 @@ public class GuiProbe {
  }
 }
 '@
+# Compile once BEFORE any game starts, rather than paying C# compilation inside
+# every short geometry/capture/close deadline. Only the job-owned temp DLL is used.
+if ($env:GITHUB_ACTIONS -ne 'true' -or $env:RUNNER_ENVIRONMENT -ne 'github-hosted' -or $env:GITHUB_REPOSITORY -ne 'lemoncat7/MountainStill') { throw 'Only disposable official repository runner helper allowed' }
+if ([string]::IsNullOrWhiteSpace($NativeAssembly) -or -not [IO.Path]::IsPathRooted($NativeAssembly)) { throw 'Absolute job-owned helper assembly path required' }
+$assemblyFull = [IO.Path]::GetFullPath($NativeAssembly)
+$tempRoot = [IO.Path]::GetFullPath($env:RUNNER_TEMP).TrimEnd('\') + '\'
+$assemblyParent = [IO.Path]::GetDirectoryName($assemblyFull)
+if (-not $assemblyFull.StartsWith($tempRoot,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFileName($assemblyFull) -ne 'capture.dll' -or -not [IO.Path]::GetFileName($assemblyParent).StartsWith('mountainstill-gui-')) { throw 'Helper DLL must be in this driver job-owned temp directory' }
+$parentItem = Get-Item -LiteralPath $assemblyParent
+if (($parentItem.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Helper parent directory cannot be a reparse point' }
+if (([IO.Path]::GetDirectoryName($assemblyParent).TrimEnd('\') + '\') -ne $tempRoot) { throw 'Helper directory must be immediate child of RUNNER_TEMP' }
+$NativeAssembly = $assemblyFull
+if ($PrepareAssembly) {
+ if (Test-Path -LiteralPath $NativeAssembly) { throw 'Refusing to overwrite a pre-existing helper assembly' }
+ Add-Type -TypeDefinition $nativeSource -ReferencedAssemblies System.Windows.Forms,System.Drawing -OutputAssembly $NativeAssembly -OutputType Library
+ @{status='HELPER_PREPARED';assembly_bytes=(Get-Item -LiteralPath $NativeAssembly).Length} | ConvertTo-Json -Compress
+ exit 0
+}
+if (-not (Test-Path -LiteralPath $NativeAssembly -PathType Leaf)) { throw 'Prepared job-owned helper assembly missing' }
+if (((Get-Item -LiteralPath $NativeAssembly).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Helper DLL cannot be a reparse point' }
+Add-Type -Path $NativeAssembly
 $board = $null
 try {
  # Thread-local coordinate awareness only; no OS/user display setting changed.

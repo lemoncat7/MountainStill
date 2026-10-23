@@ -123,7 +123,7 @@ def capture_command(root, pid, output, palette):
     if sys.platform == 'win32':
         return ['powershell', '-NoProfile', '-NonInteractive', '-File',
                 str(Path(__file__).with_name('native_gui_capture.ps1')),
-                '-TargetPid', str(pid), '-OutputPath', str(output), '-Palette', str(palette)]
+                '-NativeAssembly',str(root/'capture.dll'),'-TargetPid', str(pid), '-OutputPath', str(output), '-Palette', str(palette)]
     return [str(root / 'capture'), str(pid), str(output), str(palette)]
 
 
@@ -131,7 +131,7 @@ def close_command(root, pid):
     if sys.platform == 'win32':
         return ['powershell', '-NoProfile', '-NonInteractive', '-File',
                 str(Path(__file__).with_name('native_gui_capture.ps1')),
-                '-TargetPid', str(pid), '-RequestClose']
+                '-NativeAssembly',str(root/'capture.dll'),'-TargetPid', str(pid), '-RequestClose']
     return [str(root / 'capture'), str(pid), '--request-close']
 
 
@@ -159,7 +159,7 @@ GEOMETRY_KEYS = ('geometry_version','window_mode','normal_width','normal_height'
 def geometry_command(root, pid):
     if sys.platform == 'win32':
         return ['powershell','-NoProfile','-NonInteractive','-File',
-                str(Path(__file__).with_name('native_gui_capture.ps1')),'-TargetPid',str(pid),'-GeometryOnly']
+                str(Path(__file__).with_name('native_gui_capture.ps1')),'-NativeAssembly',str(root/'capture.dll'),'-TargetPid',str(pid),'-GeometryOnly']
     return [str(root/'capture'),str(pid),'--geometry-only']
 
 
@@ -336,6 +336,11 @@ def main():
         with tempfile.TemporaryDirectory(prefix='mountainstill-gui-',dir=os.environ['RUNNER_TEMP']) as tmp:
             root=Path(tmp);name,sha,executable,size=PACKAGES[sys.platform]
             archive=root/name;download(archive,size,sha);extract(archive,root/'app');binary=root/'app'/executable
+            if sys.platform=='win32':
+                prepared=native_json(['powershell','-NoProfile','-NonInteractive','-File',
+                    str(Path(__file__).with_name('native_gui_capture.ps1')),'-PrepareAssembly','-NativeAssembly',str(root/'capture.dll')],60)
+                if prepared.get('status')!='HELPER_PREPARED':raise RuntimeError('Windows helper not prepared; app not evaluated')
+                bounded_log('NATIVE_HELPER_SETUP '+json.dumps(prepared))
             if sys.platform=='darwin':
                 architecture=platform.machine()
                 if architecture not in ('arm64','x86_64'):raise RuntimeError('Unexpected native macOS architecture')

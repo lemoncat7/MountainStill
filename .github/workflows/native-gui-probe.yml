@@ -2,6 +2,12 @@ name: Native GUI capability probe
 
 on:
   workflow_dispatch:
+    inputs:
+      windows_only:
+        description: Retry only Windows after a probe-only fix; default keeps all three OS
+        required: false
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -16,13 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - runner: windows-2025
-            python: python
-          - runner: macos-15
-            python: python3
-          - runner: macos-15-intel
-            python: python3
+        include: ${{ inputs.windows_only && fromJSON('[{"runner":"windows-2025","python":"python"}]') || fromJSON('[{"runner":"windows-2025","python":"python"},{"runner":"macos-15","python":"python3"},{"runner":"macos-15-intel","python":"python3"}]') }}
     runs-on: ${{ matrix.runner }}
     defaults:
       run:

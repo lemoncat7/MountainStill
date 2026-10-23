@@ -83,6 +83,18 @@ class Contracts(unittest.TestCase):
         self.assertIn('remaining=43-',source)
         self.assertIn('remaining=45-',source)
         self.assertIn('min(5,remaining)',source)
+    def test_windows_helper_precompiled_in_owned_scratch(self):
+        from unittest.mock import patch
+        root=Path('/tmp/mountainstill-gui-unit')
+        with patch.object(probe.sys,'platform','win32'):
+            for command in [probe.capture_command(root,1,root/'x.png',1),probe.geometry_command(root,1),probe.close_command(root,1)]:
+                self.assertIn('-NativeAssembly',command);self.assertIn(str(root/'capture.dll'),command)
+        ps=Path(probe.__file__).with_name('native_gui_capture.ps1').read_text()
+        self.assertIn('-OutputAssembly $NativeAssembly',ps);self.assertIn('Add-Type -Path $NativeAssembly',ps)
+        self.assertIn('immediate child of RUNNER_TEMP',ps);self.assertIn('ReparsePoint',ps)
+        workflow=(Path(probe.__file__).parents[1]/'.github/workflows/native-gui-probe.yml').read_text()
+        self.assertIn('windows_only:',workflow);self.assertIn('type: boolean',workflow)
+        self.assertNotIn('inputs.runner',workflow)
     def test_boot_identity_preserves_environment_failure(self):
         result=probe.check_boot_identity('ENVIRONMENT_UNAVAILABLE','renderer_failed','could not initialize opengl')
         self.assertEqual(result,('ENVIRONMENT_UNAVAILABLE','renderer_failed',False))

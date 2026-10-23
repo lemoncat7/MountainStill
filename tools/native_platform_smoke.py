@@ -16,6 +16,7 @@ TESTS = {
     'test_cultivation.gd': r'Cultivation tests: [1-9]\d* checks, 0 failures',
     'test_scene_art_layout.gd': r'Scene original-art layout: [1-9]\d* checks, 0 failures \(geometry/resource, not native graphics\)',
     'test_stone_recovery_contract.gd': r'Stone recovery contract: [1-9]\d* checks, 0 failures',
+    'test_chapter_practice_navigation.gd': r'Chapter practice navigation: [1-9]\d* checks, 0 failures',
     'test_practice_host.gd': r'Practice host: [1-9]\d* checks, 0 failures',
     'test_shutdown_lifecycle.gd': r'Shutdown lifecycle: [1-9]\d* checks, 0 failures',
     'update_policy_test.gd': r'update_policy: [1-9]\d* checks passed',

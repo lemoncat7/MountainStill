@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Driver output regression; runnable without Godot or a Windows host."""
 import io
+import re
 import sys
 import unittest
 from unittest.mock import patch
@@ -28,6 +29,27 @@ class OutputEncodingTests(unittest.TestCase):
                          [diagnostic.strip()])
         stdout.close()
         stderr.close()
+
+
+class ChapterPracticeMarkerTests(unittest.TestCase):
+    def test_eight_tests_preserve_previous_coverage(self):
+        self.assertEqual(set(smoke.TESTS), {
+            'test_cultivation.gd', 'test_scene_art_layout.gd',
+            'test_stone_recovery_contract.gd', 'test_practice_host.gd',
+            'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
+            'update_store_test.gd', 'test_chapter_practice_navigation.gd',
+        })
+
+    def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
+        pattern = smoke.TESTS['test_chapter_practice_navigation.gd']
+        self.assertIsNotNone(re.fullmatch(pattern,
+            'Chapter practice navigation: 386 checks, 0 failures'))
+        for line in ('', 'Chapter practice navigation: 0 checks, 0 failures',
+                     'Chapter practice navigation: 386 checks, 1 failures',
+                     'Chapter practice navigation: 386 checks, 0 failures EXTRA'):
+            self.assertIsNone(re.fullmatch(pattern, line), line)
+        self.assertTrue(smoke.unexpected_errors(
+            'ERROR: navigation failed', 'test_chapter_practice_navigation.gd'))
 
 
 if __name__ == '__main__':

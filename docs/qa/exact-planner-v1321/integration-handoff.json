@@ -1,0 +1,11 @@
+{
+  "baseline_main": "e367bea61f9d5d5def932bbe479932c500b6c6fe",
+  "research_library_id": "libfile_acfa4cd9a6c481919005dc0235c3c689",
+  "research_library_version": 2,
+  "research_zip_sha256": "f58192572e3208e42d20a4e2f581d3ab4af3a5d536e7131e66be80237513cd7c",
+  "files": {
+    "scripts/melee_contact_geometry.gd": "22f6d2e77daa089f14eed6bd4982c89561193f42aac485201beb704464b15752",
+    "scripts/duel_timeline.gd": "c71e5419b10010fc2b3225e515fc8c448676475e7d0b6dce18a9398b9b5432f9"
+  },
+  "no_native_extension": true
+}

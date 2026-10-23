@@ -134,15 +134,51 @@ static func _clearance_correction(probes:PackedVector2Array,data:Dictionary,cach
    var front:=_front_at_y(nose.y,data)
    if bool(front.valid):correction=maxf(correction,maxf(0.0,nose.x+3.0-Vector2(front.point).x))
  return correction
-static func fit_approach(hero:Dictionary,enemy:Dictionary,definition:Dictionary,origin:float,samples:Dictionary={})->Dictionary:
+# Exact builtin providers only: custom geometry callbacks may have side effects.
+const _PURE_FIT_PROVIDERS:=[preload("res://scripts/combat_modules/weapon_fan.gd"),preload("res://scripts/combat_modules/weapon_sword.gd"),preload("res://scripts/combat_modules/weapon_unarmed.gd")]
+static func _finite_fit_input(value:Variant,depth:int=0)->bool:
+ if depth>16:return false
+ match typeof(value):
+  TYPE_NIL,TYPE_BOOL,TYPE_INT,TYPE_STRING,TYPE_STRING_NAME:return true
+  TYPE_FLOAT:return is_finite(float(value))
+  TYPE_VECTOR2:return Vector2(value).is_finite()
+  TYPE_DICTIONARY:
+   for key in value:
+    if not _finite_fit_input(key,depth+1) or not _finite_fit_input(value[key],depth+1):return false
+   return true
+  TYPE_ARRAY:
+   for item in value:
+    if not _finite_fit_input(item,depth+1):return false
+   return true
+  TYPE_OBJECT:
+   return is_instance_valid(value) and value.get_script() in _PURE_FIT_PROVIDERS
+ return false
+static func _fit_pruning_safe(hero:Dictionary,enemy:Dictionary,definition:Dictionary,origin:float)->bool:
+ if not is_finite(origin):return false
+ for key in ["pose_provider","strike_provider"]:
+  var provider:Variant=hero.get(key)
+  if not (provider is Object) or not is_instance_valid(provider) or not provider.get_script() in _PURE_FIT_PROVIDERS:return false
+ return _finite_fit_input(hero) and _finite_fit_input(enemy) and _finite_fit_input(definition)
+# Only the timeline-owned planning cache may opt in. Public/legacy calls stay exact full evaluation.
+static func fit_approach(hero:Dictionary,enemy:Dictionary,definition:Dictionary,origin:float,samples:Dictionary={},trusted_planning_samples:bool=false)->Dictionary:
+ var can_prune:=trusted_planning_samples and _fit_pruning_safe(hero,enemy,definition,origin)
  var sources:=_clearance_sources(enemy,definition)
  var best:={"cost":INF,"target":origin,"aim":0.0,"crouch":0.0}
  for crouch in [0.0,5.0,10.0]:
   for ai in [0,-1,1,-2,2,-3,3,-4,4,-5,5,-6,6]:
+   # Same left-associated FP operations; subtract maximum possible contact bonus.
+   if can_prune and is_finite(float(best.cost)) and not (ai==0 and crouch==0.0):
+    var lower:float=maxf(0.0,0.0-2.0)*20.0+absf(float(ai))*0.45+crouch*0.16+0.0
+    lower-=5.0
+    if is_finite(lower) and lower>=float(best.cost):continue
    var candidate:=hero.duplicate();candidate.strike_aim=float(ai)*0.2;candidate.aim_crouch=crouch
    var measured:=measure(candidate,enemy,definition,samples)
    if not bool(measured.vertical_valid):continue
    var target:=clampf(float(measured.gap)+0.5,-70.0,110.0)
+   if can_prune and is_finite(float(best.cost)) and is_finite(float(measured.gap)) and is_finite(target) and not (ai==0 and crouch==0.0):
+    var lower:float=maxf(0.0,0.0-2.0)*20.0+absf(float(ai))*0.45+crouch*0.16+absf(target-origin)*0.015
+    lower-=5.0
+    if is_finite(lower) and lower>=float(best.cost):continue
    candidate.approach_origin=target
    var final_enemy:=separate(enemy,candidate,definition,sources,samples,false)
    var final:=measure(candidate,final_enemy,definition,samples)

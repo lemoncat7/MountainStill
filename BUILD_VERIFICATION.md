@@ -1,3 +1,49 @@
+# v1.3.21-test.1 构建与兼容验证
+
+本轮只集成纯 GDScript 精确规划剪枝。保留候选顺序、strict-less 胜出、平局与原浮点运算；公共默认调用和自定义 provider 完整保留旧路径，只有 Duel 内部新建可信 planning samples 的两处调用显式启用。无 GDExtension、动态库或新增 native runtime 依赖；美术、存档 schema4、Bootstrap ABI1、更新命名空间不变。
+
+## 冻结、独立审查与源码回归
+- 70 项 runtime/config 冻结清单 SHA256：`7e08358b2f03a2397ca7897fdd63089fc95b24b78080f576a0b1c9e8127d8cae`。构建另绑定 601 项脚本/资源/config；导出后与冻结无差异。
+- 两份研究最终实现：Geometry `22f6d2e77daa089f14eed6bd4982c89561193f42aac485201beb704464b15752`；Duel `c71e5419b10010fc2b3225e515fc8c448676475e7d0b6dce18a9398b9b5432f9`。必要九个版本文件同步，不改变 save schema 或 updater 行为。
+- 作者与独立审查分别执行最终自包含专项：217 checks / 0 failures，exit0；本轮全量源回归再次通过该入口。真实 neutral early-return 32 次、finite equal-best 2 次；公共默认/false、trusted fresh/warm、自定义 provider、污染外部 samples 和 fail-open 边界按测试设计覆盖。finite tie 是公共默认路径 fixture，不冒充 trusted-path 对恶意 samples 的保证。
+- 最终源码 GDScript 回归共 112 入口：102 主入口加 10 更新入口，111 个 exit0；唯一失败为既有 encounter_balance 的 4474 检查中 2 条 summit 剑式节奏断言，实测 6.82 秒低于原 7 秒下界。没有删除或放宽阈值；无新增测试失败或 SCRIPT ERROR。
+- 环境重启前 61 个已终态记录保留并逐日志哈希核验，余下 41 个重新执行；中断的两份未终态日志保留，不当作通过。10 更新入口串行通过，另有源码真实 HTTP 两进程持久限流重启通过。
+- 13 个 native CI 驱动 Python 文件共 149 个单元测试全部通过；这是驱动逻辑验证，不是原生平台运行。main `e367bea61f9d5d5def932bbe479932c500b6c6fe` 的 48 项 native workflow/doc/test/tool 逐字节保留；其旧 pin 仍是历史对象，不能称 v21 原生 CI。
+- 本轮未重跑长时敏感度/性能压力套件，不将 112 入口扩称全部长期或正式性能门禁。
+
+## 实际导出与发行载荷
+- Godot 4.6.3 官方工具/模板导出 Windows AMD64 与 macOS x86_64/arm64 universal。结构、版本、权限、资源签名目录、manifest 长度/SHA 与生产 Policy/Guard 检查通过；结构检查不是目标操作系统启动、公证或签名可信性验收。
+- Linux Godot 从空项目直接加载实际 Windows EXE 内嵌载荷与 Mac 包 PCK，不回退到源码 runtime。两平台各 336 活跃资源加载通过；新精确规划专项各 217/0。两平台已有控场 4973、导航 386、石灵契约 22851、石灵显示 3239、装备 UI 12166，以及装备状态、容量与搜尸等专项全部通过。
+- 两帧石灵 retract/settle 贴图经真实 CanvasItem draw 选用，256×256 import/remap/ctex 与锚点实际载入通过；透明天空与不透明落脚地景资源检查通过。此项不取代真实 GPU GUI。
+- 实际载荷 rate-limit 55 检查、deadline 19 检查各通过；两平台完整包 Service 在真实 localhost HTTP 夹具中各 67 检查通过，持久限流两进程 seed/verify 均通过。这不代表公共 GitHub 下载或外网更新链。
+- 初次默认 HOME 不可写使 editor import/export 阶段 exit1、产物 Guard 启动 exit-6；日志保留。改用任务内隔离 HOME/XDG 后对应阶段成功重跑，未改产品代码、测试或门槛。最终九个阶段均 exit0，不宣称首次全绿。
+
+## 原安装、存档与更新兼容
+- 已公开 v1.3.10 与 v1.3.20 的 Windows/macOS 原包真实载荷，各普通/100 装备待领存档、各两次启动：共 16 次旧 Bootstrap 挂载最终新 PCK 通过。
+- 原装备、战术、战报与货币保留；v10 仍按既有规则迁移 balanced。满行箧 pending 失败原子性、显式整理后重试、ready 尸体派生 hold、重开后亲领与不重复领奖通过；试招仍隔离资源与正式进度。
+- 旧 Bootstrap 上本章敌情→试招→返回的检查保持真实 State，临时控场计数显示而不写正式战报；旧不可变 Service 保留。v10 继续提示需要完整包获得限流保护，v20 保留原保护。
+- 新 v21 完整包加载合法 active v20：两平台各两次启动，共 4 次，旧游戏内容、active 记录、原存档和新安装 Service 均保留；不声称覆盖安装强制换内容或删除 active。
+- 新包 Bootstrap 正常启动、marker 删除失败故障注入和新 Service 面板能力检查通过。故障注入日志有预期 ERROR，不是实际产品新失败，也不写成零 ERROR。更新 PCK 不含受保护 Bootstrap/Service/Store。
+
+## Linux 原生 GUI：已验证范围
+- 冻结候选独立副本，真实 Linux/X11 桌面、Godot 4.6.3、llvmpipe；入口 `main.tscn`。三次隔离 GUI 会话正常关闭，均 `NATIVE_EXIT=0`，无 SCRIPT ERROR。
+- 真实合法装备剑、徒手、扇试招自然完成；暂停/继续、同敌重试、Esc 取消、同敌与原浏览章返回通过。960×540 与 1200×400、游戏 UI 125% 下主要布局完整；根代理复核五张原图采样未见新黑块、形变或条形结果裁切。
+- 前后完整存档差异仅保存时间和窗口设置；正式资源、战报、历练和胜场不变。合法高阶输入不是本轮重新自然养成，三个场景的耗时也不是跨武器平衡性比较。
+- VSync 不受驱动支持及音频回退 Dummy 日志仍存在。不证明每一帧无闪烁、音频通过、真实 GPU/FPS 改善、DPI/置顶/穿透或本版 Windows/macOS 原生 GUI。详见 `docs/EXACT-PLANNER-v1.3.21-NATIVE-GUI.md`。
+
+## 源打包与证据边界
+源码打包清单已从 14 项历史 native 工具补齐当前 main 的 48 项，不将研究 native 实验加入产品。最终 Source ZIP 必须全成员 CRC、完整 allowlist 集合、逐成员当前源码字节与 70 runtime/2 专项/48 CI hash 共同通过；不打包 HOME/XDG、缓存、日志、用户存档或凭据。最终归档 SHA 与逐成员结论随外部 Build QA 一并保存，避免源 ZIP 自引用自身 hash。
+
+当前本轮动态结果摘要在 `docs/qa/exact-planner-v1321/final-build-summary.json`；作者、研究、独立集成及 GUI 报告保持各自时间点和覆盖边界，不将其中“当时待验”改写成作者亲自完成后续构建。
+
+## 仍是测试版：已知缺口未关闭
+研究云坡扇 worst CPU tick 约106–118ms→54–56ms，但三个候选场景 worst 仍全部超过33.3ms；p95 观察到 +0.225–0.237ms，总耗时中位数仅小降，其他场景没有稳健普遍峰值收益。共享环境 headless ABBA 不是 GUI、GPU、FPS 或跨硬件保证；不宣称全面性能提升、零回退或正式性能达标。
+
+既有两条节奏断言失败保留。本轮未完成 Windows/macOS 原生 GUI/CPU 正式验收、长时稳定性、Windows 代码签名或 Apple Developer ID/公证。发布、远端 commit/release 和公共下载后 hash/公共更新链需发布后另验，不预称已完成。
+
+---
+# 历史构建记录（不作为 v21 本轮证据）
+
 # v1.3.20-test.1 构建与兼容验证
 
 本轮只在镜中试招结果补充临时控场反馈：实际霜滞影响的敌方新起手、确实中断的敌动作（包括收势）。两项可能重叠，不等于施法次数、破势总数、避免命中次数、节省秒数或普遍胜率；缺字段显示“未记录”，不冒充零。正式战斗引擎、战报、State、存档、美术均未改。

@@ -1273,7 +1273,7 @@ func _plan_melee_approach(action:Dictionary)->void:
 	for iteration in range(5):
 		var at:=float(action.start)+float(action.contacts[0].time)
 		var enemy:=_predicted_enemy_motion(at)
-		var fit:=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(action.approach_origin),planning_samples)
+		var fit:=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(action.approach_origin),planning_samples,true)
 		action.approach_target=fit.target;action.strike_aim=fit.aim;action.aim_crouch=fit.crouch
 		var old_windup:=float(action.windup)
 		var next_windup:=maxf(old_windup,(absf(float(action.approach_target)-float(action.approach_origin))/100.0+0.18)/float(action.action_rate))
@@ -1292,7 +1292,7 @@ func _plan_melee_approach(action:Dictionary)->void:
 		var fit:Dictionary={}
 		for iteration in range(4):
 			var enemy:=_predicted_enemy_motion(float(action.start)+float(action.contacts[index].time))
-			fit=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(previous.target),planning_samples)
+			fit=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(previous.target),planning_samples,true)
 			var segment_start:=float(action.contacts[index-1].time)+float(action.hold)
 			var needed:=(absf(float(fit.target)-float(previous.target))/100.0+0.10)/float(action.action_rate)
 			var added:=maxf(0.0,needed-(float(action.contacts[index].time)-segment_start))

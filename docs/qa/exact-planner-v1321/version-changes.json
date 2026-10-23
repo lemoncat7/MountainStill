@@ -1,0 +1,11 @@
+{
+  "project.godot": 1,
+  "export_presets.cfg": 4,
+  "scripts/update_service.gd": 1,
+  "scripts/update_store.gd": 1,
+  "tools/package_updater_delivery.py": 1,
+  "tools/write_update_manifest.py": 1,
+  "tools/verify_updater_artifacts.py": 4,
+  "tests/update_http_fixture.py": 3,
+  "tests/update_store_test.gd": 2
+}

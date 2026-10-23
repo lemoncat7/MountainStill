@@ -1,0 +1,136 @@
+{
+  "manifest_sha256": "7e08358b2f03a2397ca7897fdd63089fc95b24b78080f576a0b1c9e8127d8cae",
+  "source_fixture_sha256": "48ec671124fa110139adcfcd886b88099477f5636a01c063986da8e074c554ad",
+  "exact-planner-native-qa/MountainStill": {
+    "files": {
+      "checked": 70,
+      "mismatch": []
+    },
+    "tests": {
+      "checked": 2,
+      "mismatch": []
+    }
+  },
+  "exact-planner-v1321": {
+    "files": {
+      "checked": 70,
+      "mismatch": []
+    },
+    "tests": {
+      "checked": 2,
+      "mismatch": []
+    }
+  },
+  "sword": {
+    "exit_0": true,
+    "script_error": false,
+    "save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792778890,
+        "after": 1792779155
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      }
+    ],
+    "adventure_unchanged": true,
+    "reports_unchanged": true,
+    "resources_unchanged": true,
+    "victories": [
+      18,
+      18
+    ],
+    "ui_scale": 1.25
+  },
+  "unarmed": {
+    "exit_0": true,
+    "script_error": false,
+    "save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792779186,
+        "after": 1792779310
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 4
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 108
+      }
+    ],
+    "adventure_unchanged": true,
+    "reports_unchanged": true,
+    "resources_unchanged": true,
+    "victories": [
+      18,
+      18
+    ],
+    "ui_scale": 1.25
+  },
+  "fan": {
+    "exit_0": true,
+    "script_error": false,
+    "save_diffs": [
+      {
+        "path": "/saved_at",
+        "before": 1792779333,
+        "after": 1792779541
+      },
+      {
+        "path": "/settings/height",
+        "before": 540,
+        "after": 400
+      },
+      {
+        "path": "/settings/normal_x",
+        "before": -99999,
+        "after": 202
+      },
+      {
+        "path": "/settings/normal_y",
+        "before": -99999,
+        "after": 198
+      },
+      {
+        "path": "/settings/width",
+        "before": 960,
+        "after": 1200
+      },
+      {
+        "path": "/settings/window_mode",
+        "before": "window",
+        "after": "strip"
+      },
+      {
+        "path": "/settings/window_x",
+        "before": -99999,
+        "after": 82
+      },
+      {
+        "path": "/settings/window_y",
+        "before": -99999,
+        "after": 524
+      }
+    ],
+    "adventure_unchanged": true,
+    "reports_unchanged": true,
+    "resources_unchanged": true,
+    "victories": [
+      18,
+      18
+    ],
+    "ui_scale": 1.25
+  }
+}

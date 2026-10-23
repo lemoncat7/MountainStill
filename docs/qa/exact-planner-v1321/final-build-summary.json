@@ -1,0 +1,118 @@
+{
+  "version": "1.3.21-test.1",
+  "baseline_main": "e367bea61f9d5d5def932bbe479932c500b6c6fe",
+  "runtime_freeze_sha256": "7e08358b2f03a2397ca7897fdd63089fc95b24b78080f576a0b1c9e8127d8cae",
+  "runtime_files": 70,
+  "runtime_build_files": 601,
+  "targeted_tests": 2,
+  "native_ci_files": 48,
+  "source_gd_entries": 112,
+  "source_exit0": 111,
+  "known_balance_checks": 4474,
+  "known_balance_failed_assertions": 2,
+  "new_script_errors": false,
+  "targeted_source_and_each_actual_payload_checks": 217,
+  "targeted_failures": 0,
+  "resources_per_actual_payload": 336,
+  "old_bootstrap_boots": 16,
+  "old_versions": [
+    "1.3.10-test.1",
+    "1.3.20-test.1"
+  ],
+  "full21_active20_boots": 4,
+  "native_ci_driver_files": 13,
+  "native_ci_driver_tests": 149,
+  "native_ci_driver_failures": 0,
+  "actual_http_phases": 6,
+  "actual_http_exit0": 6,
+  "linux_gui_exit0_sessions": 3,
+  "final_stage_count": 9,
+  "final_stages": [
+    {
+      "stage": "updater-progress",
+      "exit": 0,
+      "seconds": 27.0,
+      "sha256": "5d486ae01cfc1ff381b853434f1f7c6b71d69c532c3b9f6107435f5abe093a78"
+    },
+    {
+      "stage": "update-restart-source",
+      "exit": 0,
+      "seconds": 0.97,
+      "sha256": "2e8f77d491764679b1a18e7ee2cbbdea28dc4058ed43f656588e16bcae744a90"
+    },
+    {
+      "stage": "export-progress",
+      "exit": 0,
+      "seconds": 38.05,
+      "sha256": "df452cec3c042a653ba19b8937980232bee82e2cc898aa4a0264c62cb4855514"
+    },
+    {
+      "stage": "native-structure",
+      "exit": 0,
+      "seconds": 2.07,
+      "sha256": "ef6eb74a1091f107117b9c22c06c93bc7ed36505dd5070245dcd7b56c74591a7"
+    },
+    {
+      "stage": "artifact-policy-guard",
+      "exit": 0,
+      "seconds": 1.22,
+      "sha256": "36c9437d927687048b72c4dac728824a7f4830a2205cc35f440bfa910e94c244"
+    },
+    {
+      "stage": "new-payload-results",
+      "exit": 0,
+      "seconds": 88.68,
+      "sha256": "4f789dab684038deee9cfa18f7215bc0d77204aaa298ceeef7f9931c2e906ec8"
+    },
+    {
+      "stage": "bootstrap-results",
+      "exit": 0,
+      "seconds": 97.2,
+      "sha256": "b59a6732db8647bf6000c4128ea96d607cdccc3190d76449747dc6441307217f"
+    },
+    {
+      "stage": "existing-active-results",
+      "exit": 0,
+      "seconds": 19.18,
+      "sha256": "4fea1f4a036c0da8924bba553b3023a06c508b7b5c118189af8263efea61b374"
+    },
+    {
+      "stage": "actual-http-results",
+      "exit": 0,
+      "seconds": 7.79,
+      "sha256": "02c0e7ff2c05e358196e9baa2d2119d577518ab17736c3ddf2885dd557572350"
+    }
+  ],
+  "recovered_attempts": [
+    {
+      "stage": "export-progress",
+      "exit": 1,
+      "sha256": "c8cf74828bd0d7cf5b893c4f2573082ee83213c0a9745689ad0e5d1143730843",
+      "reason": "default HOME not writable; rerun with task-local isolated HOME/XDG"
+    },
+    {
+      "stage": "artifact-policy-guard",
+      "exit": -6,
+      "sha256": "90bca2166de26fcf1949fd803f008fe96c41bd9958e106bc5644989390c44965",
+      "reason": "default HOME not writable; rerun with task-local isolated HOME/XDG"
+    }
+  ],
+  "not_claimed": [
+    "native Windows/macOS execution or GUI acceptance",
+    "formal CPU worst-tick threshold",
+    "long-duration sensitivity/performance suites rerun",
+    "public release or public updater verification",
+    "code signing/notarization"
+  ],
+  "evidence_hashes": {
+    "regression/results.json": "f6f246e228374083098e46f2ebdbb606f1c26b4d0c5b1c795552e497623819cb",
+    "regression/updater-results.json": "a8e2058a3d36a0975b8f0fe9cc5df53fa04177140b7cdfa82b29f13203bd49bf",
+    "stage-results.json": "0f01755f645a22fb3dad07abd56dfd633826b12491a4b16dae5e202266cd9c63",
+    "new-payload-results.txt": "4f789dab684038deee9cfa18f7215bc0d77204aaa298ceeef7f9931c2e906ec8",
+    "bootstrap-results.txt": "b59a6732db8647bf6000c4128ea96d607cdccc3190d76449747dc6441307217f",
+    "EXISTING_ACTIVE_RESULTS.json": "0ef0d3b37a963293885db8c530639fa0cb82891ffc4b59b327476fc3c6ed4c6d",
+    "ACTUAL_HTTP_RESULTS.json": "66292a10732a82d3b29e09df32b964ddd0d1dcacc640e3de07637ce70365b478",
+    "ci-driver-results.json": "0d83fec28bc818f1dab99a16b38b46e8c3a33116ee75f49f8ca361ea61a881e5",
+    "source-log-audit.json": "952a425aac43bb0181784515335dbda2c0b53e009cc74a7f387c7990eb7d2a82"
+  }
+}

@@ -10,7 +10,7 @@ import native_gui_probe as probe
 
 class Contracts(unittest.TestCase):
     def test_default_renderer_args(self):
-        self.assertEqual(probe.ARGS, ['--verbose','--max-fps','60','--quit-after','600'])
+        self.assertEqual(probe.ARGS, ['--verbose','--max-fps','60'])
     def test_pin(self):
         self.assertEqual(probe.TAG, 'v1.3.17-test.1')
         self.assertEqual(len(probe.PACKAGES),2)
@@ -58,6 +58,31 @@ class Contracts(unittest.TestCase):
         tools=Path(probe.__file__).parent
         self.assertNotIn('min(area.width, 720', (tools/'native_gui_capture.swift').read_text())
         self.assertIn('GetClientRect', (tools/'native_gui_capture.ps1').read_text())
+    def test_owned_save_evidence(self):
+        import json
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp);(path/'.native-package-ci-owner').write_text('ours')
+            (path/'cultivation_save.json').write_text(json.dumps({'version':4,'lifetime_seconds':12.5}))
+            self.assertEqual(probe.owned_save_snapshot(path,'other')['status'],'ownership_unverified_not_read')
+            data=probe.owned_save_snapshot(path,'ours')
+            self.assertEqual(data['status'],'valid');self.assertEqual(data['lifetime_seconds'],12.5)
+    def test_marker_read_failure_is_diagnostic_only(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp);(path/'.native-package-ci-owner').write_text('ours')
+            with patch.object(Path,'read_text',side_effect=PermissionError('busy')):
+                self.assertEqual(probe.owned_save_snapshot(path,'ours')['status'],'unverified')
+    def test_normal_close_not_force_or_automatic_quit(self):
+        self.assertNotIn('--quit-after',probe.ARGS)
+        tools=Path(probe.__file__).parent
+        self.assertIn('PostMessageW($h,0x0010', (tools/'native_gui_capture.ps1').read_text())
+        swift=(tools/'native_gui_capture.swift').read_text()
+        self.assertIn('app.terminate()',swift);self.assertNotIn('forceTerminate',swift)
+        source=Path(probe.__file__).read_text()
+        self.assertIn('target = min(37.5, first_capture_at + 8)',source)
+        self.assertIn('remaining = 43 -',source)
+        self.assertIn('remaining_close = 45 -',source)
+        self.assertIn('timeout=min(5, remaining)',source)
     def test_controlled_backdrop_contract(self):
         tools=Path(probe.__file__).parent
         swift=(tools/'native_gui_capture.swift').read_text(); ps=(tools/'native_gui_capture.ps1').read_text()

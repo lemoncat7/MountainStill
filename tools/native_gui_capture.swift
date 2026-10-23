@@ -23,6 +23,15 @@ import ScreenCaptureKit
     defer { backdrop?.orderOut(nil); backdrop?.close() }
     do {
       let pid = Int32(CommandLine.arguments[1])!
+      if CommandLine.arguments[2] == "--request-close" {
+        guard let app = NSRunningApplication(processIdentifier:pid), !app.isTerminated else {
+          report(["status":"CLOSE_REQUEST_REFUSED", "reason":"owned_pid_not_running_application", "owner_pid":pid]); return
+        }
+        let sent = app.terminate()
+        report(["status":sent ? "CLOSE_REQUEST_SENT" : "CLOSE_REQUEST_REFUSED", "owner_pid":pid,
+          "method":"NSRunningApplication.terminate normal application Quit", "handler_handled":"unknown",
+          "request_return_does_not_prove_exit":true,"physical_red_button_test":false]); return
+      }
       let output = CommandLine.arguments[2]
       let palette = Int(CommandLine.arguments[3])!
       let screens = NSScreen.screens.map { ["x": $0.frame.origin.x, "y": $0.frame.origin.y,

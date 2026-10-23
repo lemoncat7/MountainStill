@@ -14,7 +14,7 @@ import time
 import uuid
 
 from native_package_smoke import (APP, claim_userdata, configure_output,
-                                  download, extract, userdata_path)
+                                  download, extract, userdata_path, read_save)
 
 # Independent immutable pin: later package-smoke upgrades MUST NOT retarget this probe.
 TAG = 'v1.3.17-test.1'
@@ -27,7 +27,7 @@ PACKAGES = {
                APP + '.app/Contents/MacOS/' + APP, 141109182),
 }
 PNG_BUDGET = 1024 * 1024
-ARGS = ['--verbose', '--max-fps', '60', '--quit-after', '600']
+ARGS = ['--verbose', '--max-fps', '60']
 
 
 def frame_png(path, remaining):
@@ -126,6 +126,30 @@ def capture_command(root, pid, output, palette):
     return [str(root / 'capture'), str(pid), str(output), str(palette)]
 
 
+def close_command(root, pid):
+    if sys.platform == 'win32':
+        return ['powershell', '-NoProfile', '-NonInteractive', '-File',
+                str(Path(__file__).with_name('native_gui_capture.ps1')),
+                '-TargetPid', str(pid), '-RequestClose']
+    return [str(root / 'capture'), str(pid), '--request-close']
+
+
+def owned_save_snapshot(userdata, token):
+    # Diagnostic failures must not prevent our normal-close request.
+    try:
+        marker = userdata / '.native-package-ci-owner'
+        if userdata.is_symlink() or marker.is_symlink() or not marker.is_file() or marker.read_text(encoding='ascii') != token:
+            return {'status':'ownership_unverified_not_read'}
+        path = userdata / 'cultivation_save.json'
+        if not path.exists():
+            return {'status':'not_created_yet'}
+        saved = read_save(path)
+        return {'status':'valid', 'schema':saved['version'], 'lifetime_seconds':saved['lifetime_seconds'],
+                'mtime_ns':path.stat().st_mtime_ns, 'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    except (OSError, ValueError, AssertionError, TypeError, AttributeError) as error:
+        return {'status':'unverified', 'reason':str(error)[:200]}
+
+
 def main():
     configure_output()
     process = None
@@ -169,6 +193,7 @@ def main():
                 bounded_log('OWNED_LAUNCH ' + json.dumps({'pid':process.pid, 'args':ARGS}))
                 budget = PNG_BUDGET
                 captures = []
+                pngs = []
                 first_capture_at = None
                 for index in range(2):
                     # Late resource loading is a scheduling hint, NOT proof of a rendered frame.
@@ -181,31 +206,51 @@ def main():
                             ready_hint_at = elapsed
                         target = min(30, ready_hint_at + 2) if index == 0 and ready_hint_at is not None else 30
                         if index == 1:
-                            target = min(45, first_capture_at + 8)
+                            target = min(37.5, first_capture_at + 8)
                         if elapsed >= target:
                             break
                         time.sleep(.2)
                     if process.poll() is not None:
                         break
+                    if time.monotonic() - started > 38:
+                        break
                     if index == 0:
                         first_capture_at = time.monotonic() - started
                     bounded_log('CAPTURE_SCHEDULE ' + json.dumps({'index':index+1, 'elapsed_seconds':round(time.monotonic()-started,2), 'late_resource_hint_seconds':ready_hint_at, 'hint_is_not_render_proof':True}))
                     png = root / f'capture-{index + 1}.png'
-                    remaining = 55 - (time.monotonic() - started)
+                    remaining = 43 - (time.monotonic() - started)
                     if remaining <= 0:
                         break
                     try:
                         result = subprocess.run(capture_command(root, process.pid, png, index + 1), capture_output=True,
-                                                text=True, encoding='utf-8', errors='replace', timeout=min(15, remaining))
+                                                text=True, encoding='utf-8', errors='replace', timeout=min(5, remaining))
                         metadata = json.loads(result.stdout.strip())
                         bounded_log('CAPTURE_METADATA ' + json.dumps(metadata, ensure_ascii=True))
                         captures.append(metadata)
                         if metadata['status'] == 'ENVIRONMENT_UNAVAILABLE':
                             break
                         if metadata['status'] == 'CAPTURE_READY':
-                            budget -= frame_png(png, budget)
+                            size = png.stat().st_size
+                            if not 8 <= size <= budget:
+                                raise ValueError('PNG exceeds combined 1 MiB budget')
+                            budget -= size
+                            pngs.append(png)  # Emit AFTER close/reap; stdout must not delay close deadline.
                     except (ValueError, OSError, subprocess.TimeoutExpired) as error:
                         bounded_log('CAPTURE_ERROR ' + str(error))
+                before_save = owned_save_snapshot(userdata, token)
+                close_result = {'status':'CLOSE_NOT_SENT', 'handler_handled':'unknown'}
+                if process.poll() is None:
+                    remaining_close = 45 - (time.monotonic() - started)
+                    if remaining_close > 0:
+                        try:
+                            close_result = json.loads(subprocess.run(close_command(root, process.pid), capture_output=True,
+                                text=True, encoding='utf-8', errors='replace', timeout=min(2, remaining_close)).stdout.strip())
+                        except (ValueError, OSError, subprocess.TimeoutExpired) as error:
+                            close_result = {'status':'CLOSE_REQUEST_UNCONFIRMED', 'reason':str(error)[:300], 'handler_handled':'unknown'}
+                    else:
+                        close_result['reason']='close_deadline_missed_no_late_request'
+                close_result['observed_request_return_elapsed_seconds'] = round(time.monotonic()-started,2)
+                bounded_log('NATIVE_CLOSE_REQUEST ' + json.dumps(close_result))
                 remaining = max(.01, 55 - (time.monotonic() - started))
                 timed_out = False
                 try:
@@ -213,13 +258,19 @@ def main():
                 except subprocess.TimeoutExpired:
                     timed_out = True
                     stop_owned(process)
+            after_save = owned_save_snapshot(userdata, token)
+            bounded_log('CLOSE_SAVE_EVIDENCE ' + json.dumps({'before_request':before_save,'after_exit':after_save,
+                'synthetic_job_owned_userdata_only':True,'write_causality':'unknown_autosave_may_race',
+                'handler_handled':'unknown','request_result':close_result,'forced_timeout':timed_out}))
+            for png in pngs:
+                frame_png(png, PNG_BUDGET)
             output = (root / 'game.log').read_text(encoding='utf-8', errors='replace')
             # Public synthetic first-run data only; bounded renderer/startup diagnostics.
             bounded_log('GAME_LOG_HEAD_BEGIN\n' + output[:16000] + '\nGAME_LOG_HEAD_END')
             bounded_log('GAME_LOG_TAIL_BEGIN\n' + output[-24000:] + '\nGAME_LOG_TAIL_END')
             bounded_log('ENVIRONMENT_LIMITATIONS ' + json.dumps({'engine_automatic_dummy_audio_fallback':'All audio drivers failed, falling back to the dummy driver.' in output, 'engine_automatic_angle_fallback':'switching to ANGLE' in output}))
             print(json.dumps({'exit_code': process.returncode, 'elapsed_seconds':round(time.monotonic()-started,2),
-                              'forced_timeout':timed_out, 'normal_exit_is_not_ui_close_test':True}))
+                              'forced_timeout':timed_out, 'normal_exit_is_not_physical_ui_click_test':True, 'quit_after_removed':True}))
             status, reason = classify(output, process.returncode, timed_out, captures, budget < PNG_BUDGET)
     except Exception as error:
         reason = type(error).__name__ + ': ' + str(error)

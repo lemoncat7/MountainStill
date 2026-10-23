@@ -15,10 +15,10 @@ The default new userdata directory is atomically claimed; any pre-existing path
 blocks launch. Only owned synthetic userdata is removed. Auto-update network
 checking is disabled via normal user preference to retain the pinned app.
 
-Launch arguments: `--verbose --max-fps 60 --quit-after 600`. This is graphical,
+Current launch arguments (revision4): `--verbose --max-fps 60`. No automatic frame-count quit. This is graphical,
 not headless or simulated fixed FPS. Collect startup/renderer logs, visible
-PID-owned window geometry and actual DPI/scale, then full visible native-pixel window/client captures. First capture follows a late-resource load hint by two seconds, or falls back at 30 seconds; the second follows eight seconds later, at most 45 seconds. A resource hint is NOT proof of rendering. The lower 600 physical-frame quit budget allows normal exit on slower runners without simulated FPS. Termination begins at 55 seconds with up to four seconds reserved for kill/reap (60-second budget); terminate only our launched process
-(tree on Windows). Normal `--quit-after` exit is **not** UI-close validation.
+PID-owned window geometry and actual DPI/scale, then full visible native-pixel window/client captures. First capture follows a late-resource load hint by two seconds, or falls back at 30 seconds; the second follows eight seconds later, at most 45 seconds. A resource hint is NOT proof of rendering. Revision2/3 used a 600-physical-frame quit budget; revision4 replaces that with an explicit native normal-close request. Termination begins at 55 seconds with up to four seconds reserved for kill/reap (60-second budget); terminate only our launched process
+(tree on Windows). Historical `--quit-after` exits are **not** UI-close validation; revision4 requests native closing but still does not physically click the UI.
 
 Windows: read input desktop; local helper thread DPI context; GDI BitBlt
 SRCCOPY | CAPTUREBLT captures composited desktop including layered windows.
@@ -111,3 +111,39 @@ animation differences do not count as transparency. Black/unchanged sky without
 a visible control strip or without verified backdrop rendering remains
 inconclusive, not a proven transparency defect. Two normal exits do not prove
 multi-DPI behavior, interactions, performance, UI-close or formal readiness.
+
+## Normal native-close extension (revision 4)
+
+V3 sky transparency was independently observed on all3OS at current scale1,
+but Windows `--quit-after` exit reported music.wav/AudioStreamWAV playback leaks
+and Intel hit the deadline. Those results remain in the evidence archive; they
+are NOT automatically equivalent to a user clicking Close. No production-game
+change is made to hide them.
+
+The automatic `--quit-after` argument is now removed. Second capture starts no
+later than38s; each capture helper gets at most5s and cannot run beyond43s.
+PNG framing/output is deferred until after request/reap to avoid blocking close.
+By45s the driver attempts its normal-close helper, limited to2s:
+- Windows rechecks that the exact HWND belongs to the still-running owned PID,
+  then posts `WM_CLOSE` (not `WM_QUIT`, broadcast, force, or input injection).
+  Return success proves enqueue only; last-error refusal is retained without
+  privilege workaround. This tests close-message handling, not a mouse click.
+- macOS requests `NSRunningApplication(processIdentifier: pid).terminate()`.
+  It does not call forceTerminate, AppleScript, accessibility or TCC APIs. The
+  return boolean proves request submission only, not actual termination. This
+  is an application Quit request, NOT the red window-button test.
+
+The driver observes the real owned process afterward;55s still starts the same
+bounded safety termination. Handler execution is `unknown` absent direct proof.
+Before request and after exit it reads only its marker-verified synthetic
+userdata save: bounded regular JSON/schema/lifetime plus mtime and SHA.
+Changed save evidence can corroborate persistence but autosave can race, so
+write causality remains unknown. API-return, exitcode, forced-timeout, game
+errors, save evidence and cleanup errors remain distinct. Refused/timed-out
+close requests never cause permissions, renderer or game settings to change.
+
+Primary references:
+- https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postmessagew
+- https://developer.apple.com/documentation/appkit/nsrunningapplication/terminate()
+- https://docs.godotengine.org/en/stable/tutorials/inputs/handling_quit_requests.html
+These establish request semantics, not exact shipped-binary handler equivalence.

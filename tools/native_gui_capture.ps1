@@ -1,4 +1,4 @@
-param([int]$TargetPid, [string]$OutputPath, [int]$Palette)
+param([int]$TargetPid, [string]$OutputPath, [int]$Palette, [switch]$RequestClose)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName System.Windows.Forms
@@ -15,6 +15,7 @@ public class CheckerboardForm : System.Windows.Forms.Form {
  }
 }
 public class GuiProbe {
+ [DllImport("user32.dll", SetLastError=true)] public static extern bool PostMessageW(IntPtr h, uint msg, IntPtr w, IntPtr l);
  [DllImport("user32.dll")] public static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int w, int height, uint flags);
  [DllImport("user32.dll")] public static extern IntPtr GetWindow(IntPtr h, uint command);
  [DllImport("user32.dll")] public static extern IntPtr GetDC(IntPtr h);
@@ -51,6 +52,15 @@ try {
  [void][GuiProbe]::CloseDesktop($desktop)
  $h = [GuiProbe]::Find($TargetPid)
  if ($h -eq [IntPtr]::Zero) { @{status='CAPTURE_INCONCLUSIVE';reason='no_visible_pid_window'} | ConvertTo-Json -Compress; exit 0 }
+ if ($RequestClose) {
+  [uint32]$actualPid = 0
+  [void][GuiProbe]::GetWindowThreadProcessId($h,[ref]$actualPid)
+  if ($actualPid -ne $TargetPid -or $null -eq (Get-Process -Id $TargetPid -ErrorAction SilentlyContinue)) { throw 'Owned PID/window no longer matches' }
+  $sent = [GuiProbe]::PostMessageW($h,0x0010,[IntPtr]::Zero,[IntPtr]::Zero)
+  $errorCode = if ($sent) { 0 } else { [Runtime.InteropServices.Marshal]::GetLastWin32Error() }
+  @{status=$(if ($sent) {'CLOSE_REQUEST_SENT'} else {'CLOSE_REQUEST_REFUSED'});owner_pid=$TargetPid;window_id=$h.ToInt64();method='PostMessage WM_CLOSE';win32_error=$errorCode;handler_handled='unknown';request_return_does_not_prove_exit=$true;physical_mouse_test=$false} | ConvertTo-Json -Compress
+  exit 0
+ }
  $r = New-Object GuiProbe+Rect
  [void][GuiProbe]::GetWindowRect($h,[ref]$r)
  $client = New-Object GuiProbe+Rect

@@ -61,6 +61,27 @@ static func _chapter_gate(h,row:Dictionary) -> String:
 		return str(row.get("locked_reason","山路尚未开启"))
 	return "已通关 · 可重游，首通心意只领一次" if int(row.get("clears",0))>0 else "已可出发 · 亲点后才进入这一章"
 
+static func _chapter_objective(h,chosen:Dictionary,status:Dictionary) -> String:
+	# Presentation only. The campaign already resolves the first unfinished
+	# chapter and its real gates, including old-route rereads and the epilogue.
+	# Never use the authored post-clear prose as a live breakthrough instruction.
+	if h.encounter_active or bool(status.get("active",false)) or bool(status.get("paused",false)):
+		var prefix:String="行程进行中 · " if h.encounter_active or bool(status.get("active",false)) else ("败退留有余地 · " if bool(status.get("failed",false)) else "上次停在 · ")
+		var progress:String="已过 %d / %d 敌"%[int(status.get("kills",0)),int(status.get("total",3))]
+		if bool(status.get("corpse_pending",false)):progress="遗物尚未搜取"
+		elif bool(status.get("opportunity_pending",false)):progress="机缘待回应"
+		return prefix+str(status.get("name",""))+" · "+progress
+	# A retained legacy/abandoned-route choice can outlive stage_run. The
+	# actual paper offers that choice before the selected chapter's reward.
+	var opportunity:Dictionary=h.state.opportunity_status()
+	if not opportunity.is_empty():return "机缘待回应 · "+str(opportunity.get("name","山间机缘"))+" · 可亲手择取。"
+	if bool(chosen.get("reward_pending",false)):
+		return "首通心意待领 · 可亲手收下；容量不足可稍后领取。"
+	if not bool(chosen.get("unlocked",false)):return _chapter_gate(h,chosen)
+	if int(chosen.get("clears",0))>0:
+		return "后续目标 · "+str(chapter_status(h).get("next_objective","这段山路已写入归途，可随心重游。"))
+	return "本章目标 · 走过两场交锋，击退守关者。"
+
 static func _depart(h):
 	# Read fresh state at click time: stale controls never overwrite a checkpoint.
 	if h.encounter_active:
@@ -146,7 +167,7 @@ static func build_expedition(h,x:float,y:float):
 		if index>=rows.size():break
 		var row:Dictionary=rows[index]
 		var id:String=str(row.id)
-		var hint:String=str(row.get("summary",row.get("description","")))+"\n"+_chapter_gate(h,row)+"\n首通："+str(row.get("first_clear_reward_text","关底收获")).replace("灵气","功德" if h.state.realm==h.state.MAX_REALM else "灵气")+"\n"+str(row.get("next_objective",""))+"\n"+str(row.get("rewards",""))
+		var hint:String=str(row.get("summary",row.get("description","")))+"\n"+_chapter_gate(h,row)+"\n首通："+str(row.get("first_clear_reward_text","关底收获")).replace("灵气","功德" if h.state.realm==h.state.MAX_REALM else "灵气")+"\n"+_chapter_objective(h,row,status)+"\n"+str(row.get("rewards",""))
 		var b:Button=button(h,"stage_"+id,str(row.name),Rect2(x,y+68+i*43,202,41),func():_inspect_chapter(h,id,h.state.stage_rows()),hint,false,str(chosen.get("id",""))==id)
 		b.set_meta("ink_region",true)
 	button(h,"stage_prev","‹",Rect2(x,y+203,31,25),func():
@@ -249,12 +270,7 @@ static func draw_expedition(h,x:float,y:float,a:float):
 	if story.is_empty():story=str(chosen.get("summary",chosen.get("description","循竹影前行，途经机缘，迎战镇关灵兽。")))
 	wrapped(h,story,Vector2(x+230,y+123),371,11,a,FADED,2)
 	var status:Dictionary=h.state.stage_status()
-	var objective:String="本章目标 · 走过两场交锋，击退守关者。"
-	if h.encounter_active:objective="行程进行中 · %s · 已过 %d / %d 敌"%[str(status.get("name","")),int(status.get("kills",0)),int(status.get("total",3))]
-	elif bool(status.get("paused",false)):
-		objective=("败退留有余地 · " if bool(status.get("failed",false)) else "上次停在 · ")+str(status.get("name",""))+" · 已过 %d / %d 敌"%[int(status.get("kills",0)),int(status.get("total",3))]
-	elif not bool(chosen.get("unlocked",false)):objective=_chapter_gate(h,chosen)
-	elif int(chosen.get("clears",0))>0:objective=str(chosen.get("next_objective","已通关 %d 回 · 这段山路已写入归途。"%int(chosen.get("clears",0))))
+	var objective:String=_chapter_objective(h,chosen,status)
 	wrapped(h,objective,Vector2(x+230,y+165),371,11,a,JADE if bool(chosen.get("unlocked",false)) else RED,1)
 	var reward:String=str(chosen.get("first_clear_reward_text","每敌有物资；木箱 12% · 装备 3% 独立判定")).replace("灵气","功德" if h.state.realm==h.state.MAX_REALM else "灵气")
 	wrapped(h,("首通已收 · " if bool(chosen.get("first_clear_claimed",false)) else "首通心意 · ")+reward,Vector2(x+230,y+186),371,10,a,FADED,2)

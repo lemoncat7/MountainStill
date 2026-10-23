@@ -1,3 +1,20 @@
+# v1.3.23-test.1 动态章节目标测试版
+
+已通章重读现在显示真实后续目标；在途/暂停、遗物、机缘和首通待领仍优先。达到炼气中期后重读青竹关，不再重复要求同一突破。显示复用 State 真实门槛，不自动跳章、启程、领奖或改存档/战斗规则。
+
+本轮普通回归 **114入口：113通过，保留 encounter_balance 原4474检查中的2条节奏失败**（同一剑式summit案例6.82秒低于7.0下界，阈值未改）。另15个Python driver共179单测及2个真实多进程入口通过；特殊敏感度与产物Guard单列，详见本轮报告。
+
+Windows实际EXE嵌入载荷和macOS实际PCK均由Linux Godot4.6.3从空project加载；章节目标1844、provider62、exact217等检查通过。旧v10/v22双平台升级共16个启动case最终通过，新fullv23保留activev22共4次启动，本地实际载荷HTTP共6阶段通过。矩阵初次有1个进程被外部终止exit -9；保留原日志和合成状态、清理已验证可恢复副本后，以全新fixture串行重测通过，未确认OOM根因。**这些不等于Windows/macOS本机GUI、签名、公证或公网更新链验收。**
+
+真实自然档副本的Linux GUI验证了960×540和1200×400、125%字号、暂停优先、取消/确认放下、正文/tooltip一致和本章敌情返回，正常exit0；不是六章自然全通或目标系统GUI。原自然存档未修改。
+
+保持save schema4、Bootstrap ABI1与更新选择策略：新完整包如已有合法active v22，仍运行旧gameplay；实际更新内容后才得到新文案。没有混入bundle本地安装实验或微优化。现有33.3ms CPU正式门槛未解决；仍无Windows代码签名、无Apple Developer ID/公证，不能称正式版或性能改善。
+
+目标包：`MountainStill-v1.3.23-test.1-Windows-x86_64.zip`、`MountainStill-v1.3.23-test.1-macOS-Universal.zip`。不要关闭系统防护绕过提示。详见 `docs/CHAPTER-GUIDANCE-v1.3.23.md`。此包记录本地构建验收；发布/公共下载/原生CI另由发布阶段证明。
+
+---
+## 以下为历史轮次记录，不是 v23 验收结果
+
 # v1.3.22-test.1 构建与兼容验证
 
 ## 范围与已确定证据

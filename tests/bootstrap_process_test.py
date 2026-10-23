@@ -13,9 +13,9 @@ with tempfile.TemporaryDirectory(prefix='ms-bootstrap-') as tmp:
     env = dict(os.environ, HOME=tmp, XDG_DATA_HOME=tmp)
     run(env, '--script', 'tests/bootstrap_stage_fixture.gd')
     output = run(env)
-    assert 'UPDATE BOOT: 1.3.10-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
+    assert 'UPDATE BOOT: 1.3.23-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
     output = run(env)
-    assert 'UPDATE BOOT: 1.3.10-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
+    assert 'UPDATE BOOT: 1.3.23-test.2' in output and 'FIXTURE_GAME nested-updated-2' in output
 with tempfile.TemporaryDirectory(prefix='ms-bootstrap-broken-') as tmp:
     env = dict(os.environ, HOME=tmp, XDG_DATA_HOME=tmp)
     run(env, '--script', 'tests/bootstrap_stage_fixture.gd', '--', '--broken')

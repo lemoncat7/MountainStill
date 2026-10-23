@@ -2,7 +2,7 @@ extends RefCounted
 ## Installed bootstrap-owned update journal. No code is mounted by this class.
 const Guard = preload("res://scripts/update_pack_guard.gd")
 const Policy = preload("res://scripts/update_policy.gd")
-const BUILTIN_VERSION = "1.3.22-test.1"
+const BUILTIN_VERSION = "1.3.23-test.1"
 const MAX_PACK = 536870912
 var directory = "user://updates"
 var save_path = "user://cultivation_save.json"

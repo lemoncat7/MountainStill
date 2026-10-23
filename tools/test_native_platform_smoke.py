@@ -34,14 +34,14 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_eleven_tests_preserve_previous_coverage(self):
+    def test_twelve_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
             'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
-            'test_provider_lifecycle_guard.gd',
+            'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd',
         })
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
@@ -54,6 +54,18 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
             self.assertIsNone(re.fullmatch(pattern, line), line)
         self.assertTrue(smoke.unexpected_errors(
             'ERROR: navigation failed', 'test_chapter_practice_navigation.gd'))
+
+
+class ChapterObjectiveMarkerTests(unittest.TestCase):
+    def test_objective_marker_requires_positive_checks_and_zero_failures(self):
+        test = 'test_chapter_objective_ui.gd'
+        good = 'Chapter objective UI: 1844 checks, 0 failures'
+        self.assertTrue(smoke.test_passed(0, good, test))
+        for bad in ('', good.replace('1844 checks', '0 checks'),
+                    good.replace('0 failures', '1 failures'), good + ' EXTRA',
+                    good + '\nSCRIPT ERROR: bad objective', good + '\nERROR: bad objective'):
+            self.assertFalse(smoke.test_passed(0, bad, test), bad)
+        self.assertFalse(smoke.test_passed(1, good, test))
 
 
 class ControlContributionMarkerTests(unittest.TestCase):

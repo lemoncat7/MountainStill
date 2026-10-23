@@ -18,6 +18,7 @@ TESTS = {
     'test_cultivation.gd': r'Cultivation tests: [1-9]\d* checks, 0 failures',
     'test_scene_art_layout.gd': r'Scene original-art layout: [1-9]\d* checks, 0 failures \(geometry/resource, not native graphics\)',
     'test_stone_recovery_contract.gd': r'Stone recovery contract: [1-9]\d* checks, 0 failures',
+    'test_chapter_objective_ui.gd': r'Chapter objective UI: [1-9]\d* checks, 0 failures',
     'test_chapter_practice_navigation.gd': r'Chapter practice navigation: [1-9]\d* checks, 0 failures',
     'test_practice_control_contribution.gd': r'Practice control contribution: [1-9]\d* checks, 0 failures',
     'test_exact_planner_guard.gd': r'Exact planner guard: [1-9]\d* checks, 0 failures; neutral early returns=[1-9]\d*, exact ties=\d+',

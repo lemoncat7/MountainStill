@@ -75,3 +75,39 @@ Only exact WASAPI startup errors attributed to the WASAPI source are treated as
 an audio environment limitation when the log explicitly reports automatic dummy
 fallback. Other errors remain application/engine failures requiring triage.
 The engine's automatic ANGLE/dummy fallback is recorded, never forced by flags.
+
+## Controlled backdrop extension (revision 3)
+
+V2 run39921371103 was independently viewed: all three native OS jobs displayed
+actual street scene/characters and exited0 without deadline/cleanup errors.
+This proves first-screen GUI display at the observed scale1 ONLY. Windows sky
+showed the runner terminal; macOS black sky did not establish transparency.
+Internal evidence retained separately, not for direct user image delivery.
+
+The next probe adds only a disposable helper-owned ordinary opaque checkerboard
+window, no system wallpaper, global setting, app source, renderer, focus/input,
+accessibility or permission change. Each capture creates its own nonactivated
+normal-level backdrop directly behind the exact PID-owned game window. Windows
+uses ShowWithoutActivation and SetWindowPos(SWP_NOACTIVATE|SWP_NOOWNERZORDER);
+macOS uses NSWindow order below without activate/makeKey. It verifies actual
+adjacent z-order using GetWindow / read-only CGWindowList, not API success alone.
+No verified placement means CAPTURE_INCONCLUSIVE and no image interpretation.
+The helper always destroys its own backdrop on completion; helper timeouts are
+bounded by the driver and terminate the helper process.
+
+Palette1 uses #33CCD6 and #DB4DC9 alternating48-unit squares; palette2 swaps them.
+Both captures are still composited desktops. Capture is horizontal-center720
+native pixels, full vertical sky-to-ground range, with available16-pixel strips
+outside the game window showing the known backdrop. No resized fonts/pixels.
+This overrides revision2's full-width geometry, solely to fit two comparison
+images within the unchanged combined1MiB limit. Oversize images still reject.
+Geometry, palette, target/backdrop IDs, z-order and control strips are logged.
+
+Independent review must see the actual chessboard control strip and verify
+correct placement, then compare a static sky area with a static opaque ground
+area in both palettes. Sky tracking the palette while opaque ground stays
+unchanged supports transparency at this one observed configuration. Character
+animation differences do not count as transparency. Black/unchanged sky without
+a visible control strip or without verified backdrop rendering remains
+inconclusive, not a proven transparency defect. Two normal exits do not prove
+multi-DPI behavior, interactions, performance, UI-close or formal readiness.

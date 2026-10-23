@@ -118,12 +118,12 @@ def stop_owned(process):
     bounded_log('OWNED_REAP ' + json.dumps({'pid':process.pid, 'returncode':process.returncode}))
 
 
-def capture_command(root, pid, output):
+def capture_command(root, pid, output, palette):
     if sys.platform == 'win32':
         return ['powershell', '-NoProfile', '-NonInteractive', '-File',
                 str(Path(__file__).with_name('native_gui_capture.ps1')),
-                '-TargetPid', str(pid), '-OutputPath', str(output)]
-    return [str(root / 'capture'), str(pid), str(output)]
+                '-TargetPid', str(pid), '-OutputPath', str(output), '-Palette', str(palette)]
+    return [str(root / 'capture'), str(pid), str(output), str(palette)]
 
 
 def main():
@@ -195,7 +195,7 @@ def main():
                     if remaining <= 0:
                         break
                     try:
-                        result = subprocess.run(capture_command(root, process.pid, png), capture_output=True,
+                        result = subprocess.run(capture_command(root, process.pid, png, index + 1), capture_output=True,
                                                 text=True, encoding='utf-8', errors='replace', timeout=min(15, remaining))
                         metadata = json.loads(result.stdout.strip())
                         bounded_log('CAPTURE_METADATA ' + json.dumps(metadata, ensure_ascii=True))

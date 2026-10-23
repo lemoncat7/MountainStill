@@ -58,6 +58,15 @@ class Contracts(unittest.TestCase):
         tools=Path(probe.__file__).parent
         self.assertNotIn('min(area.width, 720', (tools/'native_gui_capture.swift').read_text())
         self.assertIn('GetClientRect', (tools/'native_gui_capture.ps1').read_text())
+    def test_controlled_backdrop_contract(self):
+        tools=Path(probe.__file__).parent
+        swift=(tools/'native_gui_capture.swift').read_text(); ps=(tools/'native_gui_capture.ps1').read_text()
+        self.assertIn('gameOrder + 1 == boardOrder',swift)
+        self.assertIn('ShowWithoutActivation',ps)
+        self.assertIn('0x0210',ps)
+        self.assertNotIn('makeKey',swift)
+        self.assertNotIn('activate(',swift)
+        self.assertIn('finally',ps);self.assertIn('defer',swift)
     def test_native_permission_contract(self):
         tools=Path(probe.__file__).parent
         swift=(tools/'native_gui_capture.swift').read_text()

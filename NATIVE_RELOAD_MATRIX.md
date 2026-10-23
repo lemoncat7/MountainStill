@@ -9,8 +9,10 @@ empty permissions, existing standard Windows2025/macOS15ARM/macOS15Intel runners
 No release/runtime edits, script injection, credentials, artifacts/cache,
 new dependencies, AX/TCC requests, screenshots, display changes or paid runners.
 
-The proposed first-stable gate says50 reloads separately for current, old and
-post-update saves. This task covers ONLY CURRENT-SAVE independent processes.
+The proposed first-stable gate says50 reloads and requires separate coverage of
+current, old and post-update saves; it does NOT specify50 per category or how
+to allocate50 across categories. Earlier stronger wording is corrected here.
+This task covers ONLY CURRENT-SAVE independent processes.
 No old-save migration, active hot-update pack,60-minute mixedGUI, visual/DPI,
 physical close-button, rendered FPS, audio-output or formal-release acceptance.
 Prior headless failures remain failures; this new profile does not erase them.

@@ -184,6 +184,11 @@ def compare_traces(a, b):
         raise ValueError('Semantic mismatch; no floating point tolerance is applied')
 
 
+def userdata_markers(output):
+    # Preserve path bytes/spaces; only consume an optional CR in CRLF line endings.
+    return re.findall(r'^CPU_USER=([^\r\n]+)\r?$', output, re.M)
+
+
 def user_base():
     if sys.platform == 'win32':
         return Path(os.environ['APPDATA'])
@@ -278,7 +283,7 @@ def main():
             (project / 'native_cpu_user.gd').write_text('extends SceneTree\nfunc _initialize():\n print("CPU_USER=" + OS.get_user_data_dir())\n quit()\n', encoding='utf-8')
             common = [str(args.godot.resolve()), '--headless', '--path', str(project)]
             output = run(common + ['--script', 'res://native_cpu_user.gd'], 30, log)
-            paths = re.findall('^CPU_USER=(.+)$', output, re.M)
+            paths = userdata_markers(output)
             if len(paths) != 1 or Path(paths[0]).resolve() != userdata.resolve():
                 raise ValueError('Native userdata isolation failed')
             run(common + ['--editor', '--import'], 240, log)

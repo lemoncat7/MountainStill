@@ -128,6 +128,25 @@ class BenchmarkTests(unittest.TestCase):
                 b.run([sys.executable, '-c', 'import time;time.sleep(5)'], .05, b.Log())
 
 
+class UserdataMarkerTests(unittest.TestCase):
+    def test_crlf_only_line_ending_not_path_content(self):
+        expected = 'C:/Users/runneradmin/AppData/Roaming/MountainStillCPU-owned'
+        self.assertEqual(b.userdata_markers('CPU_USER=' + expected + '\r\n'), [expected])
+        self.assertEqual(b.userdata_markers('CPU_USER=' + expected + '\n'), [expected])
+        self.assertNotEqual(b.userdata_markers('CPU_USER=' + expected + ' \r\n'), [expected])
+        self.assertEqual(len(b.userdata_markers(('CPU_USER=' + expected + '\r\n') * 2)), 2)
+        self.assertEqual(b.userdata_markers('CPU_USER=\r\n'), [])
+        self.assertEqual(b.userdata_markers('CPU_USER=' + expected + '\rOTHER\n'), [])
+        self.assertNotEqual(b.userdata_markers('CPU_USER=' + expected + '-wrong\r\n'), [expected])
+        with tempfile.TemporaryDirectory() as directory:
+            owned = Path(directory) / 'owned'
+            owned.mkdir()
+            correct = b.userdata_markers('CPU_USER=' + str(owned) + '\r\n')
+            wrong = b.userdata_markers('CPU_USER=' + str(owned.parent) + '\r\n')
+            self.assertEqual(Path(correct[0]).resolve(), owned.resolve())
+            self.assertNotEqual(Path(wrong[0]).resolve(), owned.resolve())
+
+
 class CheckoutBytesTests(unittest.TestCase):
     def test_crlf_checkout_rejected_and_explicit_lf_restores_frozen_bytes(self):
         import hashlib

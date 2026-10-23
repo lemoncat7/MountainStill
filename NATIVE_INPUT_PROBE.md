@@ -59,3 +59,54 @@ wrong screenshots => visual inconclusive; runtime errors/nonzero exit/resource o
 save assertion mismatch => failure; deadlines/cleanup retained explicitly. Even
 all passing establishes only this narrow new-save route, not all menus, HiDPI,
 physical inputs, performance, or60minute mixed-operation stability.
+
+## Explicit macOS input follow-on (separate manual workflow)
+
+`native-macos-input-probe.yml` opts in with `--macos-input`, fixed macos-15 and
+macos-15-intel only. The original workflow's Mac behavior remains preflight-only;
+Windows is not repeated. Both preflight-only jobs previously observed existing
+permissions, but that observation is never trusted as a lasting grant.
+
+The exact new Swift executable preflights existing post-event and capture access
+before any game boot, and AGAIN immediately before each actual CGEvent post.
+False stops; no request/AX/AppleScript/TCC changes. Inspect alone may request one
+ordinary app.activate(options:[]) then check frontmost PID; subsequent lost focus
+stops without reactivation. CGEvent.postToPid addresses only the verified owned
+PID, with exact visible window identity rechecked; no global event broadcast.
+Down/up are adjacent but not atomic: both events are pre-created, modifier/button
+and requested-key state checked before down. Each post rechecks permission,
+foreground and geometry. If a guard fails after down, no forbidden release is
+sent; input_state_uncertain is reported and the owned application is closed.
+Click-state is explicitly1, click spacing remains1s, never a double-click probe.
+
+Geometry is deliberately limited to scale1 normal windows. Before launching the
+input process the normally-exited geometry-seed SAVE must report960x540. Runtime
+SCWindow outer width must match960, and outer height minus saved540 must be a
+20..40point title inset. Derived client origin=(outer.minX,outer.minY+inset); this
+is an inference for this supported window style, NOT direct OS client access.
+Unexpected style/width/inset/scale or changing frame is rejected, not compensated.
+SC/CG global coordinates are top-left; points equal pixels only under this scale1
+gate. Mouse position is derived client origin+logical target, not a Windows
+border constant and not a second AppKit Y-flip. Every capture records both frames,
+inset, scale, ROI/global mapping, and the inference source. Same3original-pixel
+ROI/1MiB budget and43/45/55second bounds; no live save reads.
+
+Images and final offline assertions must independently demonstrate actual pages,
+trial pause and formal return. Successful post requests or permission flags alone
+do not establish an application callback, macOS coverage, physical input or60min
+mixed-operation stability. Original Windows pass and all probe failures persist.
+
+Mac postToPid is deliberately process-targeted, unlike Windows global SendInput
+with WindowFromPoint hit-testing. It does not certify physical mouse hit-routing
+through other windows. Native captured pixels and exact foreground ownership must
+still show the intended app UI; overlays or contradictory evidence are not a pass.
+Each helper result is compared against Inspect PID/window/outer/client/origin and
+scale before continuing, so cross-call window movement cannot silently remap the
+script. An input_state_uncertain result is logged intact, aborts subsequent
+inputs, and proceeds only to bounded own-application normal-close/cleanup.
+
+API references: Apple CGEvent (public postToPid), NSRunningApplication activation,
+and NSWorkspace frontmostApplication:
+https://developer.apple.com/documentation/coregraphics/cgevent
+https://developer.apple.com/documentation/appkit/nsrunningapplication
+https://developer.apple.com/documentation/appkit/nsworkspace/frontmostapplication

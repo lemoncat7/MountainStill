@@ -1,0 +1,35 @@
+name: Native macOS OS input probe
+on:
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: native-os-input-probe
+  cancel-in-progress: false
+jobs:
+  macos-input:
+    if: github.repository == 'lemoncat7/MountainStill' && github.event.repository.private == false
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Fetch exact public source without credentials
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init source
+          git -C source -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git "$SOURCE_SHA"
+          git -C source checkout --detach FETCH_HEAD
+          test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
+      - name: Validate native input safety contracts
+        run: python3 source/tests/native_input_driver_test.py
+      - name: Observe pinned v20 macOS input under existing permissions only
+        run: python3 source/tools/native_input_probe.py --macos-input

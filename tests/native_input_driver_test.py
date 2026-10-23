@@ -78,6 +78,48 @@ class InputContract(unittest.TestCase):
         self.assertIn('-WindowId',c);self.assertIn('33',c);self.assertIn(str(Path('/tmp/owned')/'input.dll'),c)
 
 class IndependentFailurePaths(unittest.TestCase):
+    def test_mac_target_identity_rejects_drift_and_missing_geometry(self):
+        reference={'owner_pid':77,'window_id':88,'outer_frame':[12,44,960,568],
+                   'client_frame':[12,72,960,540],'client_to_screen':[12,72],
+                   'backing_scale':1,'foreground_owned':True}
+        self.assertTrue(probe.same_input_target(reference,copy.deepcopy(reference),77))
+        mutations={'owner_pid':78,'window_id':89,'outer_frame':[12,44,960,570],
+                   'client_frame':[12,74,960,540],'client_to_screen':[12,74],
+                   'backing_scale':2,'foreground_owned':False}
+        for key,value in mutations.items():
+            with self.subTest(key=key):
+                changed=copy.deepcopy(reference);changed[key]=value
+                self.assertFalse(probe.same_input_target(reference,changed,77))
+        for key in ('outer_frame','client_frame','client_to_screen'):
+            bad=copy.deepcopy(reference);bad[key][0]=float('inf')
+            self.assertFalse(probe.same_input_target(bad,bad,77))
+            del bad[key]
+            self.assertFalse(probe.same_input_target(bad,bad,77))
+        missing_scale=copy.deepcopy(reference);del missing_scale['backing_scale']
+        self.assertFalse(probe.same_input_target(missing_scale,missing_scale,77))
+        for value in (True,2,float('nan')):
+            invalid_scale=copy.deepcopy(reference);invalid_scale['backing_scale']=value
+            self.assertFalse(probe.same_input_target(invalid_scale,invalid_scale,77))
+        wrong_origin=copy.deepcopy(reference);wrong_origin['client_to_screen']=[12,75]
+        self.assertFalse(probe.same_input_target(wrong_origin,wrong_origin,77))
+
+    def test_mac_command_binds_pid_window_saved_geometry_without_windows_fallback(self):
+        root=Path('/tmp/mountainstill-input-owned')
+        command=probe.input_command(root,42,'Click',33,macos=True,ClientX=268,ClientY=514)
+        self.assertEqual(command[0],str(root/'input'))
+        for key,value in [('-TargetPid','42'),('-WindowId','33'),('-ClientWidth','960'),('-ClientHeight','540'),('-ClientX','268'),('-ClientY','514')]:
+            self.assertEqual(command[command.index(key)+1],value)
+        self.assertNotIn('powershell',command);self.assertNotIn('-NativeAssembly',command)
+
+    def test_mac_event_workflow_is_explicit_and_has_no_windows_runner(self):
+        import inspect
+        workflow=(TOOLS.parent/'.github/workflows/native-macos-input-probe.yml').read_text()
+        self.assertIn('runner: [macos-15, macos-15-intel]',workflow)
+        self.assertIn('native_input_probe.py --macos-input',workflow)
+        self.assertNotIn('windows-2025',workflow)
+        self.assertIn('permissions: {}',workflow)
+        self.assertIn("sys.platform=='darwin' and '--macos-input' not in sys.argv",inspect.getsource(probe.main))
+
     def test_local_helper_success_returns_object(self):
         process=Mock();process.poll.return_value=0;process.returncode=0
         def launch(command,stdout,stderr):
@@ -101,14 +143,17 @@ class IndependentFailurePaths(unittest.TestCase):
                 now=[0.0];process=Mock();process.pid=77;process.returncode=None
                 process.poll.side_effect=lambda:process.returncode
                 def launch(*args,**kwargs):return process
+                metadata={'owner_pid':77,'window_id':88,'outer_frame':[12,44,960,568],
+                          'client_frame':[12,72,960,540],'client_to_screen':[12,72],
+                          'backing_scale':1,'foreground_owned':True}
                 def native(command,timeout):
                     if command[0]=='close':
                         process.returncode=0;return {'status':'CLOSE_REQUEST_SENT'}
                     if command[0]=='geometry':return {'status':'GEOMETRY_READY'}
                     action=command[command.index('-Action')+1]
-                    if action=='Inspect':return {'status':'INSPECT_READY','window_id':88}
-                    if action=='Capture':return {'status':'CAPTURE_READY'}
-                    return {'status':'INPUT_SENT' if delivered else 'INPUT_UNAVAILABLE'}
+                    if action=='Inspect':return dict(metadata,status='INSPECT_READY')
+                    if action=='Capture':return dict(metadata,status='CAPTURE_READY')
+                    return dict(metadata,status='INPUT_SENT' if delivered else 'INPUT_UNAVAILABLE')
                 stack.enter_context(patch.object(probe.subprocess,'Popen',side_effect=launch))
                 stack.enter_context(patch.object(probe.time,'monotonic',side_effect=lambda:now[0]))
                 stack.enter_context(patch.object(probe.time,'sleep',side_effect=lambda n:now.__setitem__(0,now[0]+n)))

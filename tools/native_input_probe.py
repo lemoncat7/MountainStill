@@ -3,6 +3,7 @@
 import copy
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -83,12 +84,33 @@ def final_assertions(before, after):
     return errors
 
 
-def input_command(root,pid,action,window=None,**kwargs):
+def input_command(root,pid,action,window=None,macos=False,**kwargs):
     cmd=['powershell','-NoProfile','-NonInteractive','-File',str(ROOT/'native_input_helper.ps1'),
          '-NativeAssembly',str(root/'input.dll'),'-Action',action,'-TargetPid',str(pid)]
+    if macos:
+        cmd=[str(root/'input'),'-Action',action,'-TargetPid',str(pid),'-ClientWidth','960','-ClientHeight','540']
     if window is not None:cmd+=['-WindowId',str(window)]
     for k,v in kwargs.items():cmd+=['-'+k,str(v)]
     return cmd
+
+
+def same_input_target(reference, result, pid):
+    if reference.get('owner_pid')!=pid or result.get('owner_pid')!=pid:
+        return False
+    if type(reference.get('window_id')) is not int or reference['window_id']<=0:
+        return False
+    for key in ('window_id','outer_frame','client_frame','client_to_screen','dpi','backing_scale'):
+        if result.get(key)!=reference.get(key):return False
+    for key,size in [('outer_frame',4),('client_frame',4),('client_to_screen',2)]:
+        frame=reference.get(key)
+        if not isinstance(frame,list) or len(frame)!=size or not all(type(x) in (int,float) and math.isfinite(x) for x in frame):return False
+    scale=reference.get('backing_scale');dpi=reference.get('dpi')
+    if scale is None and dpi is None:return False
+    if scale is not None and (type(scale) not in (int,float) or scale!=1):return False
+    if dpi is not None and (type(dpi) not in (int,float) or dpi!=96):return False
+    return (reference['client_frame'][2:]==[960,540]
+            and reference['client_to_screen']==reference['client_frame'][:2]
+            and result.get('foreground_owned') is True)
 
 
 def session(binary,root,inputroot,label,processes,interactive=False):
@@ -113,21 +135,21 @@ def session(binary,root,inputroot,label,processes,interactive=False):
             geometry=helper(gui.geometry_command(root,process.pid),3)
             if geometry.get('status')!='GEOMETRY_READY':raise RuntimeError('GEOMETRY_UNAVAILABLE')
             if interactive:
-                inspect=helper(input_command(inputroot,process.pid,'Inspect'))
+                inspect=helper(input_command(inputroot,process.pid,'Inspect',macos=sys.platform=='darwin'))
                 emit('INPUT_INSPECT',inspect)
-                if inspect.get('status')!='INSPECT_READY':raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE')
+                if inspect.get('status')!='INSPECT_READY' or not same_input_target(inspect,inspect,process.pid):raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: inspect target not verified')
                 window=inspect['window_id']
                 def event(action,**kw):
-                    result=helper(input_command(inputroot,process.pid,action,window,**kw),2)
+                    result=helper(input_command(inputroot,process.pid,action,window,macos=sys.platform=='darwin',**kw),2)
                     events.append(result);emit('NATIVE_INPUT_EVENT',result)
-                    if result.get('status')!='INPUT_SENT':raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: '+str(result.get('reason','input not confirmed')))
+                    if result.get('status')!='INPUT_SENT' or not same_input_target(inspect,result,process.pid):raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: '+str(result.get('reason','input target changed or not confirmed')))
                     time.sleep(1.0)
                 def capture(name,roi):
                     path=inputroot/(name+'.png')
-                    result=helper(input_command(inputroot,process.pid,'Capture',window,
+                    result=helper(input_command(inputroot,process.pid,'Capture',window,macos=sys.platform=='darwin',
                         OutputPath=path,RoiX=roi[0],RoiY=roi[1],RoiWidth=roi[2],RoiHeight=roi[3]),5)
                     emit('NATIVE_INPUT_CAPTURE',result)
-                    if result.get('status')!='CAPTURE_READY':raise RuntimeError('CAPTURE_UNAVAILABLE')
+                    if result.get('status')!='CAPTURE_READY' or not same_input_target(inspect,result,process.pid):raise RuntimeError('CAPTURE_UNAVAILABLE_OR_TARGET_CHANGED')
                     captures.append((path,result))
                 # Formal pause is an offline legal setting; do not toggle it here.
                 event('Click',ClientX=268,ClientY=514)
@@ -174,7 +196,7 @@ def main():
     gui.configure_output();processes=[];owned=False;userdata=None;token=uuid.uuid4().hex;status='CAPTURE_INCONCLUSIVE';error=None;cases=[];cleanup=[]
     try:
         if os.environ.get('GITHUB_ACTIONS')!='true' or os.environ.get('RUNNER_ENVIRONMENT')!='github-hosted' or os.environ.get('GITHUB_REPOSITORY')!='lemoncat7/MountainStill':raise RuntimeError('OFFICIAL_REPOSITORY_RUNNER_REQUIRED')
-        if sys.platform=='darwin':
+        if sys.platform=='darwin' and '--macos-input' not in sys.argv:
             with tempfile.TemporaryDirectory(prefix='mountainstill-input-',dir=os.environ['RUNNER_TEMP']) as tmp:
                 binary=Path(tmp)/'preflight';arch=platform.machine()
                 if arch not in ('arm64','x86_64'):raise RuntimeError('UNSUPPORTED_ARCH')
@@ -182,15 +204,26 @@ def main():
                 if built.returncode:raise RuntimeError('PREFLIGHT_COMPILE_FAILED')
                 result=native_json([str(binary)],3);emit('MAC_INPUT_PREFLIGHT',result)
                 status='CAPABILITY_ONLY_NOT_INPUT_TEST' if result.get('status')=='PREFLIGHT_READY' else 'ENVIRONMENT_UNAVAILABLE';return 0
-        if sys.platform!='win32':raise RuntimeError('WINDOWS_INPUT_ONLY')
+        if sys.platform not in ('win32','darwin'):raise RuntimeError('NATIVE_PLATFORM_REQUIRED')
         import native_package_smoke
         native_package_smoke.TAG=gui.TAG
         with tempfile.TemporaryDirectory(prefix='mountainstill-gui-',dir=os.environ['RUNNER_TEMP']) as tmp, tempfile.TemporaryDirectory(prefix='mountainstill-input-',dir=os.environ['RUNNER_TEMP']) as itmp:
             root=Path(tmp);inputroot=Path(itmp)
-            for cmd in ([ 'powershell','-NoProfile','-NonInteractive','-File',str(ROOT/'native_gui_capture.ps1'),'-PrepareAssembly','-NativeAssembly',str(root/'capture.dll')],input_command(inputroot,0,'Prepare')):
-                prepared=native_json(cmd,60);emit('INPUT_HELPER_PREPARE',prepared)
-                if prepared.get('status')!='HELPER_PREPARED':raise RuntimeError('HELPER_PREPARE_FAILED')
-            name,sha,exe,size=gui.PACKAGES['win32'];archive=root/name;download(archive,size,sha);extract(archive,root/'app');binary=root/'app'/exe
+            if sys.platform=='win32':
+                for cmd in ([ 'powershell','-NoProfile','-NonInteractive','-File',str(ROOT/'native_gui_capture.ps1'),'-PrepareAssembly','-NativeAssembly',str(root/'capture.dll')],input_command(inputroot,0,'Prepare')):
+                    prepared=native_json(cmd,60);emit('INPUT_HELPER_PREPARE',prepared)
+                    if prepared.get('status')!='HELPER_PREPARED':raise RuntimeError('HELPER_PREPARE_FAILED')
+            else:
+                if platform.machine() not in ('arm64','x86_64'):raise RuntimeError('UNSUPPORTED_ARCH')
+                for source,target in [('native_gui_capture.swift',root/'capture'),('native_input_helper.swift',inputroot/'input')]:
+                    built=subprocess.run(['swiftc','-target',platform.machine()+'-apple-macosx15.0','-parse-as-library',str(ROOT/source),'-o',str(target)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=60)
+                    if built.returncode:
+                        gui.bounded_log(built.stderr[-12000:].decode('utf-8',errors='replace'))
+                        raise RuntimeError('MAC_NATIVE_HELPER_COMPILE_FAILED')
+                prepared=native_json(input_command(inputroot,0,'Preflight',macos=True),3)
+                emit('MAC_SAME_HELPER_INPUT_PREFLIGHT',prepared)
+                if prepared.get('status')!='PREFLIGHT_READY':raise RuntimeError('INPUT_ENVIRONMENT_UNAVAILABLE: existing permission absent')
+            name,sha,exe,size=gui.PACKAGES[sys.platform];archive=root/name;download(archive,size,sha);extract(archive,root/'app');binary=root/'app'/exe
             userdata=userdata_path();claim_userdata(userdata,token);owned=True
             (userdata/'updates').mkdir();(userdata/'updates'/'preferences.cfg').write_text('[updates]\nauto_check=false\n',encoding='utf-8')
             result,_=session(binary,root,inputroot,'fresh-seed',processes);cases.append(result)
@@ -202,6 +235,9 @@ def main():
             result,_=session(binary,root,inputroot,'geometry-seed',processes);cases.append(result)
             if result['failure']:raise RuntimeError('GEOMETRY_SEED_FAILED')
             before=offline_save(userdata,token,processes)
+            if [before.get('settings',{}).get(k) for k in ('width','height')]!=[960,540]:
+                raise RuntimeError('OFFLINE_GEOMETRY_SEED_CLIENT_NOT_960x540')
+            emit('OFFLINE_SAVED_CLIENT_MAPPING_INPUT',{'width':960,'height':540,'source':'actual normally-exited geometry-seed save','direct_OS_client_measurement_on_mac':False})
             before['settings']['paused']=True
             (userdata/'cultivation_save.json').write_text(json.dumps(before,ensure_ascii=False),encoding='utf-8')
             emit('OFFLINE_INPUT_BASELINE',{'only_setting_changed':'paused=true','sha256':hashlib.sha256(json.dumps(before,sort_keys=True).encode()).hexdigest(),'arrival_seen':before.get('arrival_seen'),'activity':before.get('activity')})

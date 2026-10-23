@@ -23,12 +23,12 @@ def save(life=30):
 def manifest():
     _,name,size,sha=compat.PINS['pck']
     return dict(schema=1,version=compat.NEW_VERSION,engine='4.6.3',bootstrap=1,save_schema=4,
-        packages={'macos':dict(kind='pck',asset=name,size=size,sha256=sha,restart_required=True)})
+        packages={compat.PLATFORM:dict(kind='pck',asset=name,size=size,sha256=sha,restart_required=True)})
 
 
 class CompatibilityContracts(unittest.TestCase):
     def test_hard_pins_and_manifest_fields(self):
-        self.assertEqual(compat.PINS['old_zip'][2],141140901)
+        self.assertEqual(compat.PINS['old_zip'][2],114408760 if compat.PLATFORM=='windows' else 141140901)
         self.assertEqual(compat.PINS['pck'][3],'623bd2cc3c8f7df4eec9d46fe8559cb34f2515637c9f5b0433a683e99304fc8a')
         value=manifest();record=compat.installed_record(value)
         self.assertEqual(record['path'],'user://updates/'+record['sha256']+'.pck')
@@ -36,7 +36,7 @@ class CompatibilityContracts(unittest.TestCase):
             invalid=copy.deepcopy(value);invalid[key]=bad
             with self.assertRaises(RuntimeError):compat.installed_record(invalid)
         for key,bad in [('sha256','0'*64),('size',1),('asset','other.pck'),('restart_required',False),('restart_required',1)]:
-            invalid=copy.deepcopy(value);invalid['packages']['macos'][key]=bad
+            invalid=copy.deepcopy(value);invalid['packages'][compat.PLATFORM][key]=bad
             with self.assertRaises(RuntimeError):compat.installed_record(invalid)
 
     def test_installed_fixture_preserves_actual_save_copies_and_requires_app_health(self):
@@ -46,7 +46,7 @@ class CompatibilityContracts(unittest.TestCase):
             primary.write_text(json.dumps(save()));backup.write_text(json.dumps(save(29)))
             before=(primary.read_bytes(),backup.read_bytes())
             pck=root/'pck';pck.write_bytes(b'GDPC-unit-fixture-not-runtime-pack')
-            fakepin=(compat.NEW_TAG,'MountainStill-macos.pck',pck.stat().st_size,hashlib.sha256(pck.read_bytes()).hexdigest())
+            fakepin=(compat.NEW_TAG,'MountainStill-'+compat.PLATFORM+'.pck',pck.stat().st_size,hashlib.sha256(pck.read_bytes()).hexdigest())
             dead=[Mock(poll=Mock(return_value=0))]
             with patch.dict(compat.PINS,{'pck':fakepin}),patch.object(compat.gate,'emit'):
                 with self.assertRaises(RuntimeError):compat.stage_installed_fixture(userdata,'wrong',pck,manifest(),dead)
@@ -92,7 +92,7 @@ class CompatibilityContracts(unittest.TestCase):
                 root=Path(folder);userdata=root/'userdata';old=root/'old';new=root/'new'
                 old.write_text('old actual binary fixture');new.write_text('new actual binary fixture')
                 pck=root/'pack';pck.write_bytes(b'GDPC-unit-only')
-                pin=(compat.NEW_TAG,'MountainStill-macos.pck',pck.stat().st_size,hashlib.sha256(pck.read_bytes()).hexdigest())
+                pin=(compat.NEW_TAG,'MountainStill-'+compat.PLATFORM+'.pck',pck.stat().st_size,hashlib.sha256(pck.read_bytes()).hexdigest())
                 calls=[];previous_bytes=None
                 def fake_session(binary,jobroot,label,version,rows,registry,deadline):
                     nonlocal previous_bytes
@@ -122,11 +122,13 @@ class CompatibilityContracts(unittest.TestCase):
                 self.assertEqual(calls,expected)
                 self.assertFalse(userdata.exists())
 
-    def test_arm_only_and_deadline(self):
+    def test_native_platforms_and_deadline(self):
         env={'GITHUB_ACTIONS':'true','RUNNER_ENVIRONMENT':'github-hosted','GITHUB_REPOSITORY':'lemoncat7/MountainStill'}
         with patch.dict(os.environ,env,clear=True),patch.object(compat.sys,'platform','darwin'),patch.object(compat.platform,'machine',return_value='arm64'):
             compat.require_environment()
-            with patch.object(compat.platform,'machine',return_value='x86_64'),self.assertRaises(RuntimeError):compat.require_environment()
+            with patch.object(compat.platform,'machine',return_value='x86_64'):compat.require_environment()
+            with patch.object(compat.sys,'platform','win32'),patch.object(compat.platform,'machine',return_value='AMD64'):compat.require_environment()
+            with patch.object(compat.sys,'platform','win32'),self.assertRaises(RuntimeError):compat.require_environment()
             with patch.dict(os.environ,{'GITHUB_REPOSITORY':'other/repo'}),self.assertRaises(RuntimeError):compat.require_environment()
         with patch.object(compat.time,'monotonic',return_value=100):
             compat.budget(251,150)

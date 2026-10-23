@@ -1,7 +1,7 @@
-# Representative ARM old-save and installed-PCK compatibility
+# Representative native old-save and installed-PCK compatibility
 
 This is two small cases,3actual GUI boots each, not another50-cycle matrix.
-Fixed published v19/v20 bytes, one standard public macos-15 runner, manual-only,
+Fixed published v19/v20 bytes, standard public native runners, manual-only,
 permissions empty, job15min. No release/runtime/schema/Service changes, script
 injection, tokens, new dependencies, capture/AX/TCC/display changes or paid runner.
 
@@ -69,3 +69,29 @@ current and post-update saves. It does NOT specify50 per category or an allocati
 of50 across categories. Earlier "50 separately for each" wording was too strong.
 Current-save50 remains valid evidence; these representative cases cannot silently
 redefine the numerical gate or close all historical compatibility requirements.
+
+
+## Windows / Intel extension after ARM evidence
+
+ARM run39983403643 already passed both representative cases. Workflow choice
+`windows-intel` is now the default and selects only standard windows-2025 and
+macos-15-intel; the separate explicit `arm` choice preserves the existing profile,
+not an automatic rerun. Same two cases and six actual boots per platform, no50-loop
+expansion. No runtime/release/schema/Service changes or threshold relaxation.
+
+Windows fixed oldZIP114408760bytes SHA17eb818f31de294e3a8edd3ff4d6115b63c5f46177a572bb98b573f260e54e58;
+newZIP114432439bytes SHA18fc6381156896ea8eac46317a28d6a1f18e35f4d89cf32819e9324d0a446150.
+Both Windows and macOS gameplayPCK have the same78474352bytes/SHA stated above,
+but platform-specific published asset names and installed record.platform remain
+explicit. Manifest is the same pinned579-byte official release file.
+
+Existing Windows helper compiled once into direct RUNNER_TEMP child
+mountainstill-gui-compat-*/capture.dll; macOS helper targets its actual architecture.
+Windows physical-pixel geometry fields and macOS point fields are validated
+separately. Only existing geometry/normalQuit branches; no screen capture or AX/TCC.
+
+Windows no-device WASAPI environment exception is exactly the already reviewed
+native-reload-session rule: two known complete errors with immediately attributed
+WASAPI source lines plus explicit dummy fallback; all other errors remain failures.
+Each affected boot is labelled audio fallback, with audible_audio NOT_TESTED.
+Do not call raw Windows logs error-free or infer audio-output acceptance.

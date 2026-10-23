@@ -10,9 +10,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import native_compat_session as gui
 
 
+AUDIO_TRACE = ('ERROR: Condition "hr != ((HRESULT)0x00000000)" is true. Returning: ERR_CANT_OPEN\n'
+               '   at: audio_device_init (drivers/wasapi/audio_driver_wasapi.cpp:275)\n'
+               'ERROR: WASAPI: init_output_device error.\n'
+               '   at: init (drivers/wasapi/audio_driver_wasapi.cpp:600)\n'
+               'WARNING: All audio drivers failed, falling back to the dummy driver.\n')
+
+
 def geometry(pid=123):
     return dict(status='GEOMETRY_READY', owner_pid=pid, window_id=5,
-                coordinate_units='points',
+                coordinate_units='physical_pixels' if gui.sys.platform=='win32' else 'points',
                 window_width_points=1440, window_height_points=720, window_width=1440, window_height=720)
 
 
@@ -55,13 +62,13 @@ class CompatSessionTests(unittest.TestCase):
         with patch.object(gui.sys,'platform','darwin'):
             gui.require_gui_terminal(0,30,30,True,geometry(),geometry(),123)
 
-    def run_mock_session(self, mode='normal', system='darwin', global_deadline=720, expected_version='1.3.20-test.1'):
+    def run_mock_session(self, mode='normal', system='darwin', global_deadline=720, expected_version='1.3.20-test.1', machine=None):
         clock=FakeClock()
         process=Process(clock,early=10 if mode=='early' else None)
         calls=[]; rows=[]; registry=[]; forced=[]
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory); binary=root/'actual-app';binary.touch();(root/'capture').touch();(root/'capture.dll').touch()
-            (root/'seed.engine.log').write_text('ready')
+            (root/'seed.engine.log').write_text(AUDIO_TRACE if mode=='audio' else 'ready')
             def helper(command, timeout):
                 action={'-GeometryOnly':'--geometry-only','-RequestClose':'--request-close'}.get(command[-1],command[-1])
                 calls.append((clock.now,action))
@@ -77,7 +84,7 @@ class CompatSessionTests(unittest.TestCase):
             with ExitStack() as stack:
                 for target,value in ((gui.sys,system),):
                     stack.enter_context(patch.object(target,'platform',value))
-                stack.enter_context(patch.object(gui.platform,'machine',return_value='AMD64' if system=='win32' else 'arm64'))
+                stack.enter_context(patch.object(gui.platform,'machine',return_value=machine or ('AMD64' if system=='win32' else 'arm64')))
                 stack.enter_context(patch.object(gui.time,'monotonic',clock.monotonic))
                 stack.enter_context(patch.object(gui.time,'sleep',clock.sleep))
                 stack.enter_context(patch.object(gui.time,'time',clock.time))
@@ -88,13 +95,14 @@ class CompatSessionTests(unittest.TestCase):
                     return dict(pid=123,identity='changed' if mode=='identity' and clock.now>5 else 'fixed',rss_bytes=1000,
                         cpu_seconds=1,nativefieldtype='test')
                 stack.enter_context(patch.object(gui,'sample',side_effect=metric))
-                stack.enter_context(patch.object(gui,'emit'))
+                emitted=stack.enter_context(patch.object(gui,'emit'))
                 stack.enter_context(patch.object(gui,'stop_failed_process',side_effect=stop))
                 stack.enter_context(patch('builtins.print'))
                 result=None;error=None
                 try:result=gui.session(binary,root,'seed',expected_version,rows,registry,global_deadline)
                 except RuntimeError as exc:error=str(exc)
                 command=popen.call_args.args[0] if popen.called else []
+                self.last_audio_emits=[c for c in emitted.call_args_list if c.args[0]=='AUDIO_ENVIRONMENT_FALLBACK']
         return result,error,calls,forced,rows,registry,command
 
     def test_full_mock_normal_quit_once_after_duration(self):
@@ -174,6 +182,62 @@ class CompatSessionTests(unittest.TestCase):
         for version in gui.ALLOWED_VERSIONS:
             result,error,*_=self.run_mock_session(expected_version=version)
             self.assertIsNone(error);self.assertEqual(result['expected_version'],version)
+
+    def test_exact_audio_environment_filter_only_windows(self):
+        with patch.object(gui.sys,'platform','win32'):
+            filtered,observed=gui.filter_audio_environment(AUDIO_TRACE)
+            self.assertTrue(observed);self.assertEqual(gui.unexpected_errors(filtered,'test'),[])
+            for text in (AUDIO_TRACE.replace('WARNING: All audio drivers failed, falling back to the dummy driver.',''),
+                         AUDIO_TRACE.replace('drivers/wasapi/audio_driver_wasapi.cpp:','other/unrelated.cpp:'),
+                         AUDIO_TRACE.replace('   at: init','intervening line\n   at: init'),
+                         AUDIO_TRACE+'ERROR: unrelated failure\n',
+                         AUDIO_TRACE+'SCRIPT ERROR: invalid access\n',
+                         AUDIO_TRACE+'WARNING: ObjectDB instances leaked at exit\n'):
+                with self.subTest(text=text):
+                    filtered,_=gui.filter_audio_environment(text)
+                    self.assertTrue(gui.unexpected_errors(filtered,'test'))
+        with patch.object(gui.sys,'platform','darwin'):
+            filtered,observed=gui.filter_audio_environment(AUDIO_TRACE)
+            self.assertFalse(observed);self.assertTrue(gui.unexpected_errors(filtered,'test'))
+
+    def test_incomplete_init_stream_deferred_until_ready_or_terminal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);path=root/'partial.log';path.write_text(AUDIO_TRACE.splitlines()[0])
+            with patch.object(gui.sys,'platform','win32'),patch.object(gui,'boot_ready',return_value=False):
+                self.assertFalse(gui._logs_ok(root,[path],'1.3.20-test.1'))
+                with self.assertRaises(RuntimeError):gui._logs_ok(root,[path],'1.3.20-test.1',terminal=True)
+            path.write_text(AUDIO_TRACE)
+            with patch.object(gui.sys,'platform','win32'),patch.object(gui,'boot_ready',return_value=True):
+                self.assertTrue(gui._logs_ok(root,[path],'1.3.20-test.1'))
+
+    def test_audio_fallback_reported_once_per_cycle(self):
+        result,error,*_=self.run_mock_session('audio',system='win32')
+        self.assertIsNone(error);self.assertTrue(result['audio_environment_fallback'])
+        self.assertEqual(result['audible_audio'],'NOT_TESTED')
+        self.assertEqual(len(self.last_audio_emits),1)
+
+    def test_windows_and_intel_profiles(self):
+        for system,machine in (('win32','AMD64'),('darwin','x86_64')):
+            for version in gui.ALLOWED_VERSIONS:
+                result,error,calls,forced,*_=self.run_mock_session(system=system,machine=machine,expected_version=version)
+                self.assertIsNone(error);self.assertEqual(result['expected_version'],version)
+                self.assertEqual(result['exit_code'],0);self.assertEqual(forced,[])
+                self.assertEqual(sum(kind=='--request-close' for _,kind in calls),1)
+        with patch.object(gui.sys,'platform','win32'):
+            value=geometry();self.assertTrue(gui.visible_geometry(value,123))
+            self.assertFalse(gui.visible_geometry(dict(value,window_width=0),123))
+            self.assertFalse(gui.visible_geometry(dict(value,coordinate_units='points'),123))
+
+    def test_audio_exception_does_not_weaken_version(self):
+        resources=''.join('Loading resource: res://assets/cultivation/beasts/'+asset+'\n' for asset in gui.ASSETS)
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);path=root/'engine.log'
+            with patch.object(gui.sys,'platform','win32'):
+                for version in gui.ALLOWED_VERSIONS:
+                    path.write_text(AUDIO_TRACE+'UPDATE BOOT: '+version+'\n'+resources)
+                    self.assertTrue(gui._logs_ok(root,[path],version,terminal=True))
+                with self.assertRaises(RuntimeError):
+                    gui._logs_ok(root,[path],'1.3.19-test.1',terminal=True)
 
     def test_unsupported_platform(self):
         with patch.object(gui.sys,'platform','linux'),self.assertRaises(RuntimeError):

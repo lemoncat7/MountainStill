@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Owned macOS ARM compatibility GUI session; no input injection, AX or TCC requests.
+"""Owned Windows/macOS compatibility GUI session; no input injection, AX or TCC requests.
 
-Caller provides the verified actual v19/v20 binary and precompiled root/capture helper. No saves are opened here.
+Caller provides the verified actual v19/v20 binary and precompiled native helper
+(root/capture.dll on Windows, root/capture on macOS). No saves are opened here.
 This is not screenshots, GPU timing or proof
 that a particular application Quit handler ran.
 """
@@ -62,13 +63,21 @@ def native_json(command, timeout=5):
 
 
 def visible_geometry(value, pid):
-    return (value.get('status') == 'GEOMETRY_READY'
-            and type(value.get('owner_pid')) is int and value['owner_pid'] == pid
+    if value.get('status') != 'GEOMETRY_READY':
+        return False
+    if sys.platform == 'win32':
+        fields = ('window_width', 'window_height')
+        units = 'physical_pixels'
+    elif sys.platform == 'darwin':
+        fields = ('window_width_points', 'window_height_points')
+        units = 'points'
+    else:
+        return False
+    return (type(value.get('owner_pid')) is int and value['owner_pid'] == pid
             and type(value.get('window_id')) is int and value['window_id'] > 0
-            and value.get('coordinate_units') == 'points'
+            and value.get('coordinate_units') == units
             and all(type(value.get(key)) in (int, float)
-                    and math.isfinite(value[key]) and value[key] > 20
-                    for key in ('window_width_points', 'window_height_points')))
+                    and math.isfinite(value[key]) and value[key] > 20 for key in fields))
 
 
 ALLOWED_VERSIONS = ('1.3.19-test.1', '1.3.20-test.1')
@@ -102,17 +111,48 @@ def require_gui_terminal(code, ready_wall, minimum, close_sent, before_geometry,
         raise RuntimeError('EVIDENCE_INSUFFICIENT: owned visible window and successful close request required')
 
 
+def filter_audio_environment(text):
+    """Only the two observed Windows WASAPI errors with source + dummy fallback.
+
+    Every other diagnostic, including SCRIPT ERROR, stays in the error scanner.
+    This labels unavailable host audio; it never certifies audible sound.
+    """
+    lines = text.splitlines()
+    fallback = 'WARNING: All audio drivers failed, falling back to the dummy driver.'
+    if sys.platform != 'win32' or fallback not in [line.strip() for line in lines]:
+        return text, False
+    allowed = {
+        'ERROR: Condition "hr != ((HRESULT)0x00000000)" is true. Returning: ERR_CANT_OPEN',
+        'ERROR: WASAPI: init_output_device error.',
+    }
+    filtered = []
+    observed = False
+    for index, line in enumerate(lines):
+        attributed = (index + 1 < len(lines) and re.fullmatch(
+            r'\s*at: [A-Za-z_][A-Za-z_0-9]* \(drivers/wasapi/audio_driver_wasapi\.cpp:\d+\)\s*',
+            lines[index + 1]) is not None)
+        if line.strip() in allowed and attributed:
+            observed = True
+        else:
+            filtered.append(line)
+    return '\n'.join(filtered), observed
+
+
 def _logs_ok(root, paths, expected_version, scan_errors=True, terminal=False):
     if sum(p.stat().st_size for p in root.glob('*.log')) > LOG_BUDGET:
         raise RuntimeError('LOG_BUDGET_EXCEEDED: not silently truncated')
+    audio_fallback = False
     if scan_errors:
         for path in paths:
             text = read_log_bounded(path)
             ready = boot_ready(text, expected_version, terminal=terminal)
             if not terminal and not ready:
                 continue
-            if unexpected_errors(text, 'actual-gui-compatibility'):
+            filtered, observed = filter_audio_environment(text)
+            audio_fallback = audio_fallback or observed
+            if unexpected_errors(filtered, 'actual-gui-compatibility'):
                 raise RuntimeError('APPLICATION_FAILURE: engine error/leak/crash diagnostic')
+    return audio_fallback
 
 
 def session(binary, root, label, expected_version, rows_out, registry, global_deadline):
@@ -122,8 +162,10 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
     are bounded by it too. Return only after observed normal Quit/exit0; all
     failure kills remain NOT_PASS. Caller owns save checks, after registry exit.
     """
-    if sys.platform != 'darwin' or platform.machine().lower() not in ('arm64', 'aarch64'):
-        raise RuntimeError('ENVIRONMENT_UNAVAILABLE: dedicated macOS ARM compatibility only')
+    machine = platform.machine().lower()
+    if not ((sys.platform == 'win32' and machine in ('amd64', 'x86_64'))
+            or (sys.platform == 'darwin' and machine in ('arm64', 'aarch64', 'x86_64'))):
+        raise RuntimeError('ENVIRONMENT_UNAVAILABLE: native Windows x64/macOS ARM64 or Intel only')
     if expected_version not in ALLOWED_VERSIONS:
         raise ValueError('Only fixed reviewed v19/v20 compatibility profiles allowed')
     if not re.fullmatch(r'[a-zA-Z0-9_-]+', label):
@@ -132,7 +174,7 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
         raise ValueError('Finite global monotonic deadline required')
     minimum, timeout = 30, 120
     root = Path(root)
-    helper = root / 'capture'
+    helper = root / ('capture.dll' if sys.platform == 'win32' else 'capture')
     if not helper.is_file() or not Path(binary).is_file():
         raise RuntimeError('Verified binary or precompiled helper absent')
     logfile, stdoutfile = (root / (label + suffix) for suffix in ('.engine.log', '.stdout.log'))
@@ -162,6 +204,16 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
     close_sent = False
     close_result = None
     close_ready_wall = None
+    audio_reported = False
+
+    def report_audio(observed):
+        nonlocal audio_reported
+        if observed and not audio_reported:
+            emit('AUDIO_ENVIRONMENT_FALLBACK', dict(phase=label,
+                 reason='exact WASAPI initialization diagnostics with explicit dummy fallback',
+                 audible_audio='NOT_TESTED'))
+            audio_reported = True
+
     try:
         with stdoutfile.open('xb') as sink:
             process = subprocess.Popen(command, stdout=sink, stderr=subprocess.STDOUT,
@@ -176,7 +228,7 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
                     raise RuntimeError('TIMEOUT: forced cleanup is not normal GUI exit')
                 if close_requested is not None and now - close_requested > CLOSE_GRACE_SECONDS:
                     raise RuntimeError('CLOSE_TIMEOUT: normal Quit did not exit within grace')
-                _logs_ok(root, (stdoutfile, logfile), expected_version, scan_errors=ready is not None)
+                report_audio(_logs_ok(root, (stdoutfile, logfile), expected_version, scan_errors=ready is not None))
                 if ready is None:
                     if now - started > SETUP_SECONDS:
                         raise RuntimeError('EVIDENCE_INSUFFICIENT: bootstrap and visible window readiness timeout')
@@ -254,7 +306,7 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
                              before_geometry, after_geometry, process.pid)
         if not rows:
             raise RuntimeError('EVIDENCE_INSUFFICIENT: no owned process samples')
-        _logs_ok(root, (stdoutfile, logfile), expected_version, terminal=True)
+        report_audio(_logs_ok(root, (stdoutfile, logfile), expected_version, terminal=True))
         result = dict(phase=label, pid=process.pid, process_identity=first_identity,
                       exit_code=code, wall_s=elapsed,
                       post_readiness_wall_s=close_ready_wall,
@@ -264,7 +316,8 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
                       after_geometry=after_geometry, close_request=close_result,
                       normal_exit='normal application Quit requested; observed exit0; exact handler UNKNOWN',
                       screenshots='NOT_REQUESTED', physical_red_button='NOT_TESTED',
-                      expected_version=expected_version, audible_audio='NOT_TESTED')
+                      expected_version=expected_version, audible_audio='NOT_TESTED',
+                      audio_environment_fallback=audio_reported)
         emit('COMPAT_PHASE_RESULT', result)
         return result
     finally:
@@ -277,6 +330,7 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
         for path in (stdoutfile, logfile):
             if path.exists():
                 text = read_log_bounded(path)
+                report_audio(filter_audio_environment(text)[1])
                 data = text.encode('utf-8')
                 emit('GUI_LOG_METADATA', dict(phase=label, file=path.name, bytes=path.stat().st_size,
                                               decoded_sha256=hashlib.sha256(data).hexdigest()))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ARM representative v19-save/full-v20 and installed-v20-PCK/old-host checks."""
+"""Native representative v19-save/full-v20 and installed-v20-PCK/old-host checks."""
 import hashlib
 import json
 import os
@@ -14,13 +14,14 @@ import urllib.request
 import uuid
 
 import native_package_stability as gate
-from native_compat_session import session
+from native_compat_session import session, native_json
 
 OLD_TAG='v1.3.19-test.1'
 NEW_TAG='v1.3.20-test.1'
 OLD_VERSION='1.3.19-test.1'
 NEW_VERSION='1.3.20-test.1'
 DRIVER_SECONDS=12*60
+PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
  'old_zip':(OLD_TAG,'MountainStill-v1.3.19-test.1-macOS-Universal.zip',141140901,'5f26a064049da7f1ed7da3e6ab170cde4b86da642dda20fa379a436b958c17cc'),
  'new_zip':(NEW_TAG,'MountainStill-v1.3.20-test.1-macOS-Universal.zip',141164315,'1473f14531b993df673b0fab7cab53775d24200894772c97c100a8aae9215163'),
@@ -28,12 +29,21 @@ PINS={
  'manifest':(NEW_TAG,'MountainStill-update.json',579,'4a1ccd8d5d458bb4617da6c356d4ee0e15e3426d60b7c2076478537398d5846e'),
 }
 
+if PLATFORM == 'windows':
+    PINS.update({
+      'old_zip':(OLD_TAG,'MountainStill-v1.3.19-test.1-Windows-x86_64.zip',114408760,'17eb818f31de294e3a8edd3ff4d6115b63c5f46177a572bb98b573f260e54e58'),
+      'new_zip':(NEW_TAG,'MountainStill-v1.3.20-test.1-Windows-x86_64.zip',114432439,'18fc6381156896ea8eac46317a28d6a1f18e35f4d89cf32819e9324d0a446150'),
+      'pck':(NEW_TAG,'MountainStill-windows.pck',78474352,'623bd2cc3c8f7df4eec9d46fe8559cb34f2515637c9f5b0433a683e99304fc8a'),
+    })
+
 
 def require_environment():
-    if (sys.platform!='darwin' or platform.machine()!='arm64' or os.environ.get('GITHUB_ACTIONS')!='true'
+    arch=platform.machine().lower()
+    native=(sys.platform=='win32' and arch in ('amd64','x86_64')) or (sys.platform=='darwin' and arch in ('arm64','x86_64'))
+    if (not native or os.environ.get('GITHUB_ACTIONS')!='true'
             or os.environ.get('RUNNER_ENVIRONMENT')!='github-hosted'
             or os.environ.get('GITHUB_REPOSITORY')!='lemoncat7/MountainStill'):
-        raise RuntimeError('Only official disposable fixed-public-repository macOS ARM runner')
+        raise RuntimeError('Only official disposable fixed-public-repository Windows x64/macOS ARM64/Intel runners')
 
 
 def budget(deadline,reserve=0):
@@ -78,12 +88,12 @@ def installed_record(manifest):
         raise RuntimeError('Manifest schema fields must be integers, not booleans')
     if {key:manifest.get(key) for key in ('schema','version','engine','bootstrap','save_schema')} != dict(schema=1,version=NEW_VERSION,engine='4.6.3',bootstrap=1,save_schema=4):
         raise RuntimeError('Unexpected pinned manifest compatibility fields')
-    package=manifest.get('packages',{}).get('macos',{})
+    package=manifest.get('packages',{}).get(PLATFORM,{})
     _,name,size,sha=PINS['pck']
     if package.get('restart_required') is not True or package != dict(kind='pck',asset=name,size=size,sha256=sha,restart_required=True):
         raise RuntimeError('Unexpected pinned manifest package')
     return dict(schema=1,version=NEW_VERSION,engine='4.6.3',bootstrap=1,save_schema=4,
-        platform='macos',**package,path='user://updates/'+sha+'.pck')
+        platform=PLATFORM,**package,path='user://updates/'+sha+'.pck')
 
 
 def assert_owner(userdata,token):
@@ -216,14 +226,20 @@ def main():
             files={key:fetch_pinned(key,root,deadline) for key in PINS}
             manifest=bounded_json(files['manifest']);installed_record(manifest)
             oldroot=root/'old';newroot=root/'new';gate.extract(files['old_zip'],oldroot);gate.extract(files['new_zip'],newroot)
-            relative=gate.APP+'.app/Contents/MacOS/'+gate.APP
+            relative='MountainStill/MountainStill.exe' if PLATFORM=='windows' else gate.APP+'.app/Contents/MacOS/'+gate.APP
             old_binary=oldroot/relative;new_binary=newroot/relative
             original_hashes={str(path):digest(path) for path in (old_binary,new_binary)}
             budget(deadline,150)
-            with (root/'helper.compile.txt').open('wb') as sink:
-                built=subprocess.run(['swiftc','-target','arm64-apple-macosx15.0','-parse-as-library',
-                    str(Path(__file__).with_name('native_gui_capture.swift')),'-o',str(root/'capture')],stdout=sink,stderr=subprocess.STDOUT,timeout=120)
-            if built.returncode:raise RuntimeError('Native helper compile failed')
+            if PLATFORM=='windows':
+                prepared=native_json(['powershell','-NoProfile','-NonInteractive','-File',
+                    str(Path(__file__).with_name('native_gui_capture.ps1')),'-PrepareAssembly',
+                    '-NativeAssembly',str(root/'capture.dll')],timeout=120)
+                if prepared.get('status')!='HELPER_PREPARED':raise RuntimeError('Native Windows helper preparation failed')
+            else:
+                with (root/'helper.compile.txt').open('wb') as sink:
+                    built=subprocess.run(['swiftc','-target',platform.machine()+'-apple-macosx15.0','-parse-as-library',
+                        str(Path(__file__).with_name('native_gui_capture.swift')),'-o',str(root/'capture')],stdout=sink,stderr=subprocess.STDOUT,timeout=120)
+                if built.returncode:raise RuntimeError('Native helper compile failed')
             for kind in ('full_upgrade','installed_pck'):
                 results.append(scenario(kind,old_binary,new_binary,files['pck'],manifest,root,deadline,registry))
             for name,sha in original_hashes.items():
@@ -233,7 +249,7 @@ def main():
     finally:
         if any(p.poll() is None for p in registry):success=False
         if time.monotonic()>=deadline:success=False
-        summary='## ARM representative old-save / installed-PCK compatibility\n\n'+('PASS representative two scenarios, six actual boots' if success else 'FAIL/incomplete representative compatibility')+'\n\n'+json.dumps(results)+'\n\nNot a50-cycle matrix, old-schema migration, network update/download/UI activation, rollback, Service upgrade, visual/audio or formal-release acceptance. Old headless failures retained.\n'
+        summary='## Native representative old-save / installed-PCK compatibility\n\n'+('PASS representative two scenarios, six actual boots' if success else 'FAIL/incomplete representative compatibility')+'\n\n'+json.dumps(results)+'\n\nNot a50-cycle matrix, old-schema migration, network update/download/UI activation, rollback, Service upgrade, visual/audio or formal-release acceptance. Old headless failures retained.\n'
         print(summary,flush=True)
         if os.environ.get('GITHUB_STEP_SUMMARY'):
             with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as sink:sink.write(summary)

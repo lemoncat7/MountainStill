@@ -1,7 +1,16 @@
-name: Native v19 to v20 representative ARM compatibility
+name: Native v19 to v20 representative compatibility
 
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Remaining Windows/Intel representative cases; ARM is a separate existing profile'
+        required: true
+        type: choice
+        default: windows-intel
+        options:
+          - windows-intel
+          - arm
 
 permissions: {}
 
@@ -13,7 +22,11 @@ jobs:
   representative-compatibility:
     if: github.repository == 'lemoncat7/MountainStill' && github.event.repository.private == false
     timeout-minutes: 15
-    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ inputs.target == 'arm' && fromJSON('[{"runner":"macos-15","python":"python3"}]') || fromJSON('[{"runner":"windows-2025","python":"python"},{"runner":"macos-15-intel","python":"python3"}]') }}
+    runs-on: ${{ matrix.runner }}
     defaults:
       run:
         shell: bash
@@ -31,10 +44,10 @@ jobs:
           test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
       - name: Offline fixed-version and external-journal contracts
         run: |
-          python3 source/tests/native_package_driver_test.py
-          python3 source/tests/native_process_metrics_test.py
-          python3 source/tests/native_package_stability_test.py
-          python3 source/tests/native_compat_session_test.py
-          python3 source/tests/native_compatibility_test.py
+          ${{ matrix.python }} source/tests/native_package_driver_test.py
+          ${{ matrix.python }} source/tests/native_process_metrics_test.py
+          ${{ matrix.python }} source/tests/native_package_stability_test.py
+          ${{ matrix.python }} source/tests/native_compat_session_test.py
+          ${{ matrix.python }} source/tests/native_compatibility_test.py
       - name: Two representative cases with actual old and current binaries
-        run: python3 source/tools/native_compatibility.py
+        run: ${{ matrix.python }} source/tools/native_compatibility.py

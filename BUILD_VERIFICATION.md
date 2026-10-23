@@ -1,46 +1,36 @@
-# v1.3.10-test.1 窗口与场景适配验证
+# v1.3.12-test.1 本地构建与载荷验证（2026-10-22）
 
-2026-10-21，Linux，Godot 4.6.3 stable official standard。原 v1.3.9-test.1 发布与源目录保持不变。下面区分源码行为、真实 Linux 图形界面、导出载荷和目标系统原生验收；历史更新器验证另见 `docs/UPDATER_VERIFICATION.md`，不冒充本轮重跑。
 
-## 源码与行为
+这是整合试招、石灵提示和 round2 性能优化的**测试包**，不是首个正式稳定版。最坏同步逻辑 tick 仍不满足 33.3 ms 目标；不能把性能改善表述为正式性能达标。完整功能、原生 Linux 和性能实测由本轮整合 QA 记录提供。
 
-- 默认普通窗口目标 1440×720、界面/字号 150%；按显示缩放、可用桌面空间与最小逻辑画幅限制。普通窗口与桌面条保存独立几何信息，保留旧存档迁移。
-- 世界画幅固定 1040×280、底部居中，窗口变化裁切/扩展视野而不拉伸人物与场景。七张原始透明 PNG 直接作为运行依赖，原图字节未改。
-- 传送 shader 移除重复纹理相乘；不改原画、战斗或存档 schema 4。更新 bootstrap ABI 1、pack guard 与信任策略未改。
-- 最终源码检查：布局 475、场景 framing 961、原生几何约束 130、桌面模式 340、传送 alpha 27，均 0 失败。比例原画修订后完整六路线 2169 与玩家旅程 1613 检查均通过。
-- 版本绑定检查：更新面板 21/0；真实 localhost HTTPRequest 集成 49/0；多进程嵌套 preload 替换、下一次启动、失败更新回退/存档恢复、双实例拒绝均通过。HTTP fixture 只模拟传输，不冒充可加载 PCK。
+## 最终导出
 
-## 真实 Linux 图形检查
+- Linux / Godot `4.6.3.stable.official.7d41c59c4`，使用此前匹配官方 SHA-512 的官方导出模板；重新完整导出，没有复用上一版本的应用包。
+- GUI 定位音频退出残留后，整合版修复关窗生命周期与音频释放，`cultivation.gd` SHA-256 为 `ebf19da98e3218cb4b497d252ade06e99a83bfd36276f2a119bff411262dd729`。修前导出仅用于预验证，已失去最终交付资格；本文件对应修后重新导出和全新测试数据目录。随后全回归发现稀有掉落材料键问题，改为显式 String 键后再次重导、使用全新目录重测；最终 State SHA-256 为 `2d7df34d83bddf03f2c75d791a47b6bd44364d41724fb1d3a9f05b53791ee16d`。材料账本的严格校验未放宽。
+- 62 份源码和 104 条依赖路径逐项存在、与当前源码一致。Windows PE AMD64、macOS Universal x86_64 + arm64、版本 1.3.12、可执行权限与 ad-hoc 资源结构通过。
+- 两个平台的更新 PCK 均为 78287824 bytes，SHA-256 均为 `6dd53e378fa509e82eda299e1b290e4448a18046d215b9b32046e6a72a6eba3f`。内容平台无关，仍由 manifest 分别绑定 windows/macos；manifest 大小和 SHA 与实际文件匹配。
 
-本轮已实际运行 Linux 图形窗口并通过桌面交互观察，不是仅 headless 节点断言。测试发现并修复 F2 切换的窗口/字号反馈环；修复后按 F2，259 ms 的实际截图已显示完整街景。最终图形验收通过：
+## 实际载荷与升级
 
-- Godot 4.6.3 / OpenGL llvmpipe 实际桌面：1340×720、960×790、1234×650 战斗视图中怪物/场景比例正常；合成透明区域显示桌面云景，人物与街景保持不透明。
-- 手动 1234×650 → F2 桌面条 → 普通窗口，尺寸和位置恢复；原生持久化 fixture 连续四轮，在立即/1/5/20 帧及保存/场景重载后无尺寸漂移，0 失败。
-- 真实 campaign-demo 离场到消散采样 8 帧未观察到黑闪；原生 GPU fixture 对照普通 shader，传送起点 RGBA 完全一致、完整消散 alpha=0，3 检查 0 失败。
-- 图形战斗使用演示预设，不冒充从新存档自然推进。音频设备不存在，使用 dummy 驱动；不宣称验证声音。环境存在 vsync 不支持提示，无玩法脚本错误。
+- 从新 Windows EXE 和新 macOS app PCK 直接加载，使用空项目路径而非源码补依赖；每个平台 334 个活动资源全部加载，透明天空/人物落脚资源校验通过。新游戏启动标记为 1.3.12-test.1。
+- 使用真实旧 1.3.9、1.3.10 公开包及本轮恢复的 1.3.11 包，两平台合计六种旧安装。每种先用旧 State 创建 schema 4 存档，使用旧 bootstrap 挂载实际新 PCK，再用全新进程二次启动，共十二次升级/重启验证。
+- 原存档 herbs=777、dew=333、暂停设置保持；新版本存入 herbs=779，第二次启动正确读回。1.3.11 的非默认 frugal 战术与合法历史战报样本保留。旧 bootstrap/store 内容 hash 与 builtin 版本保持不变，ABI 1/schema 4 未改变。
+- 十二次启动均实际启动试招并运行 20 个模拟 tick，结束后正式 State snapshot 和原存档 SHA 不变；正式保存不得在试招中写入。新脚本可实例化，更新 active journal 正确，pending/booting 正常清理。
+- 两个更新 PCK 的 policy/guard 验证通过。两个新平台实际载荷均覆盖启动健康标记删除失败注入：预期退出码 1、唯一预期注入 ERROR、暂停并释放失败游戏断言通过。不能把这些预期 ERROR 当作普通正常启动。
+- 正常载荷验证拒绝 SCRIPT ERROR、ERROR、ObjectDB 残留和 resources still in use；故障注入仅允许上面的预期错误。
 
-## 导出与旧安装包升级
+- 两个实际平台载荷均执行稀有掉落专项：State 228 checks / 0 failures，真实 host 19 checks / 0 failures，覆盖真实拾取、容量重试和检查点流程。
+- host 测试原本 extends `res://tests/test_battle_resource_host.gd`，测试文件按设计不在发行包内；仅把外部测试副本这一行换成同一测试 base 的绝对路径，断言字节不变。桥接 diff/base hash 与原始结果保存在 `docs/qa/quality-2026-10-22/build-validation/`。运行时仍只解析真实 main-pack，未使用源码补运行依赖。
 
-- 冻结运行源码：`cultivation.gd` SHA256 `183669bc8e1f02b58e59da6e006c217265a966629f9d434e2c6b1466e49bca2d`；`desktop_mode.gd` SHA256 `1a9d55b8ba90534a293591e636bea5f27bebb4239a510f0139896e0beb326a9a`。导出前后核对运行源码哈希无变化。
-- Windows EXE 内嵌载荷与 macOS app PCK 分别在空目录由 Linux Godot 加载，全部 328 个资源可加载/脚本可实例化，旧原型资源不存在；两者 90 帧 bootstrap 冒烟通过。
-- 两个平台最终 PCK 均为 78,233,916 字节，SHA256 `ff7afa30ca389908835f12dcb54988c1c2b8db5f0ef594754ef04509b20ad65b`；生产 manifest policy、大小/hash 与 PCK namespace guard 全通过。
-- **实际已发布 v1.3.9 安装载荷 → 最终新 PCK 的两条升级路径均通过**：Windows 使用旧 ZIP 中的 EXE，macOS 使用旧 app PCK；不是当前 bootstrap 配假版本。旧 Windows EXE SHA256 `bc344ba02dc8dfa7e58ec93e02b07cb99dcfa13bb0f840bf10f5833f33084130`；旧 macOS PCK SHA256 `864baf41f5e9f3520bdf2f58123c3f8a2f7867212b5ec21703c7165cb6e01071`。
-- Windows PE AMD64；macOS Mach-O Universal x86_64/arm64、Info.plist 1.3.10、可执行位与 ad-hoc 签名资源结构通过。分发 ZIP CRC 与 SHA256 校验；最终分发文件以 `SHA256SUMS.txt` 为准。
+## 交付与限制
 
-构建增加 `tools/verify_export_dependencies.py`：对实际导出 ZIP 核对所有运行脚本与源文件字节、静态 preload/load 引用及导入纹理 remap。删除新 helper 与原画 PNG 的故障注入会被明确拒绝，不能仅凭导出退出码 0 放行。两个 helper 与七张源 PNG 明确列入三个导出预设。
+七资产为 Windows ZIP、macOS ZIP、干净源码 ZIP、两平台 PCK、manifest、SHA256SUMS。最终打包核对 CRC、大小、SHA、源码逐文件一致性及敏感模式，排除缓存、临时存档、日志、凭据和旧构建。
 
-可复现旧安装包测试：
+上述载荷验证是 Linux Godot 加载实际导出内容，**不是原生 Windows/macOS 实机测试**；不宣称 Apple 公证、开发者签名或长期运行稳定性已经完成。更新包仍明确 `restart_required: true`，不是任意脚本无重启替换。公开提交与 Release 发布由主任务统一处理，本地构建流程本身没有执行公开操作。
 
-```sh
-python3 tests/update_old_payload_process.py OLD_PUBLIC_RELEASE_DIR NEW_RELEASE_DIR
-```
 
-该测试从实际 v1.3.9 Windows ZIP 提取内嵌 PCK 的 EXE、从实际 macOS ZIP 提取 app PCK，在空项目与独立用户目录中由 Linux Godot 加载。先断言旧项目版本、旧 BUILTIN_VERSION 和新 helper 不存在，再由原始 bootstrap/store 校验与挂载新 PCK；只为 Linux 测试指定平台标签，不改旧版本常量或启动脚本。升级后核对 immutable bootstrap/store 字节未变、新版本与健康提交、新默认窗口/150%设置、运行时缩放模式、七张原始纹理及等比例目标矩形。此为真实旧载荷升级测试，**不是 Windows/macOS 原生执行**。
+## 最终整合 QA 与一小时循环验证
 
-## 分发清理与限制
+最终整合结果见 `docs/QUALITY-v1.3.12-INTEGRATION-QA.md` 及该文引用的 SOAK.md 原始证据。相同冻结运行时执行 3602.175 秒、1531 轮、21180 项检查，零失败、exit 0，前后 64 文件哈希一致。每轮重置夹具、每 10 轮重建宿主，因此这仅是 headless 生命周期/状态循环稳定性验证，不是自然连续游玩、完整通关或原生 Windows/macOS 长测。RSS 增长 12.016 MiB，末 15 分钟斜率 +0.03444 MiB/min；不能宣称零内存增长或无泄漏。
 
-源码 allowlist 保留 `.gitignore`、本页、`FIRST_TEST_README.md`、`PUBLICATION_NOTES.md`、测试/构建工具、原始素材及第三方许可证；排除缓存、导出物、运行日志、录像、截图、个人存档和凭据。静态常见令牌/私钥/个人工作区路径模式扫描不等于完整安全审计。
-
-Windows 未做代码签名；macOS 只有 ad-hoc、无 Developer ID/公证。PE/Mach-O/Info.plist/签名资源结构检查不等于系统验签。Windows/macOS 启动、实际自动重启、声音、不同 DPI/多显示器、透明/置顶/穿透、系统权限及 Gatekeeper/SmartScreen 尚未原生实机验收。Linux 图形检查不能替代这些验收。SHA256 只核对完整性，不是独立发布者签名。
-
-本轮只构建和本地验证，未发布、未推送、未执行发布后的整包网络下载。当前测试频道是否已能发现此版本，应以实际发布状态为准。
+最坏 CPU 同步 tick 为 128.023 ms，仍未达到正式版 33.3 ms 门槛；两个既有节奏断言保留。故本轮交付仍为 **1.3.12-test.1 测试包**，不标记正式稳定版。

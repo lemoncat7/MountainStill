@@ -1,7 +1,7 @@
 extends Node
 ## Downloads only. UpdateStore/UI must explicitly activate staged content.
 const Policy = preload("res://scripts/update_policy.gd")
-const CURRENT_VERSION = "1.3.10-test.1"
+const CURRENT_VERSION = "1.3.12-test.1"
 const ROOT = "user://updates/"
 const PART = ROOT + "download.part"
 const PENDING = ROOT + "pending.json"

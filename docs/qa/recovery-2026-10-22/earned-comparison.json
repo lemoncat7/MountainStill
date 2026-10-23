@@ -1,0 +1,25 @@
+{
+  "encounters": {
+    "baseline_count": 180,
+    "candidate_count": 180,
+    "exact_equal_except_combat_tactic": true
+  },
+  "campaigns": {
+    "baseline_count": 10,
+    "candidate_count": 10,
+    "exact_equal_except_combat_tactic": true
+  },
+  "powered_replays": {
+    "baseline_count": 10,
+    "candidate_count": 10,
+    "exact_equal_except_combat_tactic": true
+  },
+  "baseline_checks_failures": [
+    4474,
+    2
+  ],
+  "candidate_checks_failures": [
+    4474,
+    2
+  ]
+}

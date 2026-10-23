@@ -1,0 +1,7 @@
+{
+  "source_test_sha256": "366381050e1642cea17163ba104f2a52a475a84832a103ab6555ab89b1c55def",
+  "external_adapted_sha256": "b93c8acb17feb6a313e83354668fc62f12f00b245be839c13f9a2f4969de7ceb",
+  "base_sha256": "20ce02e1cdbaf1c6dd55f3351893c0baaccbaebb368747beaace2a5dc39d5f18",
+  "runtime_source": "Only actual exported main-pack; --path points to empty directory. No runtime source-directory fallback.",
+  "diff": "--- original_host_test\n+++ external_host_test\n@@ -1,4 +1,4 @@\n-extends \"res://tests/test_battle_resource_host.gd\"\n+extends \"/workspace/scratch/778a2592935f/quality-v1312/tests/test_battle_resource_host.gd\"\n ## The 1% treasure branch must not leave a fully searched body unclaimable.\n func fixture(style:String=\"sword\",actives:Array=[],realm:int=4):\n  super.fixture(style,actives,realm)\n"
+}

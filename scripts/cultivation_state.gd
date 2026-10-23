@@ -10,6 +10,8 @@ const Materials = preload("res://scripts/material_registry.gd")
 const MaterialInventory = preload("res://scripts/material_ledger.gd")
 const PlayerJourney = preload("res://scripts/player_journey.gd")
 const SEARCH_SECONDS := 2.0
+const COMBAT_TACTIC_IDS := ["balanced", "assault", "guarded", "frugal"]
+const COMBAT_REPORT_LIMIT := 5
 
 const REALM_NAMES = Content.REALM_NAMES
 const ACTIVITY_NAMES := {"meditate": "静坐吐纳", "gather": "采集灵草", "brew": "温火炼丹"}
@@ -49,6 +51,8 @@ var chest_count: int:
 	set(value):
 		gear.chests = clampi(value, 0, Equipment.MAX_CHESTS)
 var total_victories: int = 0
+var combat_tactic: String = "balanced"
+var combat_reports: Array = []
 # Retained as a read-compatible legacy property. Combat is always opt-in.
 var expedition_auto: bool:
 	get:
@@ -163,6 +167,8 @@ func new_game() -> void:
 	gear.new_game()
 	materials.new_game()
 	total_victories = 0
+	combat_tactic = "balanced"
+	combat_reports = []
 	expedition_auto = false
 	selected_stage = "bamboo_pass"
 	stage_run = {}
@@ -428,6 +434,7 @@ func stats() -> Dictionary:
 		hp_bonus += float(method.get("max_hp", 0.0))
 		poise_bonus += float(method.get("poise_bonus", 0.0))
 	return {
+		"combat_tactic": _sanitize_combat_tactic(combat_tactic),
 		"qi_rate": qi_rate(),
 		"attack": 8 + realm * 2 + int(gear_stats().attack) + 3 * active_technique_level("mist") + int(meridian_bonuses().attack),
 		"defense": int(realm / 3.0) + int(gear_stats().defense) + int(meridian_bonuses().defense),
@@ -679,6 +686,7 @@ func _snapshot() -> Dictionary:
 		"merit": merit, "lifetime_seconds": lifetime_seconds,
 		"gear": gear.to_dict(), "materials": materials.to_dict(), "loot_crafting_revision": 2, "total_victories": total_victories,
 		"expedition_auto": false,
+		"combat_tactic": _sanitize_combat_tactic(combat_tactic), "combat_reports": _sanitize_combat_reports(combat_reports),
 		"adventure": {"selected_stage": selected_stage, "stage_run": stage_run.duplicate(true),
 			"stage_clears": stage_clears.duplicate(), "pending_opportunity": pending_opportunity.duplicate(true),
 			"campaign_revision": Content.CAMPAIGN_REVISION, "chapter_reward_claimed": chapter_reward_claimed.duplicate(),
@@ -742,6 +750,8 @@ func _restore_and_award(data: Dictionary, result: Dictionary, may_save: bool = t
 	var material_report: Dictionary = materials.load_data(data.get("materials", {}))
 	result.materials_repaired = bool(material_report.repaired)
 	total_victories = _bounded_saved_int(data.get("total_victories"), 0, MAX_RESOURCE, 0)
+	combat_tactic = _sanitize_combat_tactic(data.get("combat_tactic"))
+	combat_reports = _sanitize_combat_reports(data.get("combat_reports"))
 	expedition_auto = false
 	# Appearance is optional in older saves. Bad cosmetic values fall back
 	# individually, preserving the player's otherwise valid cultivation state.
@@ -2037,7 +2047,7 @@ func _roll_stage_corpse_rewards(stage_id: String, monster_index: int) -> Diction
 		var rarity := "common" if roll < 0.60 else ("uncommon" if roll < 0.88 else ("rare" if roll < 0.98 else "epic"))
 		result.item_spec = {"template_id": template_id, "rarity": rarity, "level": int(definition.unlock_realm) + 1}
 	result.treasure_rolled = _adventure_rng.randf() < Materials.TREASURE_CHANCE
-	if bool(result.treasure_rolled): result.materials.spirit_jade = 1
+	if bool(result.treasure_rolled): result.materials["spirit_jade"] = 1
 	return result
 
 
@@ -2060,7 +2070,7 @@ func _restore_stage_corpse(raw: Variant) -> void:
 	if bool(reward.equipment_rolled) and saved.get("item_spec") is Dictionary and gear.item_spec_valid(saved.item_spec):
 		reward.item_spec = {"template_id": String(saved.item_spec.template_id), "rarity": String(saved.item_spec.rarity), "level": int(definition.unlock_realm) + 1}
 	else: reward.equipment_rolled = false
-	if bool(reward.treasure_rolled): reward.materials.spirit_jade = 1
+	if bool(reward.treasure_rolled): reward.materials["spirit_jade"] = 1
 	stage_run.pending_corpse = {"version": 1, "monster_index": index,
 		"search_seconds": _finite_bounded(raw.get("search_seconds"), 0.0, SEARCH_SECONDS, 0.0), "rewards": reward}
 	if index == 2: stage_run.opportunity_checked = true
@@ -2640,3 +2650,96 @@ func update_stage_battle_resources(run_id: int, resources: Dictionary) -> Dictio
 	var previous := stage_battle_resources()
 	stage_run.battle_resources = _sanitize_battle_resources(resources, false, previous)
 	return {"ok": true, "reason": "updated", "battle_resources": stage_run.battle_resources.duplicate(true)}
+
+
+func _sanitize_combat_tactic(value: Variant) -> String:
+	return value if value is String and value in COMBAT_TACTIC_IDS else "balanced"
+
+
+func set_combat_tactic(id: String) -> bool:
+	if id not in COMBAT_TACTIC_IDS: return false
+	combat_tactic = id
+	return true
+
+
+func combat_stat_breakdown() -> Dictionary:
+	# Read-only projection of stats(), never a second authority for combat values.
+	var effective := stats()
+	var gear_values := gear_stats()
+	var pulse := meridian_bonuses()
+	var evasion := evasion_stats()
+	var hp_methods := 0.0
+	var qi_methods := 0.0
+	var regen_methods := 0.0
+	var methods: Array = passive_method_descriptors().duplicate()
+	var heart := technique_descriptor(equipped_heart)
+	if not heart.is_empty() and bool(heart.get("active", false)): methods.append(heart)
+	for method in methods:
+		hp_methods += float(method.get("max_hp", 0.0))
+		qi_methods += float(method.get("combat_qi_max", 0.0))
+		regen_methods += float(method.get("combat_qi_regen", 0.0))
+	var rows := [
+		{"label": "攻击", "value": "%d" % int(effective.attack),
+			"source": "基础8 + 境界%d + 装备%d + 云岚%d + 经脉%d" % [realm * 2, int(gear_values.attack), 3 * active_technique_level("mist"), int(pulse.attack)]},
+		{"label": "防御", "value": "%d" % int(effective.defense),
+			"source": "境界%d + 装备%d + 经脉%d" % [int(realm / 3.0), int(gear_values.defense), int(pulse.defense)]},
+		{"label": "气血", "value": "%d" % int(effective.max_hp),
+			"source": "基础100 + 境界%d + 在用功法%d" % [realm * 4, int(hp_methods)]},
+		{"label": "速度", "value": "%.0f" % float(effective.speed),
+			"source": "基础100 × (1 + 经脉%.0f%%)，加速上限35%%" % (float(pulse.combat_haste) * 100.0)},
+		{"label": "闪避", "value": "%.1f%%" % (float(effective.evasion_chance) * 100.0),
+			"source": "基础%.0f%% + 身法%.0f%% + 装备%.0f%% + 经脉%.0f%%；上限72%%" % [float(evasion.base) * 100.0, float(evasion.movement) * 100.0, float(evasion.equipment) * 100.0, float(evasion.meridian) * 100.0]},
+		{"label": "真气", "value": "%.0f · 每秒回复%.1f" % [float(effective.combat_qi_max), float(effective.combat_qi_regen)],
+			"source": "气池：基础40 + 境界%d + 经脉%.0f + 功法%.0f，上限80；回复：基础2 + 经脉%.1f + 功法%.1f，上限4/秒" % [realm * 2, float(pulse.combat_qi_max), qi_methods, float(pulse.combat_qi_regen), regen_methods]},
+		{"label": "节耗 / 调息", "value": "%.0f%% / %.0f%%" % [float(effective.skill_cost_reduction) * 100.0, float(effective.skill_cooldown_reduction) * 100.0],
+			"source": "来自经脉；真气消耗降低上限35%，冷却缩短上限30%"},
+	]
+	return {"rows": rows, "stats": effective}
+
+
+func _report_text(value: Variant) -> String:
+	if not value is String: return ""
+	# Reports are plain UI text, not an executable or reward-bearing save format.
+	return value.replace("\n", " ").replace("\r", " ").replace("\t", " ").substr(0, 32)
+
+
+func _sanitize_combat_report(value: Variant) -> Dictionary:
+	if not value is Dictionary: return {}
+	if not value.get("outcome") is String or value.outcome not in ["victory", "defeat", "retreat"]: return {}
+	var result := {"outcome": value.outcome, "tactic": _sanitize_combat_tactic(value.get("tactic")),
+		"stage_name": _report_text(value.get("stage_name")), "enemy_name": _report_text(value.get("enemy_name"))}
+	for key in ["damage_dealt", "damage_taken", "healing", "shield_added", "shield_absorbed", "dodges", "guards", "breaks", "hits", "misses", "enemy_dodges", "enemy_guards", "incoming_hits", "incoming_misses", "hero_hp", "hero_max_hp"]:
+		result[key] = _bounded_saved_int(value.get(key), 0, 1000000, 0)
+	result.hero_hp = mini(int(result.hero_hp), int(result.hero_max_hp))
+	result.elapsed = _finite_bounded(value.get("elapsed"), 0.0, 86400.0, 0.0)
+	result.qi_spent = _finite_bounded(value.get("qi_spent"), 0.0, 1000000.0, 0.0)
+	var skills: Dictionary = {}
+	var raw_skills: Variant = value.get("skill_casts")
+	if raw_skills is Dictionary:
+		for key in raw_skills:
+			if skills.size() >= 12: break
+			if not key is String: continue
+			var name := _report_text(key)
+			if name.is_empty(): continue
+			skills[name] = _bounded_saved_int(raw_skills[key], 0, 1000000, 0)
+	result.skill_casts = skills
+	return result
+
+
+func _sanitize_combat_reports(value: Variant) -> Array:
+	var result: Array = []
+	if not value is Array: return result
+	# Inspect only the bounded head. Malformed saved history cannot force an
+	# unbounded scan, and never participates in kill or pickup rewards.
+	for index in range(mini(value.size(), COMBAT_REPORT_LIMIT)):
+		var report := _sanitize_combat_report(value[index])
+		if not report.is_empty(): result.append(report)
+	return result
+
+
+func record_combat_report(value: Dictionary) -> bool:
+	var report := _sanitize_combat_report(value)
+	if report.is_empty(): return false
+	combat_reports.push_front(report)
+	combat_reports = _sanitize_combat_reports(combat_reports)
+	return true

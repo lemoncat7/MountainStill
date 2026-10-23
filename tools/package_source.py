@@ -4,6 +4,7 @@ from pathlib import Path
 import argparse
 import hashlib
 import zipfile
+from release_file_policy import exclusion_reason
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = [".gitignore", "BUILD_VERIFICATION.md", "FIRST_TEST_README.md", "PUBLICATION_NOTES.md", "bootstrap.tscn", "project.godot", "main.tscn", "default_bus_layout.tres", "icon.svg", "export_presets.cfg", "README.md"]
@@ -39,7 +40,7 @@ for folder in ("sidewalk", "routes", "beasts"):
         if path.is_file() and path.suffix in (".png", ".json", ".txt", ".md", ".svg", ".gd") and "preview" not in path.name:
             ASSETS.append(str(path.relative_to(ROOT)))
 
-TOOLS += ["tools/verify_export_dependencies.py", "tools/package_updater_delivery.py", "tools/build_update_pack.gd", "tools/build_updater_release.sh", "tools/write_update_manifest.py", "tools/verify_updater_artifacts.py"]
+TOOLS += ["tools/release_file_policy.py", "tools/verify_export_dependencies.py", "tools/package_updater_delivery.py", "tools/build_update_pack.gd", "tools/build_updater_release.sh", "tools/write_update_manifest.py", "tools/verify_updater_artifacts.py"]
 TESTS += [str(path.relative_to(ROOT)) for path in sorted((ROOT / "tests").glob("*")) if path.suffix == ".py" and path.name.startswith(("update_", "bootstrap_"))]
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -57,7 +58,7 @@ for path in list(files):
 files += [path for path in (ROOT / "docs").rglob("*") if path.is_file()]
 # Only current runtime assets, their original inputs, provenance and tools are retained.
 # Historical full-body outfit presets, old environments and review previews are excluded.
-files = sorted(set(files))
+files = sorted(path for path in set(files) if exclusion_reason(path.relative_to(ROOT)) is None)
 for path in files:
     print(path.relative_to(ROOT))
 if args.dry_run:
@@ -70,6 +71,8 @@ with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as archive
         archive.write(path, "MountainStill/" + str(path.relative_to(ROOT)))
 with zipfile.ZipFile(out) as archive:
     assert archive.testzip() is None, "Source ZIP CRC check failed"
+    for name in archive.namelist():
+        assert exclusion_reason(name.removeprefix("MountainStill/")) is None, name
 digest = hashlib.sha256(out.read_bytes()).hexdigest()
 (out.parent / "MountainStill-Source.sha256").write_text(digest + "  " + out.name + "\n")
 manifest = out.parent / "SHA256SUMS.txt"

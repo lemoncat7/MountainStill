@@ -70,8 +70,8 @@ func run():
 	scene._process(1.0/60.0)
 	var after:float=scene.route_distance
 	var next_after:Vector2=scene._route_landmark_feet(scene._route_enemy_world_x(1))
-	check(absf((next_before.x-next_after.x)-(after-before)*1200.0/1040.0)<.001,"next monster and panorama share worlddistance")
-	check(absf(float(scene.side_motion.velocity)-(after-before)*1200.0/1040.0*60.0)<.001,"gait consumes actual landscape displacement")
+	check(absf((next_before.x-next_after.x)-(after-before)*(scene._world_x(1.0)-scene._world_x(0.0)))<.001,"next monster and panorama share worlddistance")
+	check(absf(float(scene.side_motion.velocity)-(after-before)*(scene._world_x(1.0)-scene._world_x(0.0))*60.0)<.001,"gait consumes actual landscape displacement")
 	scene.state.start_stage();scene.state.defeat_stage_monster(int(scene.state.stage_run.run_id),0)
 	scene.route_distance=273.0
 	var queued:Vector2=scene._route_landmark_feet(scene._route_enemy_world_x(1))

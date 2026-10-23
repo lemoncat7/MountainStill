@@ -1,5 +1,23 @@
 extends Control
 
+const PracticeHost = preload("res://scripts/practice_host.gd")
+var practice_session = null
+var practice_snapshot: Dictionary = {}
+var practice_controls: Control = null
+var practice_comparison: Dictionary = {}
+var practice_previous_reports: Dictionary = {}
+
+func practice_enemy_rows() -> Array: return PracticeHost.rows(self)
+func practice_can_start() -> String: return PracticeHost.blocked(self)
+func start_practice(enemy_id: String) -> bool: return PracticeHost.start(self, enemy_id)
+func end_practice(): PracticeHost.finish(self)
+func toggle_practice_pause():
+	if practice_session == null: return
+	if bool(practice_session.status().get("paused", false)): practice_session.resume()
+	else: practice_session.pause()
+	PracticeHost.controls(self)
+	_refresh_drawer()
+
 const CombatResponseCues = preload("res://scripts/combat_response_cues.gd")
 const CorpsePresentation = preload("res://scripts/corpse_presentation.gd")
 const State = preload("res://scripts/cultivation_state.gd")
@@ -133,6 +151,7 @@ var duel=DuelTimeline.new()
 var duel_pose:Dictionary={}
 var battle_resources:Dictionary={}
 var duel_resolution=""
+var combat_report_saved := false
 var hero_resolution=""
 var sidewalker=CharacterSidewalk.new()
 var side_motion:Dictionary={}
@@ -259,6 +278,9 @@ func _ready():
 	character_preview=CharacterPreview.new();character_preview.host=self;add_child(character_preview)
 	_sync_character_preview(0.0)
 	_build_nav()
+	# The save gate and delayed audio/control teardown own native close requests.
+	# Default auto-quit would bypass both immediately after close_requested.
+	get_tree().auto_accept_quit=false
 	get_window().close_requested.connect(_quit)
 	get_window().mouse_entered.connect(func():mouse_inside=true)
 	get_window().mouse_exited.connect(func():mouse_inside=false)
@@ -319,7 +341,9 @@ func _qbutton(parent:Control,key:String,label:String,rect:Rect2,fn:Callable,hint
 
 func _hotspot(key:String,caption:String,rect:Rect2,fn:Callable,hint:String,seal=false):
 	var b=InkHotspot.new();b.caption=caption;b.position=rect.position;b.size=rect.size;b.tooltip_text=hint;b.seal=seal
-	b.pressed.connect(func():_sound("equip",.08);fn.call())
+	b.pressed.connect(func():
+		if practice_session != null or b.disabled: return
+		_sound("equip",.08);fn.call())
 	nav.add_child(b);buttons[key]=b
 	if not seal:b.set_meta("scene_rect",rect)
 
@@ -345,6 +369,7 @@ func _build_nav():
 	dismiss.pressed.connect(func():state.guidance_dismissed=true;_save_loadout();_build_nav())
 	nav.add_child(dismiss);buttons.guide_dismiss=dismiss
 	_update_hotspots()
+	if practice_session != null: PracticeHost.lock_controls(self)
 
 func _open_route_opportunity():
 	wardrobe_tab="expedition";set_meta("expedition_view","opportunity")
@@ -378,6 +403,9 @@ func _interactive_regions()->Array:
 	return regions
 
 func _perform_page_action(key:String,rect:Rect2,fn:Callable):
+	if practice_session != null:
+		if key.begins_with("practice_"): fn.call()
+		return
 	# Actions commit once immediately. Visual settling never queues stale commands.
 	if drawer_name.is_empty() or closing:return
 	var before_page=drawer_name
@@ -415,6 +443,7 @@ func _animate_content(turning:bool):
 	_sync_drawer_visuals()
 
 func _toggle_drawer(value:String):
+	if practice_session != null: return
 	_record_cue("翻册："+value)
 	if drawer_name==value:_close_drawer();return
 	if value=="practice" and not state.arrival_seen:
@@ -427,6 +456,7 @@ func _toggle_drawer(value:String):
 	_refresh_drawer(true)
 
 func _close_drawer():
+	if practice_session != null: end_practice(); return
 	_record_cue("收册")
 	if drawer_name.is_empty():return
 	drawer_name="";drawer_generation+=1
@@ -448,7 +478,7 @@ func _close_drawer():
 			if generation!=drawer_generation:return
 			if is_instance_valid(closing_drawer):closing_drawer.queue_free()
 			drawer=null
-			if strip and bool(state.settings.click_through):desktop.set_passthrough(true))
+			if practice_session == null and strip and bool(state.settings.click_through):desktop.set_passthrough(true))
 
 func _drawer_rect()->Rect2:
 	var page=drawer_name if not drawer_name.is_empty() else drawn_page
@@ -521,6 +551,7 @@ func _refresh_drawer(animated=false):
 		content_tween.tween_property(self,"content_alpha",1.0,.22).set_delay(.56).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 		content_tween.tween_property(self,"content_offset",0.0,.24).set_delay(.54).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_sync_drawer_visuals()
+	if practice_session != null: PracticeHost.lock_controls(self)
 	if not focus_key.is_empty() and is_instance_valid(buttons.get(focus_key)) and buttons[focus_key].focus_mode!=Control.FOCUS_NONE:
 		buttons[focus_key].grab_focus()
 
@@ -538,6 +569,8 @@ func _slider(p:Vector2,width:float,value:float,fn:Callable):
 	drawer.add_child(s)
 
 func _process(delta):
+	if practice_session != null:
+		PracticeHost.advance(self, delta); return
 	display_check_clock+=delta
 	if display_check_clock>=.5:
 		display_check_clock=0.0
@@ -653,6 +686,13 @@ func _draw():
 	if "--loot-demo" in OS.get_cmdline_user_args():_text("演示存档 · 固定随机种子",Vector2(w-178,h-12),10,Color(.93,.95,.85,.85))
 	if "--campaign-demo" in OS.get_cmdline_user_args():_text("预置进度演示 · 非自然挂机时长",Vector2(w-238,h-12),10,Color(.22,.32,.25,.92))
 	_draw_battle_strip()
+	if practice_session != null and drawer_name.is_empty():
+		var practice_label = "镜中试招 · 无奖励 · 固定种子17 · 正式山居已冻结"
+		var practice_width = minf(size.x - 32.0, maxf(258.0, SANS.get_string_size(practice_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 24.0))
+		# A local paper backing keeps trial controls readable over any desktop,
+		# without making the scene/window background opaque.
+		InkPaper.paint(self, Rect2(16, 10, practice_width, 68), .96, "leaf", 1.0)
+		_text(practice_label, Vector2(24, 66), 14, INK)
 
 	if drawer_alpha>0 and is_instance_valid(drawer):_draw_drawer()
 	if toast_time>0:
@@ -960,6 +1000,12 @@ func _resized():
 	if is_instance_valid(nav):_build_nav()
 	if drawer_name!="":_refresh_drawer()
 func _input(event):
+	if practice_session != null:
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.keycode in [KEY_ESCAPE, KEY_F8]: end_practice()
+			elif event.keycode == KEY_SPACE: toggle_practice_pause()
+			get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and event.keycode in [KEY_ESCAPE,KEY_F8,KEY_F2,KEY_SPACE,KEY_I,KEY_TAB,KEY_A,KEY_R,KEY_M,KEY_G,KEY_F9]:
 		# A global shortcut must not also activate the focused paper button.
 		get_viewport().set_input_as_handled()
@@ -990,6 +1036,7 @@ func _input(event):
 		else:drag_active=false
 	if event is InputEventMouseMotion and drag_active:get_window().position=drag_start+DisplayServer.mouse_get_position()-mouse_start
 func _quit():
+	if practice_session != null: end_practice()
 	if closing:return
 	if not demo and not _save_current():
 		_notice("保存未成功，已留在山中。请检查本地权限后再离山。")
@@ -1203,6 +1250,7 @@ func _draw_beast(texture:Texture2D,key:String,p:Vector2,display_size:float,color
 	_scene_set_transform()
 
 func _draw_route_landmarks():
+	if practice_session != null: return
 	# Every unclaimed creature has a fixed world address from arrival onwards.
 	# Preparing the next duel changes ownership only; nothing spawns onscreen.
 	var active_visible:=encounter_active and encounter_phase in ["travel","fight","pickup"]
@@ -1225,6 +1273,7 @@ func _update_enemy_route_position():
 	encounter_enemy_x=_route_enemy_world_x(encounter_index)-route_distance
 
 func _begin_duel():
+	combat_report_saved = false
 	encounter_phase="fight";encounter_phase_age=0.0;encounter_clock=0.0;route_scroll_velocity=0.0;combat_hitstop=0.0;combat_impacts.clear()
 	var hero:Dictionary=state.stats().duplicate(true)
 	# A legal between-encounter passive change updates the next snapshot's HP
@@ -1242,6 +1291,7 @@ func _begin_duel():
 	_persist_battle_resources()
 
 func _persist_battle_resources():
+	if practice_session != null: return
 	# Capture before cancelling, changing phase, claiming the last reward, or
 	# writing disk. The state API rejects a stale or no-longer-active run.
 	if not encounter_active:return
@@ -1258,6 +1308,7 @@ func _advance_field_battle_resources(delta:float):
 	_persist_battle_resources()
 
 func _retreat_encounter(defeated:bool=false):
+	if encounter_phase == "fight": _record_combat_report("defeat" if defeated else "retreat")
 	_persist_battle_resources()
 	duel.cancel();duel_pose={};route_scroll_velocity=0.0;combat_impacts.clear()
 	# Going home keeps the next unclaimed enemy. Resuming still needs an explicit click.
@@ -1339,30 +1390,34 @@ func _update_encounter(delta:float):
 	encounter_clock+=combat_frame_delta
 	for event in duel.advance(combat_frame_delta):
 		if str(event.type)=="contact":
-			_play_combat_contact(event)
-			vitality=float(event.hero_hp);enemy_hp=float(event.enemy_hp)
-			_push_combat_feedback(event)
-			if str(event.target)=="enemy":
-				duel_resolution=str(event.resolution);enemy_flash=1.0 if int(event.damage)>0 else 0.0
-				combat_number=("反击 −" if bool(event.get("counter",false)) and str(event.resolution)=="hit" and int(event.damage)>0 else ("闪避 " if event.resolution=="dodge" else ("格挡 " if event.resolution=="guard" else "")))+str(event.damage)
-				combat_number_time=0.0 if event.resolution=="whiff" else .8
-			elif str(event.get("actor",""))=="hero":
-				if int(event.get("heal",0))>0:
-					hero_support_text="+%d"%int(event.heal);hero_support_time=.9
-				elif int(event.get("shield_added",0))>0:
-					hero_support_text="护身 +%d"%int(event.shield_added);hero_support_time=.9
-			else:
-				hero_resolution="shield" if float(event.get("shield_absorbed",0.0))>0 and int(event.damage)==0 else str(event.resolution)
-				hero_hit=0.0 if str(event.resolution)=="whiff" else 1.0;hero_damage=int(event.damage)
-				if str(event.resolution)=="guard" and bool(event.get("counter_earned",false)) and not bool(event.get("poise_broken",false)):
-					hero_support_text="卸力 · 反击";hero_support_time=.9
+			_present_duel_contact(event)
 		elif str(event.type)=="finished":
 			if bool(event.victory):_complete_duel()
 			else:_retreat_encounter(true);_notice("调息归山 · 行装修为无损，已击退守灵不会重打。")
 	duel_pose=duel.pose() if encounter_phase=="fight" else {}
 	if encounter_phase=="fight":_persist_battle_resources()
 
+func _present_duel_contact(event:Dictionary):
+	_play_combat_contact(event)
+	vitality=float(event.hero_hp);enemy_hp=float(event.enemy_hp)
+	_push_combat_feedback(event)
+	if str(event.target)=="enemy":
+		duel_resolution=str(event.resolution);enemy_flash=1.0 if int(event.damage)>0 else 0.0
+		combat_number=("反击 −" if bool(event.get("counter",false)) and str(event.resolution)=="hit" and int(event.damage)>0 else ("闪避 " if event.resolution=="dodge" else ("格挡 " if event.resolution=="guard" else "")))+str(event.damage)
+		combat_number_time=0.0 if event.resolution=="whiff" else .8
+	elif str(event.get("actor",""))=="hero":
+		if int(event.get("heal",0))>0:
+			hero_support_text="+%d"%int(event.heal);hero_support_time=.9
+		elif int(event.get("shield_added",0))>0:
+			hero_support_text="护身 +%d"%int(event.shield_added);hero_support_time=.9
+	else:
+		hero_resolution="shield" if float(event.get("shield_absorbed",0.0))>0 and int(event.damage)==0 else str(event.resolution)
+		hero_hit=0.0 if str(event.resolution)=="whiff" else 1.0;hero_damage=int(event.damage)
+		if str(event.resolution)=="guard" and bool(event.get("counter_earned",false)) and not bool(event.get("poise_broken",false)):
+			hero_support_text="卸力 · 反击";hero_support_time=.9
+
 func _complete_duel():
+	_record_combat_report("victory")
 	var finishing_pose:Dictionary=duel.pose()
 	defeat_enemy_motion=finishing_pose.get("enemy",{}).duplicate(true)
 	finish_hero_motion=finishing_pose.get("hero",{}).duplicate(true)
@@ -1838,6 +1893,35 @@ func _draw_enemy_telegraph(p:Vector2,move:String,progress:float):
 			var angle=i*TAU/8.0+progress
 			draw_circle(p+Vector2(cos(angle)*(28-progress*13),sin(angle)*17-35),1.6,Color(c,strength))
 
+## Read-only presentation of the simulator's current stone-shell state.
+## No phase inference, independent clock, damage modifier, or state mutation.
+func _stone_mechanic_view(p:Vector2) -> Dictionary:
+	if not encounter_active or encounter_phase != "fight" or world_route != "creek_bridge": return {}
+	if duel_pose.is_empty() or bool(duel_pose.get("finished", false)) or bool(duel_pose.get("cancelled", false)): return {}
+	if float(duel_pose.get("enemy_hp", 0.0)) <= 0.0 or float(duel_pose.get("hero_hp", 0.0)) <= 0.0: return {}
+	var mechanic:String = str(duel_pose.get("mechanic", ""))
+	if mechanic not in ["river_shell", "river_exposed"]: return {}
+	var shell:bool = mechanic == "river_shell"
+	var beast_size:float = 174.0 if route_boss else 112.0
+	# Beside, not over, the existing nameplate. The shared world transform
+	# preserves scene proportions; the 14px text remains readable at 960px.
+	var plate := Rect2(p + Vector2(72.0, -beast_size * 232.0 / 256.0 - 25.0), Vector2(76, 24))
+	var mark_origin := p + Vector2(beast_size * .5 + 10.0, -beast_size * .55)
+	var spread:float = 6.0 if shell else 11.0
+	return {"id": mechanic, "text": "守壳" if shell else "露隙", "plate": plate,
+		"color": Color("48616a") if shell else Color("87572f"), "mark_origin": mark_origin, "spread": spread}
+
+func _draw_stone_mechanic(p:Vector2):
+	var view:Dictionary = _stone_mechanic_view(p)
+	if view.is_empty(): return
+	var color:Color = view.color
+	InkPaper.paint(self, view.plate, .96, "leaf", 1.0)
+	_center(view.text, view.plate, 14, color)
+	# Three local stone notches, close or separated. Not a body-wide shield.
+	for i in range(3):
+		var point:Vector2 = view.mark_origin + Vector2((i-1)*float(view.spread), abs(i-1)*3.0)
+		draw_polyline(PackedVector2Array([point+Vector2(-3,-3), point+Vector2(3,-3), point+Vector2(4,2), point+Vector2(-2,3)]), Color(color,.8), 1.5, true)
+
 func _draw_enemy_mechanic(p:Vector2,visual:Dictionary):
 	if encounter_phase!="fight":return
 	var kind:String=str(visual.get("effect_kind",""))
@@ -1925,7 +2009,9 @@ func _draw_encounter(feet:Vector2):
 				rendered_motion.defeat_amount=enemy_defeat
 				rendered=MonsterPoseRenderer.draw(self,beast_assets,route_key,p,beast_size,rendered_motion,Color(1,1,1,retreat_alpha))
 			if not rendered:_draw_beast(texture,route_key,p,beast_size,Color(1.0+enemy_flash*.2,1.0,1.0,retreat_alpha),rotation,offset+Vector2(0,enemy_defeat*8))
-		if encounter_phase!="pickup":_draw_enemy_mechanic(p,enemy_visual)
+		if encounter_phase!="pickup":
+			_draw_enemy_mechanic(p,enemy_visual)
+			_draw_stone_mechanic(p)
 		if winding and world_route not in ["bamboo_pass","cloud_slope"]:_draw_enemy_telegraph(p,enemy_move,float(enemy_visual.get("phase_progress",0.0)))
 		if encounter_phase!="pickup":
 			draw_rect(Rect2(p+Vector2(-33,10),Vector2(66,3)),Color(.30,.41,.31,.23))
@@ -2016,12 +2102,14 @@ func _capture_window_settings():
 	desktop.capture_settings(state.settings)
 
 func _save_current()->bool:
+	if practice_session != null: return false
 	if get_meta("update_transaction", false):return false
 	_persist_battle_resources()
 	_capture_window_settings()
 	return state.save_game()
 
 func _set_paused(value:bool):
+	if practice_session != null: return
 	_persist_battle_resources()
 	paused=value
 	state.settings.paused=value
@@ -2182,3 +2270,12 @@ func _apply_hot_content(data: Dictionary) -> void:
 	if not drawer_name.is_empty():
 		_refresh_drawer()
 	_notice(str(data.message))
+
+
+func _record_combat_report(outcome: String) -> void:
+	if practice_session != null: return
+	if combat_report_saved or encounter_phase != "fight": return
+	combat_report_saved = true
+	var report: Dictionary = duel.combat_report()
+	report.merge({"outcome": outcome, "stage_name": encounter_stage_name, "enemy_name": str(route_enemy_definition.get("name", "守灵"))}, true)
+	state.record_combat_report(report)

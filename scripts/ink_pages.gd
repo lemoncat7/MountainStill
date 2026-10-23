@@ -15,6 +15,7 @@ const RARITY_NAMES = {"common":"凡品", "uncommon":"灵品", "rare":"珍品", "
 const RARITY_INK = {"common":Color("777568"), "uncommon":Color("5c8266"), "rare":Color("60768b"), "epic":Color("976c89")}
 const Adventure = preload("res://scripts/adventure_pages.gd")
 const CombatTiming = preload("res://scripts/combat_timing.gd")
+const CombatInsight = preload("res://scripts/combat_insight_pages.gd")
 const TABS = ["equipment", "expedition", "adventure", "technique", "meridian", "bag"]
 const TAB_NAMES = ["衣冠", "历练", "游历", "功法", "经脉", "行囊"]
 
@@ -78,9 +79,11 @@ static func build_wardrobe(h, x:float, y:float, _r:Rect2):
 	for i in range(TABS.size()):
 		var category:String = TABS[i]
 		_hit(h,"wardrobe_"+category,TAB_NAMES[i],Rect2(x+621,y+65+i*33,29,30),func():
-			h.wardrobe_tab=category;_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
+			h.wardrobe_tab=category;h.set_meta("combat_insight_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
 	match str(h.wardrobe_tab):
-		"equipment": _build_equipment(h,x,y)
+		"equipment":
+			if CombatInsight.is_open(h): CombatInsight.build(h,x,y)
+			else: _build_equipment(h,x,y)
 		"expedition": Adventure.build_expedition(h,x,y)
 		"meridian": Adventure.build_meridian(h,x,y)
 		"adventure": _build_adventure(h,x,y)
@@ -97,10 +100,10 @@ static func _draw_evasion_summary(h,x:float,y:float,a:float):
 	var rates:Dictionary=h.state.evasion_stats()
 	var timing:Dictionary=CombatTiming.from_stats(h.state.stats())
 	_txt(h,"平常闪避 %.1f%% · 出招 %.2f%% · 失衡0%% · 闪避零伤害 / 格挡减伤"%[float(rates.chance)*100,float(rates.committed_chance)*100],Vector2(x+111,y+24),11,a,JADE)
-	_txt(h,"速度%.0f（基准100） · 闪避：基础%.1f/身法%.1f/装备%.1f/经脉%.1f · 悬停详解"%[float(timing.speed),float(rates.base)*100,float(rates.movement)*100,float(rates.equipment)*100,float(rates.meridian)*100],Vector2(x+111,y+41),10,a,FADED)
+	_txt(h,"速度%.0f（基准100） · 闪避：基础%.1f/身法%.1f/装备%.1f/经脉%.1f · 点开详解"%[float(timing.speed),float(rates.base)*100,float(rates.movement)*100,float(rates.equipment)*100,float(rates.meridian)*100],Vector2(x+111,y+41),10,a,FADED)
 
 static func _build_equipment(h, x:float, y:float):
-	_hit(h,"evasion_stat","战斗属性",Rect2(x+111,y+9,493,37),func():h._notice("速度以100为基准，统一影响出招节奏；技能冷却独立。悬停属性查看来源。"),evasion_hint(h))
+	_hit(h,"evasion_stat","战斗属性",Rect2(x+111,y+9,493,37),func():CombatInsight.open(h),"点开属性来源、战术与最近战报\n"+evasion_hint(h))
 	var slots:Array = ["head","chest","legs","feet","weapon"]
 	for i in range(5):
 		var slot:String = slots[i]
@@ -174,8 +177,12 @@ static func draw_wardrobe(h, x:float, y:float, a:float):
 		if not pending.is_empty():subtitle="调息重修 %.0f秒 · 旧心法生效 · 通习 %d/%d · 同修 %d/%d"%[ceilf(float(pending.get("remaining",0))),attuned.size(),h.state.attunement_capacity(),training.size(),h.state.training_capacity()]
 		_book_header(h,"功 法 录",subtitle,x,y,605,a)
 	elif h.wardrobe_tab=="equipment":
-		_book_header(h,"行 装 谱","",x,y,605,a)
-		_draw_evasion_summary(h,x,y,a)
+		if CombatInsight.is_open(h):
+			_book_header(h,"交 锋 札","",x,y,605,a)
+			_txt(h,"看清搭配，选择下一场的打法",Vector2(x+111,y+37),12,a,FADED)
+		else:
+			_book_header(h,"行 装 谱","",x,y,605,a)
+			_draw_evasion_summary(h,x,y,a)
 	elif h.wardrobe_tab=="bag":
 		_book_header(h,"百 工 囊","搜寻所得各有去处  ·  合成灵材，制作衣冠，再淬炼随身之物",x,y,605,a)
 	else:
@@ -191,7 +198,9 @@ static func draw_wardrobe(h, x:float, y:float, a:float):
 		_txt(h,label.substr(0,1),p+Vector2(7,13),12,a,RED if chosen else FADED,true)
 		_txt(h,label.substr(1,1),p+Vector2(7,26),12,a,RED if chosen else FADED,true)
 	match str(h.wardrobe_tab):
-		"equipment": _draw_equipment(h,x,y,a)
+		"equipment":
+			if CombatInsight.is_open(h): CombatInsight.draw(h,x,y,a)
+			else: _draw_equipment(h,x,y,a)
 		"expedition": Adventure.draw_expedition(h,x,y,a)
 		"meridian": Adventure.draw_meridian(h,x,y,a)
 		"adventure": _draw_adventure(h,x,y,a)

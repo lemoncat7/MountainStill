@@ -1,0 +1,17 @@
+[
+  {
+    "route": "bamboo_pass",
+    "weapon": "sword",
+    "all_seven_final_states_equal": true
+  },
+  {
+    "route": "cloud_slope",
+    "weapon": "fan",
+    "all_seven_final_states_equal": true
+  },
+  {
+    "route": "cloud_slope",
+    "weapon": "unarmed",
+    "all_seven_final_states_equal": true
+  }
+]

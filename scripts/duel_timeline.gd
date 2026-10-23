@@ -5,6 +5,10 @@ extends RefCounted
 ## Optional meridian stats: recovery_bonus, poise_bonus,
 ## break_bonus, counter_bonus, dodge_bonus, guard_bonus. No rewards live here.
 ## Pausing means not calling advance(); cancel() never awards a victory.
+const Tactics = preload("res://scripts/combat_tactics.gd")
+const Report = preload("res://scripts/combat_report.gd")
+var _report := Report.new()
+
 const Content = preload("res://scripts/cultivation_content.gd")
 const MeleeGeometry = preload("res://scripts/melee_contact_geometry.gd")
 const SideRig = preload("res://scripts/character_sidewalk.gd")
@@ -165,6 +169,8 @@ func start(hero_stats: Dictionary, enemy_definition: Dictionary, selected_techni
 	module_registry.bootstrap()
 	_module_definitions.clear()
 	_hero = hero_stats.duplicate(true)
+	_hero.combat_tactic = Tactics.sanitize(_hero.get("combat_tactic", "balanced"))
+	_report.begin(_hero.combat_tactic)
 	_enemy = enemy_definition.duplicate(true)
 	# Freeze effective loadout timing for this encounter. Sampling and later
 	# mutations of input dictionaries cannot retime an already committed action.
@@ -360,6 +366,7 @@ func _begin_action(actor: String) -> void:
 		"chase": bool(action.get("chase", false)), "slowed": bool(action.get("slowed", false)), "boss": bool(_enemy.get("boss", false)),
 		"mechanic": _mechanic(), "enemy_phase": "awakened" if _awakened() else "calm", "time": _event_time(elapsed)})
 	_pending[-1].merge(_action_resource_fields(action), true)
+	_report.observe(_pending[-1])
 
 
 func _prepare_action_timing(actor: String, action: Dictionary, at: float) -> void:
@@ -417,11 +424,12 @@ func _bind_attack_modules() -> void:
 func _hero_action() -> Dictionary:
 	var kind := "basic"
 	if not _must_basic:
+		var candidates: Array = []
 		for offset in range(_skill_lanes.size()):
 			var candidate := str(_skill_lanes[(_next_skill_index + offset) % _skill_lanes.size()])
 			if _skill_eligible(candidate):
-				if _current_qi() + EPSILON >= _skill_cost(candidate): kind = candidate
-				break
+				candidates.append({"lane": candidate, "id": _skill_id(candidate), "cost": _skill_cost(candidate), "action_kind": str(_skills.get(candidate, {}).get("action_kind", "spell"))})
+		kind = Tactics.choose(str(_hero.combat_tactic), candidates, _current_qi(), _qi_max, hero_hp, hero_max_hp)
 	var skill: Dictionary = _skills.get(kind, {})
 	var skill_id := str(skill.get("id", ""))
 	var counter := _counter_ready and str(skill.get("action_kind", "")) not in ["defense", "utility"]
@@ -931,6 +939,7 @@ func _resolve_contact(actor: String, action: Dictionary, contact: Dictionary) ->
 
 
 func _finalize_contact(event: Dictionary) -> void:
+	_report.observe(event)
 	# Pressure has already resolved, so guardbreak feedback and the reaction
 	# snapshot agree with the final HP/posture event received by the host.
 	event.enemy_visual_type = _species()
@@ -1253,6 +1262,7 @@ func _predicted_enemy_motion(at:float)->Dictionary:
 	return enemy
 
 func _plan_melee_approach(action:Dictionary)->void:
+	var planning_samples:Dictionary={}
 	var hero:=_neutral_motion()
 	hero.merge(_action_resource_fields(action,false),true)
 	hero.pose_provider = action.get("pose_provider", _base_module)
@@ -1263,7 +1273,7 @@ func _plan_melee_approach(action:Dictionary)->void:
 	for iteration in range(5):
 		var at:=float(action.start)+float(action.contacts[0].time)
 		var enemy:=_predicted_enemy_motion(at)
-		var fit:=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(action.approach_origin))
+		var fit:=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(action.approach_origin),planning_samples)
 		action.approach_target=fit.target;action.strike_aim=fit.aim;action.aim_crouch=fit.crouch
 		var old_windup:=float(action.windup)
 		var next_windup:=maxf(old_windup,(absf(float(action.approach_target)-float(action.approach_origin))/100.0+0.18)/float(action.action_rate))
@@ -1282,7 +1292,7 @@ func _plan_melee_approach(action:Dictionary)->void:
 		var fit:Dictionary={}
 		for iteration in range(4):
 			var enemy:=_predicted_enemy_motion(float(action.start)+float(action.contacts[index].time))
-			fit=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(previous.target))
+			fit=MeleeGeometry.fit_approach(hero,enemy,_enemy,float(previous.target),planning_samples)
 			var segment_start:=float(action.contacts[index-1].time)+float(action.hold)
 			var needed:=(absf(float(fit.target)-float(previous.target))/100.0+0.10)/float(action.action_rate)
 			var added:=maxf(0.0,needed-(float(action.contacts[index].time)-segment_start))
@@ -1548,3 +1558,7 @@ static func _weapon_style(weapon: String) -> String:
 
 static func _event_time(value: float) -> float:
 	return snappedf(value, 0.000001)
+
+
+func combat_report() -> Dictionary:
+	return _report.snapshot(elapsed, hero_hp, hero_max_hp)

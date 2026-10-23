@@ -1,0 +1,539 @@
+{
+	"dt": 0.0166666666666667,
+	"enemy": {
+		"attack": 8,
+		"boss": true,
+		"defense": 1,
+		"dodge_chance": 0.0,
+		"guard_chance": 0.0,
+		"hp": 780,
+		"max_hp": 780,
+		"route_id": "cloud_slope"
+	},
+	"engine": {
+		"build": "official",
+		"hash": "7d41c59c457bd5a245092b4e7eb2d833e3b3f8c3",
+		"hex": 263683,
+		"major": 4,
+		"minor": 6,
+		"patch": 3,
+		"status": "stable",
+		"string": "4.6.3-stable (official)",
+		"timestamp": 0
+	},
+	"headless_cpu_only": true,
+	"hero": {
+		"attack": 11,
+		"defense": 1,
+		"hp": 420,
+		"max_hp": 420
+	},
+	"label": "cloud_slope-unarmed-quality-v1312",
+	"metrics_note": "Times are headless CPU simulation/pose/rig cost, not rendered FPS. Live Object count excludes Dictionary/Array allocations; static bytes are retained-memory observations, not allocation counts.",
+	"results": [
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 61812.0,
+				"mean_us": 479.620833333333,
+				"p50_us": 8.0,
+				"p95_us": 146.0,
+				"total_us": 230218.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 4451.0,
+				"mean_us": 1826.33125,
+				"p50_us": 1713.0,
+				"p95_us": 2965.0,
+				"total_us": 876639.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 513.0,
+				"mean_us": 77.95,
+				"p50_us": 62.0,
+				"p95_us": 142.0,
+				"total_us": 37416.0
+			},
+			"setup_us": 38441,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 29851867,
+			"static_bytes_before": 29972891,
+			"tick": {
+				"count": 480,
+				"max_us": 65590.0,
+				"mean_us": 2383.90208333333,
+				"p50_us": 1848.0,
+				"p95_us": 3748.0,
+				"total_us": 1144273.0
+			},
+			"total_ms": 1145.909
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 64333.0,
+				"mean_us": 485.666666666667,
+				"p50_us": 7.0,
+				"p95_us": 140.0,
+				"total_us": 233120.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 7137.0,
+				"mean_us": 1858.30416666667,
+				"p50_us": 1760.0,
+				"p95_us": 3060.0,
+				"total_us": 891986.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 465.0,
+				"mean_us": 75.6375,
+				"p50_us": 61.0,
+				"p95_us": 132.0,
+				"total_us": 36306.0
+			},
+			"setup_us": 36467,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 29695651,
+			"static_bytes_before": 29816555,
+			"tick": {
+				"count": 480,
+				"max_us": 67808.0,
+				"mean_us": 2419.60833333333,
+				"p50_us": 1895.0,
+				"p95_us": 3899.0,
+				"total_us": 1161412.0
+			},
+			"total_ms": 1163.114
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 52946.0,
+				"mean_us": 430.539583333333,
+				"p50_us": 6.0,
+				"p95_us": 91.0,
+				"total_us": 206659.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 3743.0,
+				"mean_us": 1596.3625,
+				"p50_us": 1368.0,
+				"p95_us": 2600.0,
+				"total_us": 766254.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 129.0,
+				"mean_us": 65.0770833333333,
+				"p50_us": 57.0,
+				"p95_us": 98.0,
+				"total_us": 31237.0
+			},
+			"setup_us": 32738,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 30306311,
+			"static_bytes_before": 29660387,
+			"tick": {
+				"count": 480,
+				"max_us": 55964.0,
+				"mean_us": 2091.97916666667,
+				"p50_us": 1460.0,
+				"p95_us": 3481.0,
+				"total_us": 1004150.0
+			},
+			"total_ms": 1005.467
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 54028.0,
+				"mean_us": 433.722916666667,
+				"p50_us": 6.0,
+				"p95_us": 92.0,
+				"total_us": 208187.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 3664.0,
+				"mean_us": 1598.33958333333,
+				"p50_us": 1376.0,
+				"p95_us": 2594.0,
+				"total_us": 767203.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 140.0,
+				"mean_us": 65.7645833333333,
+				"p50_us": 58.0,
+				"p95_us": 100.0,
+				"total_us": 31567.0
+			},
+			"setup_us": 32025,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 30152175,
+			"static_bytes_before": 30271071,
+			"tick": {
+				"count": 480,
+				"max_us": 56909.0,
+				"mean_us": 2097.82708333333,
+				"p50_us": 1472.0,
+				"p95_us": 3486.0,
+				"total_us": 1006957.0
+			},
+			"total_ms": 1008.721
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 52907.0,
+				"mean_us": 428.839583333333,
+				"p50_us": 6.0,
+				"p95_us": 93.0,
+				"total_us": 205843.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 3608.0,
+				"mean_us": 1604.61458333333,
+				"p50_us": 1401.0,
+				"p95_us": 2589.0,
+				"total_us": 770215.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 132.0,
+				"mean_us": 65.2625,
+				"p50_us": 57.0,
+				"p95_us": 101.0,
+				"total_us": 31326.0
+			},
+			"setup_us": 32702,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 30011099,
+			"static_bytes_before": 30116959,
+			"tick": {
+				"count": 480,
+				"max_us": 55421.0,
+				"mean_us": 2098.71666666667,
+				"p50_us": 1512.0,
+				"p95_us": 3486.0,
+				"total_us": 1007384.0
+			},
+			"total_ms": 1008.83
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 57855.0,
+				"mean_us": 453.466666666667,
+				"p50_us": 7.0,
+				"p95_us": 98.0,
+				"total_us": 217664.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 4170.0,
+				"mean_us": 1718.16458333333,
+				"p50_us": 1525.0,
+				"p95_us": 2925.0,
+				"total_us": 824719.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 220.0,
+				"mean_us": 69.6583333333333,
+				"p50_us": 59.0,
+				"p95_us": 113.0,
+				"total_us": 33436.0
+			},
+			"setup_us": 31515,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 29854811,
+			"static_bytes_before": 29975835,
+			"tick": {
+				"count": 480,
+				"max_us": 60616.0,
+				"mean_us": 2241.28958333333,
+				"p50_us": 1645.0,
+				"p95_us": 3723.0,
+				"total_us": 1075819.0
+			},
+			"total_ms": 1077.395
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 58784.0,
+				"mean_us": 481.391666666667,
+				"p50_us": 7.0,
+				"p95_us": 140.0,
+				"total_us": 231068.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 5653.0,
+				"mean_us": 1817.15833333333,
+				"p50_us": 1673.0,
+				"p95_us": 2976.0,
+				"total_us": 872236.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 570.0,
+				"mean_us": 78.2916666666667,
+				"p50_us": 62.0,
+				"p95_us": 151.0,
+				"total_us": 37580.0
+			},
+			"setup_us": 36424,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 29698715,
+			"static_bytes_before": 29819619,
+			"tick": {
+				"count": 480,
+				"max_us": 62064.0,
+				"mean_us": 2376.84166666667,
+				"p50_us": 1777.0,
+				"p95_us": 3954.0,
+				"total_us": 1140884.0
+			},
+			"total_ms": 1143.272
+		}
+	],
+	"seed": 377,
+	"simulated_seconds": 8.0,
+	"source_sha256": {
+		"character_sidewalk": "5986d28711d5f6434fb33d7694e939816933e719635c7339b7b6e0bcfbf8d565",
+		"cultivation_content": "0f246a0a353d450ffa006663478b7c7db2628f05ec41832fee5275ffa0d9f45f",
+		"duel_timeline": "b94c39545d58c1891af5de9d63a84f82841d71ac8003d5be8327a3061abad3c4",
+		"melee_contact_geometry": "315cfec357dd06427feddad8d777614bd31701eba3e5a82d18d04faf816d371b",
+		"monster_move_library": "1adc61739816512c49d4ab3c684fa5bff6484c0313440416b7465dc56ca1cbca",
+		"monster_pose_renderer": "1a8c163e94bb785dcb6f0b9624d98ddece9afa7a64aa0543f9732a967125a396"
+	},
+	"technique": "mist",
+	"ticks": 480,
+	"trials": 7,
+	"wall_ms": 10278.088,
+	"warmup_results": [
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 61724.0,
+				"mean_us": 491.072916666667,
+				"p50_us": 7.0,
+				"p95_us": 140.0,
+				"total_us": 235715.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1484,
+			"pose": {
+				"count": 480,
+				"max_us": 6492.0,
+				"mean_us": 1815.4875,
+				"p50_us": 1625.0,
+				"p95_us": 3029.0,
+				"total_us": 871434.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 597.0,
+				"mean_us": 77.4291666666667,
+				"p50_us": 62.0,
+				"p95_us": 131.0,
+				"total_us": 37166.0
+			},
+			"setup_us": 97220,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 30149771,
+			"static_bytes_before": 26637379,
+			"tick": {
+				"count": 480,
+				"max_us": 64744.0,
+				"mean_us": 2383.98958333333,
+				"p50_us": 1733.0,
+				"p95_us": 4237.0,
+				"total_us": 1144315.0
+			},
+			"total_ms": 1146.504
+		},
+		{
+			"advance": {
+				"count": 480,
+				"max_us": 62166.0,
+				"mean_us": 499.05625,
+				"p50_us": 8.0,
+				"p95_us": 148.0,
+				"total_us": 239547.0
+			},
+			"early_finish": false,
+			"object_count_after": 1506,
+			"object_count_before": 1506,
+			"pose": {
+				"count": 480,
+				"max_us": 5246.0,
+				"mean_us": 1901.15,
+				"p50_us": 1761.0,
+				"p95_us": 3060.0,
+				"total_us": 912552.0
+			},
+			"profile_inclusive": {
+
+			},
+			"rig": {
+				"count": 480,
+				"max_us": 366.0,
+				"mean_us": 79.6708333333333,
+				"p50_us": 65.0,
+				"p95_us": 162.0,
+				"total_us": 38242.0
+			},
+			"setup_us": 38044,
+			"state": {
+				"actions": 11,
+				"contacts": 12,
+				"elapsed": 7.99999999999998,
+				"enemy_hp": 735,
+				"events": 24,
+				"finished": false,
+				"hero_hp": 384,
+				"pose_checksum": 343.990948840876
+			},
+			"static_bytes_after": 30008027,
+			"static_bytes_before": 30114587,
+			"tick": {
+				"count": 480,
+				"max_us": 65248.0,
+				"mean_us": 2479.87708333333,
+				"p50_us": 1887.0,
+				"p95_us": 4043.0,
+				"total_us": 1190341.0
+			},
+			"total_ms": 1192.051
+		}
+	],
+	"warmups": 2,
+	"weapon": "unarmed"
+}

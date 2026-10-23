@@ -1,0 +1,498 @@
+{
+  "results": [
+    {
+      "test": "test_adventure_state.gd",
+      "exit": 0,
+      "seconds": 11.01
+    },
+    {
+      "test": "test_adventure_ui.gd",
+      "exit": 0,
+      "seconds": 38.54
+    },
+    {
+      "test": "test_all_route_transitions.gd",
+      "exit": 0,
+      "seconds": 213.27
+    },
+    {
+      "test": "test_attack_module_registry.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_basic_attack_forms.gd",
+      "exit": 0,
+      "seconds": 5.5
+    },
+    {
+      "test": "test_battle_qi_state.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_battle_qi_timeline.gd",
+      "exit": 0,
+      "seconds": 11.01
+    },
+    {
+      "test": "test_battle_resource_host.gd",
+      "exit": 0,
+      "seconds": 7.51
+    },
+    {
+      "test": "test_campaign.gd",
+      "exit": 0,
+      "seconds": 4.01
+    },
+    {
+      "test": "test_campaign_builds.gd",
+      "exit": 0,
+      "seconds": 34.04
+    },
+    {
+      "test": "test_campaign_combat_art.gd",
+      "exit": 0,
+      "seconds": 30.04
+    },
+    {
+      "test": "test_campaign_journey.gd",
+      "exit": 0,
+      "seconds": 1.51
+    },
+    {
+      "test": "test_campaign_ui.gd",
+      "exit": 0,
+      "seconds": 8.01
+    },
+    {
+      "test": "test_chapter_book_ui.gd",
+      "exit": 0,
+      "seconds": 5.51
+    },
+    {
+      "test": "test_chapter_crafting_journey.gd",
+      "exit": 0,
+      "seconds": 9.51
+    },
+    {
+      "test": "test_chapter_crafting_state.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_chapter_crafting_ui.gd",
+      "exit": 0,
+      "seconds": 7.01
+    },
+    {
+      "test": "test_character_meditation.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_character_sidewalk.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_character_walk.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_combat_action_joins.gd",
+      "exit": 0,
+      "seconds": 7.01
+    },
+    {
+      "test": "test_combat_feedback_host.gd",
+      "exit": 0,
+      "seconds": 2.5
+    },
+    {
+      "test": "test_combat_impact.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_combat_insight_state.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_combat_insight_ui.gd",
+      "exit": 0,
+      "seconds": 5.01
+    },
+    {
+      "test": "test_combat_pose.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_combat_report.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_combat_report_host.gd",
+      "exit": 0,
+      "seconds": 3.0
+    },
+    {
+      "test": "test_combat_speed.gd",
+      "exit": 0,
+      "seconds": 4.01
+    },
+    {
+      "test": "test_combat_speed_host.gd",
+      "exit": 0,
+      "seconds": 3.51
+    },
+    {
+      "test": "test_combat_tactics.gd",
+      "exit": 0,
+      "seconds": 2.0
+    },
+    {
+      "test": "test_complete_player_journey.gd",
+      "exit": 0,
+      "seconds": 15.52
+    },
+    {
+      "test": "test_composable_manual_ui.gd",
+      "exit": 0,
+      "seconds": 10.01
+    },
+    {
+      "test": "test_contact_weight_reactions.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_continuous_duel.gd",
+      "exit": 0,
+      "seconds": 45.04
+    },
+    {
+      "test": "test_corpse_presentation.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_counter_response_feedback.gd",
+      "exit": 0,
+      "seconds": 4.01
+    },
+    {
+      "test": "test_crane_encounter_budget.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_cultivation.gd",
+      "exit": 0,
+      "seconds": 2.0
+    },
+    {
+      "test": "test_cultivation_ui.gd",
+      "exit": 0,
+      "seconds": 15.02
+    },
+    {
+      "test": "test_desktop_mode.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_duel_timeline.gd",
+      "exit": 0,
+      "seconds": 39.05
+    },
+    {
+      "test": "test_encounter_balance.gd",
+      "exit": 1,
+      "seconds": 36.55
+    },
+    {
+      "test": "test_enemy_attack_modules.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_equipment.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_equipment_template.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_equipment_upgrade.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_evasion_stat.gd",
+      "exit": 0,
+      "seconds": 7.0
+    },
+    {
+      "test": "test_evasion_ui.gd",
+      "exit": 0,
+      "seconds": 3.0
+    },
+    {
+      "test": "test_first_campaign.gd",
+      "exit": 0,
+      "seconds": 4.51
+    },
+    {
+      "test": "test_geometry_source_cache.gd",
+      "exit": 0,
+      "seconds": 2.01
+    },
+    {
+      "test": "test_guard_evasion_visual.gd",
+      "exit": 0,
+      "seconds": 2.0
+    },
+    {
+      "test": "test_guided_player_journey.gd",
+      "exit": 0,
+      "seconds": 10.51
+    },
+    {
+      "test": "test_incoming_guard_catch.gd",
+      "exit": 0,
+      "seconds": 5.51
+    },
+    {
+      "test": "test_live_loadout_guard.gd",
+      "exit": 0,
+      "seconds": 76.11
+    },
+    {
+      "test": "test_looting_crafting_host.gd",
+      "exit": 0,
+      "seconds": 10.03
+    },
+    {
+      "test": "test_looting_crafting_state.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_manual_portrait_grip.gd",
+      "exit": 0,
+      "seconds": 11.02
+    },
+    {
+      "test": "test_melee_contact_geometry.gd",
+      "exit": 0,
+      "seconds": 84.13
+    },
+    {
+      "test": "test_meridian_branches.gd",
+      "exit": 0,
+      "seconds": 1.01
+    },
+    {
+      "test": "test_meridian_combat.gd",
+      "exit": 0,
+      "seconds": 18.02
+    },
+    {
+      "test": "test_meridian_ui.gd",
+      "exit": 0,
+      "seconds": 4.5
+    },
+    {
+      "test": "test_monster_moves.gd",
+      "exit": 0,
+      "seconds": 10.01
+    },
+    {
+      "test": "test_monster_pose_renderer.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_monster_root_continuity.gd",
+      "exit": 0,
+      "seconds": 14.54
+    },
+    {
+      "test": "test_motion_transitions.gd",
+      "exit": 0,
+      "seconds": 16.02
+    },
+    {
+      "test": "test_planning_cache.gd",
+      "exit": 0,
+      "seconds": 3.01
+    },
+    {
+      "test": "test_planning_pixel_cache.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_player_journey_pointer_audit.gd",
+      "exit": 0,
+      "seconds": 65.6
+    },
+    {
+      "test": "test_portal_color_contract.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_portal_transitions.gd",
+      "exit": 0,
+      "seconds": 10.02
+    },
+    {
+      "test": "test_practice_controls_ui.gd",
+      "exit": 0,
+      "seconds": 4.51
+    },
+    {
+      "test": "test_practice_host.gd",
+      "exit": 0,
+      "seconds": 6.51
+    },
+    {
+      "test": "test_practice_lifecycle.gd",
+      "exit": 0,
+      "seconds": 5.01
+    },
+    {
+      "test": "test_practice_pages.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_practice_session.gd",
+      "exit": 0,
+      "seconds": 2.5
+    },
+    {
+      "test": "test_preview_layout.gd",
+      "exit": 0,
+      "seconds": 3.01
+    },
+    {
+      "test": "test_readability_layout.gd",
+      "exit": 0,
+      "seconds": 3.01
+    },
+    {
+      "test": "test_readable_guard_sockets.gd",
+      "exit": 0,
+      "seconds": 3.0
+    },
+    {
+      "test": "test_render_socket_continuity.gd",
+      "exit": 0,
+      "seconds": 14.01
+    },
+    {
+      "test": "test_route_body_continuity.gd",
+      "exit": 0,
+      "seconds": 5.01
+    },
+    {
+      "test": "test_scene_art_layout.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_scene_framing.gd",
+      "exit": 0,
+      "seconds": 13.52
+    },
+    {
+      "test": "test_shutdown_audio.gd",
+      "exit": 0,
+      "seconds": 4.0
+    },
+    {
+      "test": "test_shutdown_lifecycle.gd",
+      "exit": 0,
+      "seconds": 3.51
+    },
+    {
+      "test": "test_side_proportion_contract.gd",
+      "exit": 0,
+      "seconds": 4.0
+    },
+    {
+      "test": "test_stone_mechanic_view.gd",
+      "exit": 1,
+      "seconds": 4.5
+    },
+    {
+      "test": "test_sword_guard_render.gd",
+      "exit": 0,
+      "seconds": 1.5
+    },
+    {
+      "test": "test_treasure_search_host.gd",
+      "exit": 0,
+      "seconds": 3.01
+    },
+    {
+      "test": "test_treasure_search_state.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "test_weapon_grip_hand.gd",
+      "exit": 0,
+      "seconds": 35.04
+    },
+    {
+      "test": "test_window_geometry.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "update_pack_guard_test.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "update_panel_test.gd",
+      "exit": 0,
+      "seconds": 3.01
+    },
+    {
+      "test": "update_policy_test.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "update_proxy_test.gd",
+      "exit": 0,
+      "seconds": 1.0
+    },
+    {
+      "test": "update_service_test.gd",
+      "exit": 0,
+      "seconds": 14.52
+    },
+    {
+      "test": "update_store_test.gd",
+      "exit": 0,
+      "seconds": 1.0
+    }
+  ],
+  "separate_required": [
+    "test_encounter_sensitivity.gd",
+    "update_release_artifacts_test.gd"
+  ]
+}

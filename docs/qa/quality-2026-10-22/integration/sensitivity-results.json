@@ -1,0 +1,22 @@
+[
+  {
+    "build": "sword",
+    "exit": 0
+  },
+  {
+    "build": "fire",
+    "exit": 0
+  },
+  {
+    "build": "guard",
+    "exit": 0
+  },
+  {
+    "build": "control",
+    "exit": 0
+  },
+  {
+    "build": "support",
+    "exit": 0
+  }
+]

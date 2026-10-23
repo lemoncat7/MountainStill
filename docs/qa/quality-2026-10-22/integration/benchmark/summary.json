@@ -1,0 +1,56 @@
+[
+  {
+    "label": "bamboo_pass-sword-recovery-v1311",
+    "start_unix": 1792668102.654422,
+    "end_unix": 1792668126.5440888,
+    "median_total_ms": 2611.646,
+    "median_p50_ms": 3.081,
+    "median_p95_ms": 9.342,
+    "worst_tick_ms": 281.373
+  },
+  {
+    "label": "bamboo_pass-sword-quality-v1312",
+    "start_unix": 1792668126.5444143,
+    "end_unix": 1792668135.9780912,
+    "median_total_ms": 966.071,
+    "median_p50_ms": 1.471,
+    "median_p95_ms": 3.576,
+    "worst_tick_ms": 69.751
+  },
+  {
+    "label": "cloud_slope-fan-recovery-v1311",
+    "start_unix": 1792668135.9784827,
+    "end_unix": 1792668171.5860019,
+    "median_total_ms": 3662.126,
+    "median_p50_ms": 3.451,
+    "median_p95_ms": 17.254,
+    "worst_tick_ms": 411.465
+  },
+  {
+    "label": "cloud_slope-fan-quality-v1312",
+    "start_unix": 1792668171.586967,
+    "end_unix": 1792668184.5967445,
+    "median_total_ms": 1300.971,
+    "median_p50_ms": 1.92,
+    "median_p95_ms": 4.678,
+    "worst_tick_ms": 128.023
+  },
+  {
+    "label": "cloud_slope-unarmed-recovery-v1311",
+    "start_unix": 1792668184.5972486,
+    "end_unix": 1792668224.3930502,
+    "median_total_ms": 4214.924,
+    "median_p50_ms": 4.235,
+    "median_p95_ms": 14.913,
+    "worst_tick_ms": 658.249
+  },
+  {
+    "label": "cloud_slope-unarmed-quality-v1312",
+    "start_unix": 1792668224.3934033,
+    "end_unix": 1792668235.167194,
+    "median_total_ms": 1077.395,
+    "median_p50_ms": 1.645,
+    "median_p95_ms": 3.723,
+    "worst_tick_ms": 67.808
+  }
+]

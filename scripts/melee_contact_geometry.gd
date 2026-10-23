@@ -8,7 +8,14 @@ static var _front_rows:Dictionary={}
 # Source artwork, calibrated scale and body rows are immutable for one painted
 # key. Cache them once; world transforms and current combat state stay per sample.
 static var _source_records:Dictionary={}
+# Lazy exact source-pixel classifications. Two bitmaps bound each entry to
+# two bits per pixel; 96 source/pose entries maximum, no per-world-state keys.
+static var _pixel_masks:Dictionary={}
 static var _deformed_fronts:Dictionary={}
+# Exact broad phase for cached silhouette segments. Original row order and
+# narrow-phase arithmetic remain unchanged; bins only exclude impossible rows.
+static var _deformed_front_bins:Dictionary={}
+const FRONT_BIN_HEIGHT:=4.0
 static var _hero_head_outline:=PackedVector2Array()
 static func prewarm(definition:Dictionary)->void:
  # Run at encounter setup, before travel/contact. Pixel rows are cached once.
@@ -18,9 +25,18 @@ static func prewarm(definition:Dictionary)->void:
  if route=="bamboo_pass":authored_samples=[["moss_pounce","windup",.5,0.0],["moss_pounce","strike",.5,0.0],["moss_pounce","contact",0.0,0.0],["moss_slam","windup",.8,0.0],["moss_rush","strike",.5,1.0],["moss_rush","strike",.5,-1.0]]
  elif route=="cloud_slope":authored_samples=[["crane_peck","windup",.5,0.0],["crane_peck","contact",0.0,0.0],["crane_sweep","windup",.5,0.0],["crane_sweep","contact",0.0,0.0],["crane_dive","windup",.8,0.0],["crane_dive","contact",0.0,0.0]]
  for sample in authored_samples:_body_data({"move_family":sample[0],"combat_phase":sample[1],"phase_progress":sample[2],"monster_pose":{"step_cycle":sample[3]}},definition)
+# Per planning call only: exact motion keys, no quantization or global combat
+# state. Shallow motion copies below are mutated as candidates advance, so
+# snapshot keys deeply. The hard cap also bounds unusual external callers.
+static func _contact_pose(motion:Dictionary,samples:Dictionary)->Dictionary:
+ if samples.has(motion):return samples[motion]
+ var pose:=Rig.sample_contact_pose(motion)
+ if samples.size()>=1024:samples.clear()
+ samples[motion.duplicate(true)]=pose
+ return pose
 static func is_melee(motion:Dictionary)->bool:
  return str(motion.get("action_kind","")) in ["basic","weapon_art","weapon"]
-static func attack_points(motion:Dictionary)->PackedVector2Array:
+static func attack_points(motion:Dictionary,samples:Dictionary={})->PackedVector2Array:
  var style:=str(motion.get("attack_style",motion.get("basic_style","unarmed")))
  var provider:Variant=motion.get("strike_provider")
  if provider==null:
@@ -28,12 +44,12 @@ static func attack_points(motion:Dictionary)->PackedVector2Array:
   # weapon provider directly and does not classify types in contact probes.
   var registry=Rig.AttackRegistry.default_registry()
   provider=registry.pose_provider("weapon."+style)
- var pose:=Rig.sample_contact_pose(motion)
+ var pose:=_contact_pose(motion,samples)
  var grip:Dictionary={}
  if style!="unarmed":grip=Rig.contact_weapon_pose(motion,1.0,0.0,style,pose)
  return provider.geometry_points(motion,pose,grip)
-static func strike_segment_points(hero:Dictionary)->PackedVector2Array:
- var authored:=attack_points(hero)
+static func strike_segment_points(hero:Dictionary,samples:Dictionary={})->PackedVector2Array:
+ var authored:=attack_points(hero,samples)
  var points:=PackedVector2Array()
  for i in range(authored.size()):
   points.append(authored[i])
@@ -42,44 +58,29 @@ static func strike_segment_points(hero:Dictionary)->PackedVector2Array:
   for step in range(1,ceili(length/2.0)):
    points.append(authored[i-1].lerp(authored[i],float(step)/ceili(length/2.0)))
  return points
-static func separate(enemy:Dictionary,hero:Dictionary,definition:Dictionary)->Dictionary:
+static func separate(enemy:Dictionary,hero:Dictionary,definition:Dictionary,prepared:Array=[],samples:Dictionary={},include_clearance:bool=true)->Dictionary:
  var result:=enemy.duplicate()
  var articulated:=enemy.has("monster_pose") and MonsterRig.supports(str(definition.get("route_id","bamboo_pass")))
- var probes:=hero_body_fronts(hero) if articulated else PackedVector2Array([hero_front(hero)])
+ var probes:=hero_body_fronts(hero,samples) if articulated else PackedVector2Array([hero_front(hero,samples)])
  if articulated and float(hero.get("reaction_amount",0.0))>0.0:
   # A hit bends the defender's head/chest but does not instantly free its
   # physical stance for the attacker to teleport into. Retain the ready
   # body envelope through that local recoil, alongside the visible body.
   var planted:=hero.duplicate();planted.reaction_amount=0.0;planted.defense_action="ready";planted.guard_broken=false
-  probes.append_array(hero_body_fronts(planted))
+  probes.append_array(hero_body_fronts(planted,samples))
  var correction:=0.0
- var weights:Dictionary=enemy.get("clearance_weights",{str(enemy.get("pose_key","idle")):1.0})
- # Articulated creatures have one actual source and deformed silhouette; the
- # old texture crossfade union is only needed for untouched legacy species.
- if articulated:
-  weights={str(enemy.get("pose_key","idle")):1.0}
- for key in weights:
-  if float(weights[key])<=0.0:continue
-  var sample:=result.duplicate();sample.pose_key=key
-  var source:=_body_data(sample,definition)
-  for nose in probes:
-   var front:=_front_at_y(nose.y,source)
-   if bool(front.valid):correction=maxf(correction,maxf(0.0,nose.x+3.0-Vector2(front.point).x)*float(weights[key]))
- # Reserve/release the solid head/torso landing envelope smoothly. These
- # pure time samples anticipate a painted keypose or descending skull before
- # it reaches the body plane, rather than teleporting the root at that frame.
- var immediate_correction:=correction
- for preview in enemy.get("clearance_previews",[]):
-  var sample:Dictionary=preview.motion.duplicate()
-  sample.visual_offset=Vector2(Vector2(enemy.get("visual_offset",Vector2.ZERO)).x,Vector2(sample.visual_offset).y)
-  var weight:=float(preview.weight)
-  var source:=_body_data(sample,definition)
-  for nose in probes:
-   var front:=_front_at_y(nose.y,source)
-   if bool(front.valid):correction=maxf(correction,maxf(0.0,nose.x+3.0-Vector2(front.point).x)*weight)
+ var authored_corrections:Dictionary={}
+ var sources:=prepared if not prepared.is_empty() else _clearance_sources(enemy,definition)
+ var immediate_correction:=0.0
+ for source in sources:
+  correction=maxf(correction,_clearance_correction(probes,source.data,authored_corrections)*float(source.weight))
+  if bool(source.immediate):immediate_correction=correction
  result.visual_offset=Vector2(result.get("visual_offset",Vector2.ZERO))+Vector2(correction,0)
  result.body_separation=correction
  result.body_reservation=correction-immediate_correction
+ # Planning only consumes the corrected origin; its final measure performs
+ # the real contact checks. Avoid computing an unused diagnostic there.
+ if not include_clearance:return result
  var clearance:=INF
  var solid:=_body_data(result,definition)
  for nose in probes:
@@ -87,17 +88,60 @@ static func separate(enemy:Dictionary,hero:Dictionary,definition:Dictionary)->Di
   if bool(current.valid):clearance=minf(clearance,Vector2(current.point).x-nose.x)
  if is_finite(clearance):result.body_clearance=clearance
  return result
-static func fit_approach(hero:Dictionary,enemy:Dictionary,definition:Dictionary,origin:float)->Dictionary:
+# Planning tests many hero candidates against one immutable enemy prediction.
+# Resolve its identical temporal preview silhouettes once, not for every aim.
+static func _clearance_sources(enemy:Dictionary,definition:Dictionary)->Array:
+ var sources:Array=[]
+ var articulated:=enemy.has("monster_pose") and MonsterRig.supports(str(definition.get("route_id","bamboo_pass")))
+ var weights:Dictionary=enemy.get("clearance_weights",{str(enemy.get("pose_key","idle")):1.0})
+ if articulated:weights={str(enemy.get("pose_key","idle")):1.0}
+ for key in weights:
+  if float(weights[key])<=0.0:continue
+  var sample:=enemy.duplicate();sample.pose_key=key
+  sources.append({"data":_body_data(sample,definition),"weight":float(weights[key]),"immediate":true})
+ for preview in enemy.get("clearance_previews",[]):
+  var sample:Dictionary=preview.motion.duplicate()
+  sample.visual_offset=Vector2(Vector2(enemy.get("visual_offset",Vector2.ZERO)).x,Vector2(sample.visual_offset).y)
+  sources.append({"data":_body_data(sample,definition),"weight":float(preview.weight),"immediate":false})
+ return sources
+# Same maximum as the original per-probe weighted loop. Authored poses are
+# rigid: one painted key + world transform fully describes their fronts.
+# Several temporal previews commonly select that exact same painted pose.
+# Cache only within this separate() call, so probes and enemy state cannot leak.
+static func _clearance_correction(probes:PackedVector2Array,data:Dictionary,cache:Dictionary)->float:
+ var authored:="_authored_" in str(data.key) and absf(float(data.rotation))<.0001
+ var signature:Array=[]
+ if authored:
+  signature=[data.key,data.origin,data.rotation,data.registration]
+  if cache.has(signature):return float(cache[signature])
+ var correction:=0.0
+ if authored:
+  var rect:Rect2=data.rect;var origin:Vector2=data.origin
+  var scale:=rect.size.y/256.0;var rows:PackedInt32Array=data.front_rows
+  origin+=Vector2(data.registration)*scale
+  for nose in probes:
+   var row:=int(round((nose.y-origin.y-rect.position.y)/scale))
+   if row>=0 and row<rows.size() and int(rows[row])>=0:
+    var front_x:=Vector2(origin.x+rect.position.x+float(rows[row])*scale,nose.y).x
+    correction=maxf(correction,maxf(0.0,nose.x+3.0-front_x))
+  cache[signature]=correction
+ else:
+  for nose in probes:
+   var front:=_front_at_y(nose.y,data)
+   if bool(front.valid):correction=maxf(correction,maxf(0.0,nose.x+3.0-Vector2(front.point).x))
+ return correction
+static func fit_approach(hero:Dictionary,enemy:Dictionary,definition:Dictionary,origin:float,samples:Dictionary={})->Dictionary:
+ var sources:=_clearance_sources(enemy,definition)
  var best:={"cost":INF,"target":origin,"aim":0.0,"crouch":0.0}
  for crouch in [0.0,5.0,10.0]:
   for ai in [0,-1,1,-2,2,-3,3,-4,4,-5,5,-6,6]:
    var candidate:=hero.duplicate();candidate.strike_aim=float(ai)*0.2;candidate.aim_crouch=crouch
-   var measured:=measure(candidate,enemy,definition)
+   var measured:=measure(candidate,enemy,definition,samples)
    if not bool(measured.vertical_valid):continue
    var target:=clampf(float(measured.gap)+0.5,-70.0,110.0)
    candidate.approach_origin=target
-   var final_enemy:=separate(enemy,candidate,definition)
-   var final:=measure(candidate,final_enemy,definition)
+   var final_enemy:=separate(enemy,candidate,definition,sources,samples,false)
+   var final:=measure(candidate,final_enemy,definition,samples)
    var residual:=absf(float(final.gap)) if bool(final.vertical_valid) else 100.0
    var cost:float=maxf(0.0,residual-2.0)*20.0+absf(float(ai))*0.45+crouch*0.16+absf(target-origin)*0.015
    if bool(final.contact):
@@ -121,7 +165,8 @@ static func _body_data(enemy:Dictionary,definition:Dictionary)->Dictionary:
  return {"image":source.image,"rect":source.rect,"skull":source.skull,
   "origin":Vector2(float(definition.get("engagement_distance",128.0)),float(definition.get("feet_y_delta",0.0)))+Vector2(enemy.get("visual_offset",Vector2.ZERO)),
   "rotation":float(enemy.get("visual_rotation",0.0)),"key":source.key,
-  "front_rows":source.front_rows,"articulated":articulated,"motion":enemy,"registration":source.registration}
+  "front_rows":source.front_rows,"articulated":articulated,"motion":enemy,"registration":source.registration,
+  "pixel_mask_key":str(source.key)+("|body:"+requested_key if articulated else "|alpha")}
 
 static func _compile_source_record(requested_key:String,prefix:String,boss:bool,articulated:bool,enemy:Dictionary)->Dictionary:
  var key:=requested_key
@@ -167,8 +212,24 @@ static func _opaque(world:Vector2,data:Dictionary)->bool:
  var x:=int(floor(uv.x*image.get_width()));var y:=int(floor(uv.y*image.get_height()))
  # Decorative antlers, wings and detached missiles are not body contacts.
  if (not bool(data.get("articulated",false)) and x<int(data.skull[0])-3) or y<int(data.skull[1])-2:return false
- if bool(data.get("articulated",false)) and not MonsterRig.is_body_point(Vector2(x,y),str(data.key),data.motion):return false
- return x>=0 and x<image.get_width() and y>=0 and y<image.get_height() and image.get_pixel(x,y).a>=0.65
+ if x<0 or x>=image.get_width() or y<0 or y>=image.get_height():return false
+ # Coordinates have already passed the unchanged world-to-source transform
+ # and floor. Body classification/alpha are immutable for this exact source
+ # image + collision pose, including missing-texture fallback requests.
+ var mask_key:=str(data.pixel_mask_key)
+ if not _pixel_masks.has(mask_key):
+  if _pixel_masks.size()>=96:_pixel_masks.clear()
+  var known:=BitMap.new();known.create(image.get_size())
+  var solid:=BitMap.new();solid.create(image.get_size())
+  _pixel_masks[mask_key]={"known":known,"solid":solid}
+ var masks:Dictionary=_pixel_masks[mask_key]
+ var pixel:=Vector2i(x,y)
+ if masks.known.get_bitv(pixel):return masks.solid.get_bitv(pixel)
+ var opaque:=image.get_pixel(x,y).a>=0.65
+ if opaque and bool(data.get("articulated",false)):
+  opaque=MonsterRig.is_body_point(Vector2(x,y),str(data.key),data.motion)
+ masks.solid.set_bitv(pixel,opaque);masks.known.set_bitv(pixel,true)
+ return opaque
 static func _front_at_y(y:float,data:Dictionary)->Dictionary:
  if "_authored_" in str(data.key) and absf(float(data.rotation))<.0001:
   # Painted keyposes have a constant support-foot registration, without
@@ -213,24 +274,36 @@ static func _deformed_front_at_y(y:float,data:Dictionary)->Dictionary:
    var source:=Vector2(rows[row],row)
    var local:=source+Vector2(data.registration) if "_authored_" in str(data.key) else MonsterRig.transform_point(source,str(data.key),data.motion)
    shape.append((rect.position+local*scale).rotated(float(data.rotation)))
-  if _deformed_fronts.size()>=96:_deformed_fronts.clear()
+  if _deformed_fronts.size()>=96:
+   _deformed_fronts.clear()
+   _deformed_front_bins.clear()
   _deformed_fronts[shape_key]=shape
+  var bins:Dictionary={}
+  for row in range(1,shape.size()):
+   var a:=shape[row-1];var b:=shape[row]
+   if not a.is_finite() or not b.is_finite():continue
+   var first:=int(floor((minf(a.y,b.y)-.3)/FRONT_BIN_HEIGHT))
+   var last:=int(floor((maxf(a.y,b.y)+.3)/FRONT_BIN_HEIGHT))
+   for bin_index in range(first,last+1):
+    if not bins.has(bin_index):bins[bin_index]=PackedInt32Array()
+    bins[bin_index].append(row)
+  _deformed_front_bins[shape_key]=bins
  var origin:Vector2=data.origin
  var local_y:=y-origin.y
  var best:=Vector2(INF,y)
- for row in range(1,shape.size()):
+ var bins:Dictionary=_deformed_front_bins[shape_key]
+ for row in bins.get(int(floor(local_y/FRONT_BIN_HEIGHT)),PackedInt32Array()):
   var a:=shape[row-1];var b:=shape[row]
-  if not a.is_finite() or not b.is_finite():continue
   if local_y<minf(a.y,b.y)-.3 or local_y>maxf(a.y,b.y)+.3:continue
   var fraction:=clampf((local_y-a.y)/(b.y-a.y),0.0,1.0) if absf(b.y-a.y)>.001 else 0.0
   var x:=lerpf(a.x,b.x,fraction)+origin.x
   if x<best.x:best=Vector2(x,y)
  return {"point":best if best.is_finite() else Vector2(origin.x+Rect2(data.rect).position.x,y),"valid":best.is_finite()}
 
-static func measure(hero:Dictionary,enemy:Dictionary,definition:Dictionary)->Dictionary:
+static func measure(hero:Dictionary,enemy:Dictionary,definition:Dictionary,samples:Dictionary={})->Dictionary:
  var data:=_body_data(enemy,definition)
  var best:={"gap":INF,"contact":false,"vertical_valid":false,"point":Vector2.ZERO,"target":Vector2.ZERO,"enemy_pose":data.key}
- for point in strike_segment_points(hero):
+ for point in strike_segment_points(hero,samples):
   var front:=_front_at_y(point.y,data)
   if not bool(front.valid):continue
   var target:Vector2=front.point
@@ -240,7 +313,7 @@ static func measure(hero:Dictionary,enemy:Dictionary,definition:Dictionary)->Dic
    best={"gap":gap,"contact":contact,"vertical_valid":true,"point":point,"target":target,"enemy_pose":data.key}
   if contact:break
  if not bool(best.vertical_valid):
-  var points:=attack_points(hero)
+  var points:=attack_points(hero,samples)
   if not points.is_empty():
    var point:Vector2=points[0]
    var front:=_front_at_y(point.y,data)
@@ -258,12 +331,12 @@ static func clearance_front(enemy:Dictionary,definition:Dictionary,height:float)
   var front:=body_front(sample,definition,height)
   if bool(front.valid) and Vector2(front.point).x<Vector2(result.point).x:result=front
  return result
-static func hero_front(hero:Dictionary)->Vector2:
- var pose:=Rig.sample_contact_pose(hero)
+static func hero_front(hero:Dictionary,samples:Dictionary={})->Vector2:
+ var pose:=_contact_pose(hero,samples)
  return Rig._body(Rig.head_point(Vector2(89,-253)),pose.shift,float(pose.body_angle))*Rig.PIXEL_SCALE
 
-static func hero_body_fronts(hero:Dictionary)->PackedVector2Array:
- var pose:=Rig.sample_contact_pose(hero)
+static func hero_body_fronts(hero:Dictionary,samples:Dictionary={})->PackedVector2Array:
+ var pose:=_contact_pose(hero,samples)
  var points:=PackedVector2Array()
  # The nose is not the top of this chibi head. Actual painted alpha rows
  # above it cover eyes, forehead and solid skull, while the calibrated core

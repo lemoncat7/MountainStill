@@ -75,7 +75,7 @@ func run():
 		if FileAccess.file_exists(save_path+suffix):DirAccess.remove_absolute(save_path+suffix)
 	scene=load("res://main.tscn").instantiate();scene.state.save_path=save_path;root.add_child(scene)
 	await process_frame
-	scene.set_process(false);scene.get_window().size=Vector2i(1200,320);scene.size=Vector2(1200,320)
+	scene.set_process(false);await configure_view(1440,720)
 	scene._build_nav();scene._update_hotspots()
 	check(not scene.state.auto_advance and scene.state.realm==0 and scene.state.gear.inventory.is_empty(),"Fresh run starts manual with actual empty inventory")
 	await click("practice");await settle(.8)
@@ -150,7 +150,7 @@ func run():
 	check(scene.state.herbs==charged_herbs and scene.state.dew==charged_dew,"Stale training button cannot charge a second time")
 	scene.queue_free();await process_frame;await process_frame
 	scene=load("res://main.tscn").instantiate();scene.state.save_path=save_path;root.add_child(scene);await process_frame
-	scene.set_process(false);scene.get_window().size=Vector2i(1200,320);scene.size=Vector2(1200,320)
+	scene.set_process(false);await configure_view(1440,720)
 	check(scene.state.technique_training.size()==1 and scene.state.technique_levels.mist==1,"Reload keeps the paid lesson in progress")
 	if scene.state.technique_training.size()==1:
 		check(float(scene.state.technique_training[0].remaining)<=remaining+.1,"Reload does not restart the paid timer from its full duration")
@@ -195,7 +195,7 @@ func run():
 	var run_id:int=int(scene.state.stage_status().run_id)
 	scene.queue_free();await process_frame;await process_frame
 	scene=load("res://main.tscn").instantiate();scene.state.save_path=save_path;root.add_child(scene);await process_frame
-	scene.set_process(false);scene.get_window().size=Vector2i(1200,320);scene.size=Vector2(1200,320)
+	scene.set_process(false);await configure_view(1440,720)
 	check(not scene.encounter_active and bool(scene.state.stage_status().paused) and int(scene.state.stage_status().run_id)==run_id,"Reload remains at home with same unpaid continuation token")
 	check(item in scene.state.gear.equipped.values() and scene.state.equipped_heart=="breath","Reload preserves explicitly equipped starter and heart")
 	Journey.navigate(scene,"route","bamboo_pass");await settle(.8)
@@ -204,7 +204,7 @@ func run():
 	await click("depart_stage")
 	check(scene.encounter_active and int(scene.state.stage_status().run_id)==run_id,"Continuation pointer resumes same run exactly once")
 	for width in [1000,1200,1360]:
-		scene.size=Vector2(width,320);scene.get_window().size=Vector2i(width,320)
+		await configure_view(width,720)
 		scene.set_meta("ink_journal_tab","guide");scene.set_meta("ink_guide_follow_current",true)
 		if scene.drawer_name=="practice":scene._refresh_drawer()
 		else:scene._toggle_drawer("practice")
@@ -215,3 +215,10 @@ func run():
 		if FileAccess.file_exists(save_path+suffix):DirAccess.remove_absolute(save_path+suffix)
 	print("Player journey pointer audit: %d checks, %d failures; %d actual pointer targets"%[checks,failures,pointer_actions.size()])
 	quit(1 if failures else 0)
+
+func configure_view(width:int,height:int):
+	scene.get_window().size=Vector2i(width,height)
+	await process_frame
+	await process_frame
+	scene.size=root.get_visible_rect().size
+	scene._update_hotspots()

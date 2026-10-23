@@ -1,0 +1,153 @@
+{"version": "1.3.9-test.1", "platform": "windows", "archive_sha256": "aeb945f68c7794e1fb528a59500dc96aff42300e03c64656aaa74fbe992789e4", "payload_sha256": "bc344ba02dc8dfa7e58ec93e02b07cb99dcfa13bb0f840bf10f5833f33084130"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.9-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1 / 更新已准备；重启后生效
+QUALITY_OLD_UPDATE: 1.3.9-test.1 windows first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+QUALITY_OLD_UPDATE: 1.3.9-test.1 windows second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.9-test.1-windows
+{"version": "1.3.9-test.1", "platform": "macos", "archive_sha256": "e068fc1a486906d2eb25e2ffb8d075ee99aea0d42a0e08a9856fa74360424494", "payload_sha256": "864baf41f5e9f3520bdf2f58123c3f8a2f7867212b5ec21703c7165cb6e01071"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.9-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1 / 更新已准备；重启后生效
+QUALITY_OLD_UPDATE: 1.3.9-test.1 macos first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+QUALITY_OLD_UPDATE: 1.3.9-test.1 macos second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.9-test.1-macos
+{"version": "1.3.10-test.1", "platform": "windows", "archive_sha256": "3e205642eeec563189ef61b08d4db178145b4a048a496acfb300225452e5dd57", "payload_sha256": "dacdd0e8c6220cdcd8c2348a4e2b46e03b3816d1ba761c3ccc059cc602554ec5"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.10-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1 / 更新已准备；重启后生效
+QUALITY_OLD_UPDATE: 1.3.10-test.1 windows first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+QUALITY_OLD_UPDATE: 1.3.10-test.1 windows second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.10-test.1-windows
+{"version": "1.3.10-test.1", "platform": "macos", "archive_sha256": "3d4845692ba5790155eab15c3a7d30376a429177874848c98dfe859721087a7d", "payload_sha256": "843531055a1fbe87d5eb6cf6b21c80d7ec79a5729e1677e402fe216eaf771918"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.10-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1 / 更新已准备；重启后生效
+QUALITY_OLD_UPDATE: 1.3.10-test.1 macos first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+QUALITY_OLD_UPDATE: 1.3.10-test.1 macos second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.10-test.1-macos
+{"version": "1.3.11-test.1", "platform": "windows", "archive_sha256": "7764e790906b865304d9550e3e543ff3eda9a1091b3bad76581dd64f2bafea28", "payload_sha256": "2320c8ec1106a8f6d8863b7ca18d21a2121112783706781892bd4f5d44fc1462"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.11-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1 / 更新已准备；重启后生效
+QUALITY_OLD_UPDATE: 1.3.11-test.1 windows first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+QUALITY_OLD_UPDATE: 1.3.11-test.1 windows second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.11-test.1-windows
+{"version": "1.3.11-test.1", "platform": "macos", "archive_sha256": "da03f351a450e69dad79b8e45e9bf8445a337cc44cfae530ab6ccfc695c1c97e", "payload_sha256": "a024a5451feb2ed5e612f05bc371c291bc5a0db92995f7001e7f79610a710042"}
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+SEED_OLD: 1.3.11-test.1 original State herbs777 dew333 paused PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1 / 更新已准备；重启后生效
+QUALITY_OLD_UPDATE: 1.3.11-test.1 macos first immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+QUALITY_OLD_UPDATE: 1.3.11-test.1 macos second immutable bootstrap; state/history preserved; actual practice isolated save/snapshot; new runtime; healthy PASS
+
+PERSISTENT JOURNAL AND SAVE VERIFIED 1.3.11-test.1-macos
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: exported diorama preserves clear sky and opaque character footing.
+PASS: all 334 active resources load from the exported payload; legacy prototype resources are absent.
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+ERROR: TEST injected marker removal failure。启动确认未完成，请重启恢复。
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _show_failure (res://scripts/update_bootstrap.gd:61)
+       [1] _show_failure (/workspace/scratch/778a2592935f/quality-v1312/tests/bootstrap_health_failure_test.gd:4)
+       [2] _start (res://scripts/update_bootstrap.gd:52)
+BOOTSTRAP HEALTH FAILURE: marker removal failure pauses and frees game PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search state: 228 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search host: 19 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PASS: exported diorama preserves clear sky and opaque character footing.
+PASS: all 334 active resources load from the exported payload; legacy prototype resources are absent.
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+UPDATE BOOT: 1.3.12-test.1
+ERROR: TEST injected marker removal failure。启动确认未完成，请重启恢复。
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _show_failure (res://scripts/update_bootstrap.gd:61)
+       [1] _show_failure (/workspace/scratch/778a2592935f/quality-v1312/tests/bootstrap_health_failure_test.gd:4)
+       [2] _start (res://scripts/update_bootstrap.gd:52)
+BOOTSTRAP HEALTH FAILURE: marker removal failure pauses and frees game PASS
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search state: 228 checks, 0 failures
+
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+Treasure search host: 19 checks, 0 failures
+
+QUALITY FINAL: new full payloads, actual old 1.3.9/1.3.10/1.3.11 both platforms twice+save PASS; Linux not native Windows/macOS

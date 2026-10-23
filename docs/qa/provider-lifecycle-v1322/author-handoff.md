@@ -1,0 +1,11 @@
+# Frozen handoff to v22 integration
+
+Apply ONLY STABILITY.patch or replace matching baseline geometry with candidate/scripts/melee_contact_geometry.gd (SHA3abcf94892b98f8b4ffc406de52093e9bf7d45b4b23ca4f76ebb38dfc3f7ce30). Entire candidate/scripts copies v21 solely for independent reproducibility; do not overwrite newer unrelated production/tool changes. No unarmed performance experiment patch belongs here.
+
+Regression inputs: probe.gd (copied as res://freed_probe.gd), candidate/custom_fan.gd (res://custom_fan.gd), run.py and validate.py. Current run.py references isolated local A/B/C directories as preserved evidence. For integrated project, run the same27 candidate modes against its root, with script/fixture at those exact res paths or intentionally update the fixture reference. No need ship diagnostic fixture scripts in application exports. Keep strict log gate and output hash comparisons, not merely quit0/assert count.
+
+27 candidate modes: guard_sword,guard_unarmed,fit_trusted_pose_dead,fit_trusted_both_dead,guard_scalar,guard_strike_dead,finite_null,finite_scalar,guard_dead,guard_custom,guard_valid,fit_trusted_dead,finite_dead,finite_nested,guard_null,strike_dead,pose_dead,fit_dead,fit_nested,fit_pose_null,fit_both_null,samples_dead,fit_null,null_points,null_strike,null_pose,safe_check.
+
+All must return0, include BEGIN/END and one VALUE_SHA256, no SCRIPT ERROR/ERROR/crash on stdout OR stderr. Guard valid/fan,sword,unarmed true; null,scalar,live custom,dead false; finite dead/nested false; finite null/scalar true. Compare dead strikes/poses to null counterparts; trusted dead pose/strike/both to corresponding full/null result. See validate.py for exact existing comparisons and five negative oracle mutations. Source hashes and process-mode set must be verified before accepting results. Preserve baseline failures, never count expected v21 ERROR logs as candidate passes.
+
+Normal semantic probe: candidate/semantic_probe.gd exact frozen native benchmark trace schema. Three cases bamboo_pass/sword,cloud_slope/unarmed,cloud_slope/fan,480ticks,mist,seed377,two cold/warm trials. Compare all per-tick,events and complete trace hashes to included baseline-traces. No claim of arbitrary object/fullengine-state equivalence. Complete package/native smoke/regression/GUI and update tests remain integration owner's work.

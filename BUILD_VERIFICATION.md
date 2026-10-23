@@ -1,3 +1,47 @@
+# v1.3.22-test.1 构建与兼容验证
+
+## 范围与已确定证据
+- 基于当前完整 main `7078d5f1d4daec178698a6335934bfd63d7227ac`，继承1257项git文件；55项native workflow/doc/test/tool原字节和历史pins保持。`package_source.py`明确补齐漏掉的7项CPU诊断文件，不把它们算作v22原生运行证明。
+- 产品行为只有 Geometry `_fit_pruning_safe` 一行 `typeof(provider)!=TYPE_OBJECT`；保持 `is_instance_valid` 的短路和 `get_script` 次序。Geometry SHA256 `3abcf94892b98f8b4ffc406de52093e9bf7d45b4b23ca4f76ebb38dfc3f7ce30`。Duel、剪枝算法、浮点顺序、数值、美术、save schema4、Bootstrap ABI1均不改。
+- 原v21在新自包含专项中打印62 checks/0 failures且exit0，stderr却有9条SCRIPT ERROR；严格gate拒绝，原日志留在 `docs/qa/provider-lifecycle-v1322/baseline-v21-*.txt`。旧零失败/exit0不是这个生命周期边界正确的证据。
+- 作者独立局部证据为66个三方进程记录、109验证项、27候选进程clean及5个negative oracle；三场景cold/warm、480 tick声明schema内完整trace与v21相等。来源报告保留于本轮QA目录，不替代完整集成或包验收。
+
+## 已完成：源码集成与独立审查
+- 官方Godot4.6.3规范editor import exit0且无SCRIPT ERROR/Parse Error/ERROR；新自包含专项17用例/62检查零失败、旧精确规划专项217检查零失败，均exit0且stdout/stderr无错误。作者与独立集成审查分别重跑相同两个入口通过。
+- 严格driver13个单元测试通过，包含exit0伴SCRIPT ERROR等假阳性负例，并强制实际包运行使用完全空project且输出目录位于其外。自包含脚本没有外置test fixture依赖，可交实际PCK阶段执行。
+- 从集成源码另新跑作者原27个模式，全部clean，各VALUE_SHA256与冻结作者候选相同；三方109验证项通过。v20/v21记录明确沿用作者保留证据，没有冒充本轮重新运行三方66个进程。
+- 70 runtime/config + 5专项/driver冻结清单SHA256：`c1594174562a1ef246b5313084694ec4b24342912d6a06c9b8e53f4cb78097b2`。独审运行前后逐项核验不变；相对v21只有Geometry及project/export/Service/Store四项版本字段变化，其他65项runtime保持。
+- 初次未import的诊断确因缺ctex报错，原日志保留在外部集成QA；规范import后无代码规避地重跑成功。初版driver检查数误写60后按实际62修正，修改前后证据保留，未降低测试断言或日志门槛。
+
+## 已完成：Linux 原生 GUI 短回归
+- 冻结独立副本，Godot4.6.3/Linux真实桌面，徒手960×540与扇1200×400条带、UI125%各一场；两进程正常关闭exit0，无SCRIPT ERROR/Parse Error。自然完成、暂停/继续、同敌重试、Esc或显式结束、回同敌/原章通过，根代理复核两张原始结果图。
+- 70runtime+5专项前后匹配，464资产/import sidecar同字节。沿用此前自然养成终章合法装备库存fixture，通过真实API切装；不是本轮重新自然养成。完整save差异只含saved_at和正常窗口设置，资源、正式战报、阶段记录及18胜场总数不变。
+- 存在VSync不支持与PulseAudio/ALSA ERR_CANT_OPEN、Dummy音频回退，不写成GUI日志全无ERROR，不声称音频通过。不是Windows/macOS原生GUI、每帧无问题、FPS/GPU、长时稳定性或真实玩家触发freed边界证明。
+- 原报告见 `docs/PROVIDER-LIFECYCLE-v1.3.22-NATIVE-GUI.md`；原图、完整日志、前后测试存档保留在独立内部GUI证据包，不作为公开Source的运行时文件。
+
+## 最终源码回归与实际包
+- 最终源码113入口（包含10个更新入口）中112严格通过；唯一失败为既有 encounter_balance 的4474检查中两条summit剑式节奏断言，实测6.82秒低于原7.0秒下界。未删除、放宽门槛或把已知失败计为通过；无新增失败及SCRIPT ERROR。10更新入口串行通过，另真实localhost HTTP两进程持久限流seed/verify通过。
+- 15个Python驱动文件共176单元测试通过：14个native驱动163项，加本轮严格lifecycle驱动13项。它们是驱动逻辑测试，不代表v22目标平台原生执行。
+- GUI退出后≤2并行源码回归，随后串行更新、独占官方Godot4.6.3导出；本轮10构建/测试阶段均首轮exit0。Windows AMD64、macOS x86_64/arm64 universal结构、版本、执行权限、资源签名目录、manifest实际长度/SHA及生产Policy/Guard通过。结构不是Windows签名或Apple公证/原生系统验收。
+- Linux Godot从完全空项目加载实际Windows EXE内嵌载荷及Mac包提取PCK，不回退到源码runtime。两平台各新专项17用例/62检查、旧专项217检查均零失败，exit0且双流严格无SCRIPT ERROR/Parse Error/ERROR。原有石灵、控场、导航、装备/容量等包专项亦由构建阶段执行，原日志留存。
+- 两平台实际完整包Service各真实localhost HTTP测试及限流两进程重开，共6阶段通过。没有将localhost夹具冒充公共GitHub下载或公网更新链。
+- 601项运行时/资源/config构建快照、70runtime+5专项冻结及55原native工具贯穿构建均无变化。详见 `docs/qa/provider-lifecycle-v1322/final-build-summary.json`；完整raw日志与失败证据在独立Build QA，不把早期作者“待验”改写成作者亲自完成后续阶段。
+
+## 旧安装、存档与 active 内容边界
+- 已公开v1.3.10/v1.3.21的Windows/macOS原载荷，各普通/容量场景、各两次启动，共16启挂载新v22 PCK；每次实际执行62+217专项，正式State与测试前后save hash不变，旧受保护Service hash保留。旧安装获得的是v22游戏内容，不暗示PCK替换旧Bootstrap或Service。
+- 新完整v22包+合法active v21，两平台各两次启动共4启通过；继续保留旧v21游戏内容、active记录、原存档与新安装Service。**因此该active v21仍有旧provider生命周期边界；覆盖安装不等于无条件切换到修复后的游戏代码。** 没有删除更新记录、强制覆盖或改变既有选择策略。
+
+## 封包与发布边界
+最终Source归档按全部allowlist、CRC、逐成员当前源码、1257上游完整树、70/5冻结与55 native原字节核验；新增CPU7明确入包，不含cache/用户存档/私钥。最终归档SHA与七资产扫描结果留在外部Build QA，避免源码归档自引用自己的hash。
+
+公开push/release、公共下载后hash与公网更新链由发布阶段另验；本报告不预称已发布。本轮没有重跑长期敏感度/性能压力，不将短回归、导出和Linux载荷通过写成Windows/macOS原生GUI、GPU/FPS、签名/公证或正式版性能达标。
+
+## 不变的限制
+本轮仅异常provider生命周期边界，未证正常RefCounted玩家模块会被释放，不称“普遍玩家崩溃修复”。不改变既有性能策略：三OS实测v21扇峰改善、徒手最坏峰回退，33.3ms预算仍未达标；见 `docs/NATIVE-CPU-v20-v21-FINAL-REPORT.md`。此前两条summit剑式节奏断言、长时敏感度、签名/公证等限制不被本轮修复自动关闭。
+
+---
+# 历史构建记录（不作为 v22 本轮证据）
+
 # v1.3.21-test.1 构建与兼容验证
 
 本轮只集成纯 GDScript 精确规划剪枝。保留候选顺序、strict-less 胜出、平局与原浮点运算；公共默认调用和自定义 provider 完整保留旧路径，只有 Duel 内部新建可信 planning samples 的两处调用显式启用。无 GDExtension、动态库或新增 native runtime 依赖；美术、存档 schema4、Bootstrap ABI1、更新命名空间不变。

@@ -1,0 +1,7 @@
+{
+  "checks": 109,
+  "failures": 0,
+  "candidate_processes": 27,
+  "expected_v21_log_failures": 5,
+  "negative_oracle_mutations": 5
+}

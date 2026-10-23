@@ -1,0 +1,57 @@
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:65)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] fit_approach (res://scripts/melee_contact_geometry.gd:164)
+              [2] equal_fit (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:33)
+              [3] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:66)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] fit_approach (res://scripts/melee_contact_geometry.gd:164)
+              [2] equal_fit (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:35)
+              [3] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:66)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:65)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] fit_approach (res://scripts/melee_contact_geometry.gd:164)
+              [2] equal_fit (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:33)
+              [3] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:66)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] fit_approach (res://scripts/melee_contact_geometry.gd:164)
+              [2] equal_fit (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:35)
+              [3] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:66)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:65)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] fit_approach (res://scripts/melee_contact_geometry.gd:164)
+              [2] equal_fit (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:33)
+              [3] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:66)
+SCRIPT ERROR: Left operand of 'is' is a previously freed instance.
+          at: _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+          GDScript backtrace (most recent call first):
+              [0] _fit_pruning_safe (res://scripts/melee_contact_geometry.gd:160)
+              [1] fit_approach (res://scripts/melee_contact_geometry.gd:164)
+              [2] equal_fit (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:35)
+              [3] _initialize (/workspace/scratch/778a2592935f/provider-lifecycle-v1322/tests/test_provider_lifecycle_guard.gd:66)

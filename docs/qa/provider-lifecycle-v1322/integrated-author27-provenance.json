@@ -1,0 +1,7 @@
+{
+  "baseline_records": "copied unchanged from frozen author evidence; not re-executed",
+  "candidate_records": "27 modes freshly re-executed on integrated v22",
+  "probe_adaptation": "only custom fixture load path switched from res://custom_fan.gd to external exact frozen fixture",
+  "source_geometry_sha256": "3abcf94892b98f8b4ffc406de52093e9bf7d45b4b23ca4f76ebb38dfc3f7ce30",
+  "all_27_value_sha_match_frozen_candidate": true
+}

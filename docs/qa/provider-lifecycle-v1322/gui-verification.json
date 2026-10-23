@@ -1,0 +1,107 @@
+{
+  "manifest_sha256": "c1594174562a1ef246b5313084694ec4b24342912d6a06c9b8e53f4cb78097b2",
+  "runtime_count": 70,
+  "tests_count": 5,
+  "frozen_files": {
+    "gui_copy": [],
+    "candidate": []
+  },
+  "saves": {
+    "unarmed": {
+      "seed_sha256": "275fc4fdec5f09d41c5e9f5b729dcdf22c9443e5ca9c927dc5b2682957366bf7",
+      "exit_sha256": "39b8b96bcd8471930478920d18e41120bd7cf20534bad0cae411f9f01c51b72f",
+      "changes": [
+        {
+          "path": ".saved_at",
+          "before": 1792786293,
+          "after": 1792786525
+        },
+        {
+          "path": ".settings.normal_x",
+          "before": -99999,
+          "after": 4
+        },
+        {
+          "path": ".settings.normal_y",
+          "before": -99999,
+          "after": 108
+        }
+      ],
+      "stage_run": {},
+      "total_victories": 18
+    },
+    "fan": {
+      "seed_sha256": "6374b2245f62faabee05e44dd47cf426ae6b9ec94f884940125faf1182ff22d9",
+      "exit_sha256": "cf45eefe711afb593e76159891af4a572373e740060396f69e46d544f76ee84a",
+      "changes": [
+        {
+          "path": ".saved_at",
+          "before": 1792786552,
+          "after": 1792786675
+        },
+        {
+          "path": ".settings.height",
+          "before": 540,
+          "after": 400
+        },
+        {
+          "path": ".settings.normal_x",
+          "before": -99999,
+          "after": 202
+        },
+        {
+          "path": ".settings.normal_y",
+          "before": -99999,
+          "after": 198
+        },
+        {
+          "path": ".settings.width",
+          "before": 960,
+          "after": 1200
+        },
+        {
+          "path": ".settings.window_mode",
+          "before": "window",
+          "after": "strip"
+        },
+        {
+          "path": ".settings.window_x",
+          "before": -99999,
+          "after": 82
+        },
+        {
+          "path": ".settings.window_y",
+          "before": -99999,
+          "after": 524
+        }
+      ],
+      "stage_run": {},
+      "total_victories": 18
+    }
+  },
+  "logs": {
+    "unarmed": {
+      "native_exit": [
+        "0"
+      ],
+      "script_errors": 0,
+      "parse_errors": 0,
+      "error_lines": [
+        "ERROR: Condition \"status < 0\" is true. Returning: ERR_CANT_OPEN"
+      ]
+    },
+    "fan": {
+      "native_exit": [
+        "0"
+      ],
+      "script_errors": 0,
+      "parse_errors": 0,
+      "error_lines": [
+        "ERROR: Condition \"status < 0\" is true. Returning: ERR_CANT_OPEN"
+      ]
+    }
+  },
+  "asset_files_compared": 464,
+  "asset_mismatches": [],
+  "source_fixture_sha256": "48ec671124fa110139adcfcd886b88099477f5636a01c063986da8e074c554ad"
+}

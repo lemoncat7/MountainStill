@@ -157,7 +157,7 @@ static func _fit_pruning_safe(hero:Dictionary,enemy:Dictionary,definition:Dictio
  if not is_finite(origin):return false
  for key in ["pose_provider","strike_provider"]:
   var provider:Variant=hero.get(key)
-  if not (provider is Object) or not is_instance_valid(provider) or not provider.get_script() in _PURE_FIT_PROVIDERS:return false
+  if typeof(provider)!=TYPE_OBJECT or not is_instance_valid(provider) or not provider.get_script() in _PURE_FIT_PROVIDERS:return false
  return _finite_fit_input(hero) and _finite_fit_input(enemy) and _finite_fit_input(definition)
 # Only the timeline-owned planning cache may opt in. Public/legacy calls stay exact full evaluation.
 static func fit_approach(hero:Dictionary,enemy:Dictionary,definition:Dictionary,origin:float,samples:Dictionary={},trusted_planning_samples:bool=false)->Dictionary:

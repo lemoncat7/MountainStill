@@ -1,3 +1,18 @@
+# v1.3.22-test.1 provider 生命周期边界测试候选
+
+本轮只修复精确规划可信性检查的一处异常 provider 生命周期边界：传入已经 `free()` 的对象时，先以 `typeof` 检查类型，再短路检查对象有效性，避免 Godot 4.6.3 在 `is Object` 上报脚本错误。保持原来的完整几何回退，不改剪枝策略、战斗算法、数值、美术、存档 schema4、Bootstrap ABI1 或更新命名空间；无 native 扩展。
+
+这不是“普通玩家崩溃已修复”的结论：尚未证明正常 RefCounted 玩家模块会在这里被释放。旧日志也表明引擎可能一面报 SCRIPT ERROR，一面退出0；因此本轮专项必须同时检查完整用例、结果、退出码与 stdout/stderr，不能仅凭零断言失败放行。源码与实际Windows/macOS载荷的新专项62项、既有专项217项均严格通过，独立集成审查与Linux两场短GUI通过。最终源码113入口112通过，仅保留原两条节奏断言失败；旧v10/v21安装挂新PCK及保留合法active v21的兼容检查完成。载荷测试由Linux执行，不冒充目标系统原生GUI。验证细节与边界见 `docs/PROVIDER-LIFECYCLE-v1.3.22.md`、`BUILD_VERIFICATION.md`；公共发布/下载链由发布阶段另验。
+
+本轮不解决 v21 徒手峰值回退或 33.3ms 性能预算。既有三原生平台固定 v20/v21 CPU 实测中，扇峰改善，但徒手最坏峰均回退；所有场景仍未达该预算。这是 headless 源码 CPU 诊断，不是 v22 包、GPU/FPS 或普遍用户硬件承诺。详见 `docs/NATIVE-CPU-v20-v21-FINAL-REPORT.md`。
+
+已有安装只加载新 v22 PCK 即可得到这一游戏代码修复；不要求为该单行变更重装受保护更新服务。反之，完整安装 v22 若保留合法 active v21，按既有内容选择策略仍运行 v21 游戏代码，也仍保留其 provider 边界；不能把覆盖安装宣传为无条件切换到已修复内容。
+
+目标包名：`MountainStill-v1.3.22-test.1-Windows-x86_64.zip`、`MountainStill-v1.3.22-test.1-macOS-Universal.zip`。仍为测试版，无 Windows 代码签名和 Apple Developer ID/公证；不要关闭系统防护绕过提示。
+
+---
+## 历史 v21 及更早记录（不代表 v22 重跑）
+
 # v1.3.21-test.1 精确规划剪枝测试候选
 
 本轮仅引入纯 GDScript 精确规划剪枝，不新增玩法或原生扩展依赖。内置可信规划调用跳过数学上不可能改善当前最优解的昂贵计算；公共 API 默认与自定义 provider 保留原完整路径。存档 schema4、Bootstrap ABI1 与更新命名空间不变。

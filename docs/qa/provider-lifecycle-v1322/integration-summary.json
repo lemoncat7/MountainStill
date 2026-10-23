@@ -1,0 +1,57 @@
+{
+  "status": "integrated source, independent review, Linux GUI, full source regression and actual payload/compatibility verified; inherited balance2 failure retained; final external packaging/publication pending",
+  "source_main": "7078d5f1d4daec178698a6335934bfd63d7227ac",
+  "runtime_manifest_sha256": "c1594174562a1ef246b5313084694ec4b24342912d6a06c9b8e53f4cb78097b2",
+  "runtime_files": 70,
+  "targeted_files": 5,
+  "native_preserved": 55,
+  "lifecycle": {
+    "cases": 17,
+    "checks": 62,
+    "failures": 0,
+    "exit": 0,
+    "stdout_stderr_errors": 0,
+    "independent_repeat": true
+  },
+  "legacy_exact_planner": {
+    "checks": 217,
+    "failures": 0,
+    "exit": 0,
+    "stdout_stderr_errors": 0,
+    "independent_repeat": true
+  },
+  "strict_driver_unit_tests": 13,
+  "author27_fresh_integrated_modes": 27,
+  "author27_baseline_records_reused_not_reexecuted": true,
+  "baseline_v21_actual_free": {
+    "checks": 62,
+    "failures": 0,
+    "exit": 0,
+    "script_errors": 9,
+    "strict_gate_passed": false
+  },
+  "linux_gui": {
+    "sessions": 2,
+    "exit_codes": [
+      0,
+      0
+    ],
+    "script_errors": 0,
+    "environment_audio_errors_retained": true,
+    "save_changes_only": [
+      "saved_at",
+      "window_settings"
+    ],
+    "runtime_freeze_matches": true,
+    "asset_files": 464,
+    "report_sha256": "1cef6097f312805efc2de2fbb907d6dcc29dd506f96b93efb7133caccf0eb1ee"
+  },
+  "full_build_summary": "docs/qa/provider-lifecycle-v1322/final-build-summary.json",
+  "source_total_entries": 113,
+  "source_passed_entries": 112,
+  "inherited_failed_assertions": 2,
+  "actual_payloads_new_lifecycle62_exact217": true,
+  "old_upgrade_boots": 16,
+  "active21_boots": 4,
+  "actual_http_phases": 6
+}

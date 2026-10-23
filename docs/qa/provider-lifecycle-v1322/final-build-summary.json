@@ -1,0 +1,117 @@
+{
+  "source_evidence_sha256": "fa7a3007f1969ca471d981b223f6d9bcff027e7a437394008565219c3f1283f5",
+  "source_total_entries": 113,
+  "source_exit0_entries": 112,
+  "inherited_failure": {
+    "test": "test_encounter_balance.gd",
+    "checks": 4474,
+    "failed_assertions": 2,
+    "actual_seconds": 6.82,
+    "minimum_seconds": 7.0,
+    "threshold_unchanged": true
+  },
+  "strict_both_streams": true,
+  "source_update_entries_included": 10,
+  "source_http_restart_phases": 2,
+  "python_driver_files": 15,
+  "python_driver_unittests": 176,
+  "native_driver_files": 14,
+  "native_driver_unittests": 163,
+  "new_lifecycle_driver_unittests": 13,
+  "stages": [
+    {
+      "stage": "updater-progress",
+      "exit": 0,
+      "log_sha256": "06e19cd5bdd5ff0a065917274f150757007cfccab49e13619edbaef70203e73f"
+    },
+    {
+      "stage": "update-restart-source",
+      "exit": 0,
+      "log_sha256": "a33956b6b695d578615cee75759622acbfd61fe24daec0f69b5dfcdf48562287"
+    },
+    {
+      "stage": "ci-drivers",
+      "exit": 0,
+      "log_sha256": "7dfae6d379d3d9fa3a747f2c3e58c76aa2d382b9b9e0a9bc760f08ea0b954fab"
+    },
+    {
+      "stage": "export-progress",
+      "exit": 0,
+      "log_sha256": "eea147e2e66802d139ebcc8484d92d13162131657bbe224869eced019fbca390"
+    },
+    {
+      "stage": "native-structure",
+      "exit": 0,
+      "log_sha256": "2fb4db237c8828df780ec3838d4caddec933bbed44876e178138b0d39005ace6"
+    },
+    {
+      "stage": "artifact-policy-guard",
+      "exit": 0,
+      "log_sha256": "098552bd816acb4a3771561ad4278163bc2f26786faf1bbf8332dec7e700b547"
+    },
+    {
+      "stage": "new-payload-results",
+      "exit": 0,
+      "log_sha256": "cdc2529a6fe6c19c68f66320935e8178ded6b41706490faaf6789017dc064fb0"
+    },
+    {
+      "stage": "bootstrap-results",
+      "exit": 0,
+      "log_sha256": "7d00547e2c51a59bf2e43a57b73791dc2224d993cfbce318e6cde2b8f6cc4eb5"
+    },
+    {
+      "stage": "existing-active-results",
+      "exit": 0,
+      "log_sha256": "61fd839d27b01f1fb834e418e4ef9bb42854184221cfa942a57e93241d83fb48"
+    },
+    {
+      "stage": "actual-http-results",
+      "exit": 0,
+      "log_sha256": "02c0e7ff2c05e358196e9baa2d2119d577518ab17736c3ddf2885dd557572350"
+    }
+  ],
+  "actual_payloads": [
+    {
+      "platform": "windows",
+      "new_lifecycle_cases": 17,
+      "new_lifecycle_checks": 62,
+      "new_lifecycle_failures": 0,
+      "strict_gate": true,
+      "exact_planner_checks": 217,
+      "exact_planner_failures": 0,
+      "exact217_log_sha256": "254d9b4a436fc12ec757514c382654aeac9d9c74d8b80e48179339ce39c4854b"
+    },
+    {
+      "platform": "macos",
+      "new_lifecycle_cases": 17,
+      "new_lifecycle_checks": 62,
+      "new_lifecycle_failures": 0,
+      "strict_gate": true,
+      "exact_planner_checks": 217,
+      "exact_planner_failures": 0,
+      "exact217_log_sha256": "254d9b4a436fc12ec757514c382654aeac9d9c74d8b80e48179339ce39c4854b"
+    }
+  ],
+  "old_installation_upgrade_boots": 16,
+  "old_versions": [
+    "1.3.10-test.1",
+    "1.3.21-test.1"
+  ],
+  "old_upgrade_per_boot_lifecycle62_exact217_and_state_unchanged": true,
+  "new_full_with_valid_active21_boots": 4,
+  "full_active21_keeps_old_gameplay_edge": true,
+  "actual_http_phases": 6,
+  "runtime_snapshot_files_unchanged": 601,
+  "runtime_freeze_manifest_sha256": "c1594174562a1ef246b5313084694ec4b24342912d6a06c9b8e53f4cb78097b2",
+  "native_files_unchanged": 55,
+  "limitations": [
+    "Inherited sword summit authored-pacing two assertions remain; no threshold change",
+    "Long sensitivity and stress suite not rerun",
+    "Linux loads actual Windows embedded/Mac PCK; not native target-OS GUI, GPU, signing or notarization proof",
+    "New full22 with valid active21 intentionally continues old21 gameplay, so active21 keeps the old lifecycle edge until content update; protected full22 Service remains installed",
+    "This provider lifecycle boundary fix is not a performance improvement; existing33.3ms budget failure and unarmed worst-case regression remain",
+    "No public network update chain tested before publication",
+    "v21 baseline numerical62/0+exit0 with9 SCRIPT ERROR is retained as rejected evidence, not a pass"
+  ],
+  "publication_status": "not published or claimed by integration/build agents; final packaging and external publication verification tracked separately"
+}

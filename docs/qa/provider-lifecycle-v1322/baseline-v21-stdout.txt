@@ -1,0 +1,20 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+PROVIDER_LIFECYCLE_CASE actual_freed_object
+PROVIDER_LIFECYCLE_CASE builtin_fan
+PROVIDER_LIFECYCLE_CASE builtin_sword
+PROVIDER_LIFECYCLE_CASE builtin_unarmed
+PROVIDER_LIFECYCLE_CASE null_pose_provider
+PROVIDER_LIFECYCLE_CASE scalar_pose_provider
+PROVIDER_LIFECYCLE_CASE live_unknown_pose_provider
+PROVIDER_LIFECYCLE_CASE null_strike_provider
+PROVIDER_LIFECYCLE_CASE scalar_strike_provider
+PROVIDER_LIFECYCLE_CASE live_unknown_strike_provider
+PROVIDER_LIFECYCLE_CASE dead_pose
+PROVIDER_LIFECYCLE_CASE dead_strike
+PROVIDER_LIFECYCLE_CASE dead_both
+PROVIDER_LIFECYCLE_CASE nested_dead_hero
+PROVIDER_LIFECYCLE_CASE nested_dead_enemy
+PROVIDER_LIFECYCLE_CASE nested_dead_definition
+PROVIDER_LIFECYCLE_CASE live_custom
+PROVIDER_LIFECYCLE_RESULT {"cases":["actual_freed_object","builtin_fan","builtin_sword","builtin_unarmed","null_pose_provider","scalar_pose_provider","live_unknown_pose_provider","null_strike_provider","scalar_strike_provider","live_unknown_strike_provider","dead_pose","dead_strike","dead_both","nested_dead_hero","nested_dead_enemy","nested_dead_definition","live_custom"],"checks":62,"engine":"4.6.3-stable (official)","failures":0,"schema":1}

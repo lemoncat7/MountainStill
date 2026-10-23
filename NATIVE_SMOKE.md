@@ -37,10 +37,10 @@ redirects Windows/macOS. Only that unique directory is deleted afterwards.
 The checkout and normal game save directory are untouched.
 
 The driver imports source resources and runs cultivation, scene geometry/assets,
-stone-recovery contract, chapter-to-practice navigation, practice control contribution, practice-host isolation, shutdown lifecycle, update
+stone-recovery contract, chapter-to-practice navigation, practice control contribution, exact planner guard, practice-host isolation, shutdown lifecycle, update
 policy and update-store tests. A passing exit code, exact success-line pattern
 with positive check count, and no unexpected engine error/leak diagnostic are
-all required. Currently the expected-error allowlist is empty: these nine
+all required. Currently the expected-error allowlist is empty: these ten
 fault-injection tests do not need general `ERROR:` suppression. Missing markers,
 timeouts and crashes fail closed. Other test failures do not prevent remaining
 selected tests from running; a setup/isolation/import failure stops gameplay checks.

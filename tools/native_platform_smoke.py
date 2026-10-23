@@ -18,6 +18,7 @@ TESTS = {
     'test_stone_recovery_contract.gd': r'Stone recovery contract: [1-9]\d* checks, 0 failures',
     'test_chapter_practice_navigation.gd': r'Chapter practice navigation: [1-9]\d* checks, 0 failures',
     'test_practice_control_contribution.gd': r'Practice control contribution: [1-9]\d* checks, 0 failures',
+    'test_exact_planner_guard.gd': r'Exact planner guard: [1-9]\d* checks, 0 failures; neutral early returns=[1-9]\d*, exact ties=\d+',
     'test_practice_host.gd': r'Practice host: [1-9]\d* checks, 0 failures',
     'test_shutdown_lifecycle.gd': r'Shutdown lifecycle: [1-9]\d* checks, 0 failures',
     'update_policy_test.gd': r'update_policy: [1-9]\d* checks passed',

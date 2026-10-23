@@ -32,13 +32,13 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_nine_tests_preserve_previous_coverage(self):
+    def test_ten_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
             'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
-            'test_practice_control_contribution.gd',
+            'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
         })
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
@@ -65,6 +65,20 @@ class ControlContributionMarkerTests(unittest.TestCase):
         self.assertTrue(smoke.unexpected_errors(
             'ERROR: CONTROL CONTRIBUTION: bad delta',
             'test_practice_control_contribution.gd'))
+
+
+class ExactPlannerMarkerTests(unittest.TestCase):
+    def test_planner_marker_is_complete_and_fail_closed(self):
+        pattern = smoke.TESTS['test_exact_planner_guard.gd']
+        good = 'Exact planner guard: 217 checks, 0 failures; neutral early returns=1, exact ties=0'
+        self.assertIsNotNone(re.fullmatch(pattern, good))
+        for bad in ('', good.replace('217 checks', '0 checks'),
+                    good.replace('0 failures', '1 failures'),
+                    good.replace('early returns=1', 'early returns=0'),
+                    good.replace(', exact ties=0', ''), good + ' EXTRA'):
+            self.assertIsNone(re.fullmatch(pattern, bad), bad)
+        self.assertTrue(smoke.unexpected_errors('ERROR: planner mismatch',
+                                              'test_exact_planner_guard.gd'))
 
 
 if __name__ == '__main__':

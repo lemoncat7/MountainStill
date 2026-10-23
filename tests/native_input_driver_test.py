@@ -138,11 +138,19 @@ class IndependentFailurePaths(unittest.TestCase):
 
     def test_session_success_and_unconfirmed_event_both_close(self):
         from contextlib import ExitStack
-        for delivered in (True,False):
-            with self.subTest(delivered=delivered),tempfile.TemporaryDirectory() as td,ExitStack() as stack:
+        for native_platform,delivered in [('win32',True),('win32',False),('darwin',True),('darwin',False)]:
+            with self.subTest(platform=native_platform,delivered=delivered),tempfile.TemporaryDirectory() as td,ExitStack() as stack:
+                transport=Mock();transport.__enter__=Mock(return_value=12345);transport.slave_fd=12345
+                stack.enter_context(patch.object(probe,'OwnedPTYLog',return_value=transport))
+                stack.enter_context(patch.object(probe.sys,'platform',native_platform))
                 now=[0.0];process=Mock();process.pid=77;process.returncode=None
                 process.poll.side_effect=lambda:process.returncode
-                def launch(*args,**kwargs):return process
+                def launch(*args,**kwargs):
+                    if native_platform=='darwin':
+                        self.assertEqual(kwargs['stdout'],12345)
+                        self.assertEqual(kwargs['stderr'],probe.subprocess.STDOUT)
+                        self.assertEqual(kwargs['stdin'],probe.subprocess.DEVNULL)
+                    return process
                 metadata={'owner_pid':77,'window_id':88,'outer_frame':[12,44,960,568],
                           'client_frame':[12,72,960,540],'client_to_screen':[12,72],
                           'backing_scale':1,'foreground_owned':True}
@@ -172,5 +180,34 @@ class IndependentFailurePaths(unittest.TestCase):
                 else:
                     self.assertIn('INPUT_ENVIRONMENT_UNAVAILABLE',result['failure']);self.assertEqual(captures,[])
                 probe.read_save.assert_not_called()
+                if native_platform=='darwin':
+                    transport.__enter__.assert_called_once()
+                    transport.started.assert_called_once()
+                    transport.close.assert_called_once()
+                    self.assertGreater(transport.check.call_count,0)
+                else:
+                    probe.OwnedPTYLog.assert_not_called()
+
+
+    def test_mac_popen_failure_closes_transport_without_starting_worker(self):
+        transport=Mock();transport.__enter__=Mock(return_value=12345);transport.slave_fd=12345
+        with tempfile.TemporaryDirectory() as td,patch.object(probe.sys,'platform','darwin'),patch.object(probe,'OwnedPTYLog',return_value=transport),patch.object(probe.subprocess,'Popen',side_effect=OSError('synthetic launch failure')),patch.object(probe.gui,'log_text',return_value=''),patch.object(probe,'emit'),patch.object(probe.gui,'bounded_log'):
+            result,captures=probe.session(Path('/synthetic'),Path(td),Path(td),'failure',[])
+        self.assertIn('synthetic launch failure',result['failure'])
+        transport.started.assert_not_called()
+        transport.close.assert_called_once()
+        transport.check.assert_called_once()
+        self.assertEqual(captures,[])
+
+    def test_mac_shutdown_exception_still_closes_transport(self):
+        transport=Mock();transport.__enter__=Mock(return_value=12345);transport.slave_fd=12345
+        transport.started.side_effect=RuntimeError('synthetic worker failure')
+        process=Mock();process.pid=77;process.poll.return_value=None
+        process.wait.side_effect=probe.subprocess.TimeoutExpired('owned child',55)
+        with tempfile.TemporaryDirectory() as td,patch.object(probe.sys,'platform','darwin'),patch.object(probe,'OwnedPTYLog',return_value=transport),patch.object(probe.subprocess,'Popen',return_value=process),patch.object(probe,'native_json',return_value={'status':'CLOSE_REQUEST_SENT'}),patch.object(probe.gui,'close_command',return_value=['close']),patch.object(probe.gui,'stop_owned',side_effect=OSError('synthetic stop failure')):
+            with self.assertRaisesRegex(OSError,'synthetic stop failure'):
+                probe.session(Path('/synthetic'),Path(td),Path(td),'failure',[])
+        transport.close.assert_called_once()
+        transport.check.assert_called_once()
 
 if __name__=='__main__':unittest.main()

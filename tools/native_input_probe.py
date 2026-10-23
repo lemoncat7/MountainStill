@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Pinned v20 native OS input evidence. Never read saves while any game is alive."""
 import copy
+import contextlib
 import hashlib
 import json
 import math
@@ -13,6 +14,7 @@ import tempfile
 import time
 import uuid
 
+from native_input_pty import OwnedPTYLog
 import native_gui_probe as gui
 from native_package_smoke import claim_userdata, download, extract, read_save, userdata_path
 from native_reload_session import filter_audio_environment
@@ -114,20 +116,30 @@ def same_input_target(reference, result, pid):
 
 
 def session(binary,root,inputroot,label,processes,interactive=False):
-    process=None;started=time.monotonic();captures=[];events=[];geometry={};close={};failure=None;forced=False
+    process=None;pty_log=None;started=time.monotonic();captures=[];events=[];geometry={};close={};failure=None;forced=False
     logfile=root/(label+'.log')
     def elapsed():return time.monotonic()-started
     def helper(cmd,budget=3):
+        if pty_log is not None:pty_log.check()
         if elapsed()+budget>CLOSE_AT:raise RuntimeError('INPUT_BUDGET_EXHAUSTED')
         return native_json(cmd,budget)
     try:
-        with logfile.open('wb') as log:
-            process=subprocess.Popen([str(binary),*gui.ARGS],stdout=log,stderr=subprocess.STDOUT)
+        with (logfile.open('wb') if sys.platform!='darwin' else contextlib.nullcontext()) as log:
+            if sys.platform=='darwin':
+                pty_log=OwnedPTYLog(logfile)
+                pty_log.__enter__()
+                process=subprocess.Popen([str(binary),*gui.ARGS],stdout=pty_log.slave_fd,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL)
+            else:
+                process=subprocess.Popen([str(binary),*gui.ARGS],stdout=log,stderr=subprocess.STDOUT)
             processes.append(process)
+            if pty_log is not None:pty_log.started()
             hint=None
             while process.poll() is None:
+                if pty_log is not None:pty_log.check()
                 text=gui.log_text(logfile)
-                if 'Loading resource: res://assets/cultivation/beasts/opportunity_cairn.png' in text and hint is None:hint=elapsed()
+                if 'Loading resource: res://assets/cultivation/beasts/opportunity_cairn.png' in text and hint is None:
+                    hint=elapsed()
+                    emit('LIVE_READINESS_HINT',{'case':label,'elapsed_seconds':round(hint,3),'transport':'owned_stdout_stderr_pty' if pty_log is not None else 'redirected_stdout','marker':'opportunity_cairn.png','not_a_visual_pass':True})
                 if hint is not None and elapsed()>=max(12,hint+2):break
                 if elapsed()>=20:raise RuntimeError('RENDER_READINESS_HINT_TIMEOUT')
                 time.sleep(.15)
@@ -168,15 +180,22 @@ def session(binary,root,inputroot,label,processes,interactive=False):
     except Exception as error:
         failure=type(error).__name__+': '+str(error)
     finally:
-        if process is not None and process.poll() is None:
-            try:
-                remaining=45-elapsed()
-                if remaining<=0:raise RuntimeError('CLOSE_REQUEST_DEADLINE_MISSED')
-                close=native_json(gui.close_command(root,process.pid),min(2,remaining))
-            except Exception as error:close={'status':'CLOSE_UNCONFIRMED','reason':str(error)}
-            try:process.wait(timeout=max(.01,HARD_STOP-elapsed()))
-            except subprocess.TimeoutExpired:forced=True;gui.stop_owned(process)
-        if process is not None and process.poll() is None:gui.stop_owned(process)
+        try:
+            if process is not None and process.poll() is None:
+                try:
+                    remaining=45-elapsed()
+                    if remaining<=0:raise RuntimeError('CLOSE_REQUEST_DEADLINE_MISSED')
+                    close=native_json(gui.close_command(root,process.pid),min(2,remaining))
+                except Exception as error:close={'status':'CLOSE_UNCONFIRMED','reason':str(error)}
+                try:process.wait(timeout=max(.01,HARD_STOP-elapsed()))
+                except subprocess.TimeoutExpired:forced=True;gui.stop_owned(process)
+            if process is not None and process.poll() is None:gui.stop_owned(process)
+        finally:
+            if pty_log is not None:
+                try:
+                    pty_log.close()
+                    pty_log.check()
+                except Exception as error:failure=failure or ('PTY_LOG_FAILURE: '+str(error))
     output=gui.log_text(logfile)
     filtered,audio_unavailable=filter_audio_environment(output)
     errors=unexpected_errors(filtered,'native-input')

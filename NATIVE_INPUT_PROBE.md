@@ -110,3 +110,32 @@ and NSWorkspace frontmostApplication:
 https://developer.apple.com/documentation/coregraphics/cgevent
 https://developer.apple.com/documentation/appkit/nsrunningapplication
 https://developer.apple.com/documentation/appkit/nsworkspace/frontmostapplication
+
+## macOS late-log readiness transport retry
+
+First Mac input run39991938744 compiled the helpers and preflighted existing
+permissions, but both fresh-seed boots reached20s readiness timeout before any
+input. Normal Quit exited0; final logs contained the exact late texture marker.
+Godot4.6.3 release StdLogger uses vprintf and only explicitly flushes when the
+flush-on-print setting is enabled. Redirected stdout tail buffering is therefore
+a plausible tool-level cause, not a demonstrated product crash or a proven fix.
+Reference: https://raw.githubusercontent.com/godotengine/godot/4.6.3-stable/core/io/logger.cpp
+
+The narrow Mac-only retry attaches stdout/stderr to an owned stdlib PTY so terminal
+line buffering can expose the SAME late marker while running. stdin is DEVNULL;
+nothing writes to the PTY and it is never an application-input control channel.
+Windows transport and native CGEvent behavior are unchanged. Marker, settling,
+window checks,20s readiness and43/45/55s safety limits are not relaxed. The driver
+records when the marker was actually seen live; no surviving-process fallback.
+
+A nonblocking daemon drain flushes bounded chunks to a fresh owned log. Maximum
+stored prefix4MiB; overflow/error is explicit and aborts the probe while drain
+continues discarding to avoid child blockage. EOF/EIO finish normally. After game
+termination close allows.2s EOF drain then.2s stop/join; only the worker closes its
+read fd, preventing a concurrent fd-reuse race. Forced incomplete drain is an
+error, never complete logging evidence. Initialization/Popen failures close both
+owned fd ends. Logs remain available for post-exit scanning; no save is read live.
+
+Local PTY tests demonstrate transport behavior with disposable Python children,
+not actual macOS game readiness. Actual two-Mac retry remains necessary; prior
+failure stays archived even if this transport succeeds.

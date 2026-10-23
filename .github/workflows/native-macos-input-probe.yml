@@ -30,6 +30,8 @@ jobs:
           git -C source checkout --detach FETCH_HEAD
           test "$(git -C source rev-parse HEAD)" = "$SOURCE_SHA"
       - name: Validate native input safety contracts
-        run: python3 source/tests/native_input_driver_test.py
+        run: |
+          python3 source/tests/native_input_driver_test.py
+          python3 source/tests/native_input_pty_test.py
       - name: Observe pinned v20 macOS input under existing permissions only
         run: python3 source/tools/native_input_probe.py --macos-input

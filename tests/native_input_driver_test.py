@@ -53,9 +53,19 @@ class InputContract(unittest.TestCase):
     def test_no_injected_engine_script(self):
         import inspect
         self.assertNotIn('--script',inspect.getsource(probe));self.assertEqual(probe.gui.ARGS,['--verbose','--max-fps','60'])
+    def test_explicit_windows_path_argument_not_posix_literal(self):
+        from pathlib import PureWindowsPath
+        root=PureWindowsPath('C:/job/mountainstill-input-test')
+        command=probe.input_command(root,42,'Click',33,ClientX=20,ClientY=30)
+        argument=command[command.index('-NativeAssembly')+1]
+        self.assertEqual(argument,str(root/'input.dll'))
+        self.assertNotEqual(argument,'C:/job/mountainstill-input-test/input.dll')
+        self.assertEqual(command[command.index('-TargetPid')+1],'42')
+        self.assertEqual(command[command.index('-WindowId')+1],'33')
+        self.assertEqual(command[command.index('-ClientX')+1],'20')
     def test_command_own_window(self):
         c=probe.input_command(Path('/tmp/owned'),42,'Key',33,Key='G')
-        self.assertIn('-WindowId',c);self.assertIn('33',c);self.assertIn('/tmp/owned/input.dll',c)
+        self.assertIn('-WindowId',c);self.assertIn('33',c);self.assertIn(str(Path('/tmp/owned')/'input.dll'),c)
 
 class IndependentFailurePaths(unittest.TestCase):
     def test_local_helper_success_returns_object(self):

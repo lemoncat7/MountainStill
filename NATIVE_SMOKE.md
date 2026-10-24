@@ -72,3 +72,7 @@ The twelve source entries now include `test_chapter_objective_ui.gd`; its succes
 ## v1.3.24 paused-retreat registration
 
 The thirteen source entries include `test_paused_retreat.gd`; require exactly one complete `Paused safe retreat: 376 checks, 0 failures` marker, zero exit and no error/leak stream. Wrong/duplicate counts and injected errors on either stream are rejected. This is registration, not current Windows/macOS execution evidence. Historical native package and research pins are unchanged.
+
+## v1.3.25 HUD readability registration
+
+The fourteen source entries add `test_combat_hud_readability.gd`: exactly one complete `Combat HUD readability: 221 checks, 0 failures` marker, zero exit, no errors or leaks on either output stream. Wrong counts, duplicate/conflicting markers, nonzero exit, parsing errors and either-stream injected failures are rejected. This is registration, not evidence of target Windows/macOS execution. Published historical installed-package/research pins remain unchanged.

@@ -18,6 +18,7 @@ TESTS = {
     'test_cultivation.gd': r'Cultivation tests: [1-9]\d* checks, 0 failures',
     'test_scene_art_layout.gd': r'Scene original-art layout: [1-9]\d* checks, 0 failures \(geometry/resource, not native graphics\)',
     'test_stone_recovery_contract.gd': r'Stone recovery contract: [1-9]\d* checks, 0 failures',
+    'test_combat_hud_readability.gd': r'Combat HUD readability: 221 checks, 0 failures',
     'test_paused_retreat.gd': r'Paused safe retreat: 376 checks, 0 failures',
     'test_chapter_objective_ui.gd': r'Chapter objective UI: [1-9]\d* checks, 0 failures',
     'test_chapter_practice_navigation.gd': r'Chapter practice navigation: [1-9]\d* checks, 0 failures',
@@ -34,7 +35,10 @@ EXPECTED_ERRORS = {}
 ERROR = re.compile(r'^(?:SCRIPT ERROR:|ERROR:|FAIL:)|\b(?:leaked|orphan|crashed)\b', re.I)
 
 
+ANSI = re.compile(r'\x1b\[[0-?]*[ -/]*[@-~]')
+
 def unexpected_errors(output, test):
+    output = ANSI.sub('', output)
     allowed = EXPECTED_ERRORS.get(test, ())
     return [line for line in output.splitlines()
             if ERROR.search(line.strip()) and line.strip() not in allowed]
@@ -43,6 +47,9 @@ def unexpected_errors(output, test):
 def test_passed(code, output, test):
     if code != 0 or unexpected_errors(output, test):
         return False
+    if test == 'test_combat_hud_readability.gd':
+        markers = [line for line in output.splitlines() if 'Combat HUD readability:' in line]
+        return markers == ['Combat HUD readability: 221 checks, 0 failures'] and 'Parse Error' not in output
     if test == 'test_paused_retreat.gd':
         markers = [line for line in output.splitlines() if 'Paused safe retreat:' in line]
         return markers == ['Paused safe retreat: 376 checks, 0 failures'] and 'Parse Error' not in output

@@ -684,15 +684,39 @@ func _world_y(value:float)->float:
 	return rect.position.y+value
 
 func _bottom_y()->float:return size.y-62
+# Local HUD paper only: the fibrous edge remains translucent, but the inset
+# under typography is opaque even where the rice-paper PNG has alpha holes.
+const HUD_PAPER := Color("f0e9d7")
+const HUD_SECONDARY := Color("625e52")
+func _draw_hud_paper(rect:Rect2):
+	InkPaper.paint(self,rect,.90,"leaf",1.0)
+	draw_rect(rect.grow(-2.0),HUD_PAPER)
+
+func _route_hud_label()->String:
+	if not encounter_active:return ""
+	var status=str({"travel":"循径", "fight":"交锋", "pickup":("材料入囊" if pickup_claimed_at>=0.0 else ("搜寻" if pickup_collect_started>=0.0 else "走近倒地守灵")), "opportunity":"待你回应", "teleport_return_out":"归山", "teleport_home_in":"归山"}.get(encounter_phase,"传送"))
+	return status+" · "+encounter_stage_name
+
+func _progress_hud_rect()->Rect2:
+	var right:=161.0 if paused else 120.0
+	var label:=_route_hud_label()
+	if not label.is_empty():right=maxf(right,155.0+SERIF.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,11).x+8.0)
+	return Rect2(18,size.y-43,right-18,35)
+
+func _draw_progress_hud():
+	_draw_hud_paper(_progress_hud_rect())
+	_text(_realm_name(),Vector2(25,size.y-23),12,Color("394c43"),SERIF)
+	draw_line(Vector2(25,size.y-14),Vector2(112,size.y-14),Color(.30,.36,.28,.18),1,true)
+	draw_line(Vector2(25,size.y-14),Vector2(25+87*clampf(state.stats().progress,0,1),size.y-14),content_accent,1.4,true)
+	if paused:_text("暂歇",Vector2(128,size.y-23),12,Color("8e4436"),SERIF)
+	var label:=_route_hud_label()
+	if not label.is_empty():_text(label,Vector2(155,size.y-23),11,Color("566a59"),SERIF)
+
 func _draw():
 	var w=size.x;var h=size.y
 	if not desktop.transparent_enabled:draw_rect(Rect2(0,0,w,h),PAPER)
 	_draw_scene(_landscape_rect())
-	# The landscape stays clear. A quiet ink inscription carries only essential progress.
-	_text(_realm_name(),Vector2(25,h-23),12,Color("394c43"),SERIF)
-	draw_line(Vector2(25,h-14),Vector2(112,h-14),Color(.30,.36,.28,.18),1,true)
-	draw_line(Vector2(25,h-14),Vector2(25+87*clampf(state.stats().progress,0,1),h-14),content_accent,1.4,true)
-	if paused:_text("暂歇",Vector2(128,h-23),12,Color("8e4436"),SERIF)
+	_draw_progress_hud()
 	if "--loot-demo" in OS.get_cmdline_user_args():_text("演示存档 · 固定随机种子",Vector2(w-178,h-12),10,Color(.93,.95,.85,.85))
 	if "--campaign-demo" in OS.get_cmdline_user_args():_text("预置进度演示 · 非自然挂机时长",Vector2(w-238,h-12),10,Color(.22,.32,.25,.92))
 	_draw_battle_strip()
@@ -1644,7 +1668,8 @@ func _draw_battle_strip():
 	var slots:=_battle_strip_slots(resources)
 	var width:=120.0+108.0*slots.size()
 	var rect:=Rect2(size.x-width-22.0,size.y-49.0,width,38)
-	InkPaper.paint(self,rect,.83,"leaf",1.0)
+	# Preserve the original baselines; one extra paper unit covers font ascent.
+	_draw_hud_paper(rect.grow(1.0))
 	var origin:=rect.position+Vector2(10,13)
 	var available_qi:=float(resources.get("qi",0.0))
 	var maximum:=maxf(1.0,float(resources.get("max_qi",40.0)))
@@ -1657,7 +1682,7 @@ func _draw_battle_strip():
 		var x:=origin.x+105+i*108
 		var status:=_battle_skill_status(ability,available_qi)
 		var ready:=bool(ability.get("ready",false))
-		var color:=Color("456c5d") if ready else Color("8a8577")
+		var color:=Color("456c5d") if ready else HUD_SECONDARY
 		draw_line(Vector2(x-7,rect.position.y+8),Vector2(x-7,rect.end.y-7),Color("d0cabc"),1,true)
 		_draw_battle_skill_icon(Vector2(x+4,origin.y-3),lane,color)
 		var label:=str(ability.get("name","主动技"))
@@ -2086,13 +2111,12 @@ func _draw_encounter(feet:Vector2):
 			var nameplate=Rect2(p+Vector2(-67,-beast_size*232.0/256.0-23),Vector2(134,19))
 			InkPaper.paint(self,nameplate,.88,"leaf",1.0)
 			_center(("镇关 · " if route_boss else "精怪 · ")+encounter_enemy_name,nameplate,10,Color("775039"))
-			_text("%d / 3"%(encounter_index+1),p+Vector2(-13,28),10,Color("667862"),SERIF)
+			_draw_hud_paper(Rect2(p+Vector2(-20,14),Vector2(44,20)))
+			_text("%d / 3"%(encounter_index+1),p+Vector2(-13,28),10,Color("52634d"),SERIF)
 		if combat_number_time>0:_text(combat_number,p+Vector2(1,-104-(.8-combat_number_time)*18),16,Color(.98,.98,.8,combat_number_time/.8),LATIN)
 		if encounter_phase=="pickup":_draw_search_feedback(feet,p)
 	feet+=Vector2(float(CharacterSidewalk.approach_footwork(side_motion).root),0)
 	if encounter_active:
-		var status=str({"travel":"循径", "fight":"交锋", "pickup":("材料入囊" if pickup_claimed_at>=0.0 else ("搜寻" if pickup_collect_started>=0.0 else "走近倒地守灵")), "opportunity":"待你回应", "teleport_return_out":"归山", "teleport_home_in":"归山"}.get(encounter_phase,"传送"))
-		_text(status+" · "+encounter_stage_name,Vector2(155,size.y-23),11,Color("566a59"),SERIF)
 		draw_line(feet+Vector2(-24,13),feet+Vector2(24,13),Color(.30,.41,.31,.15),2,true)
 		draw_line(feet+Vector2(-24,13),feet+Vector2(-24+48*vitality/maxf(1.0,vitality_max),13),Color(.52,.64,.47,.65),2,true)
 	if hero_hit>0 and encounter_active:

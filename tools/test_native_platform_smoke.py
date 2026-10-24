@@ -34,14 +34,14 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_twelve_tests_preserve_previous_coverage(self):
+    def test_thirteen_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
             'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
-            'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd',
+            'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd',
         })
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
@@ -54,6 +54,30 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
             self.assertIsNone(re.fullmatch(pattern, line), line)
         self.assertTrue(smoke.unexpected_errors(
             'ERROR: navigation failed', 'test_chapter_practice_navigation.gd'))
+
+
+class PausedRetreatMarkerTests(unittest.TestCase):
+    def test_exact_count_single_marker_and_errors_fail_closed(self):
+        test = 'test_paused_retreat.gd'
+        good = 'Paused safe retreat: 376 checks, 0 failures'
+        self.assertTrue(smoke.test_passed(0, good, test))
+        for bad in ('', good.replace('376', '0'), good.replace('376', '375'),
+                    good.replace('376', '377'), good.replace('0 failures', '1 failures'),
+                    good + ' EXTRA', ' ' + good, good + '\n' + good,
+                    good + '\n' + good.replace('376', '375'),
+                    good + '\nSCRIPT ERROR: paused retreat', good + '\nERROR: retreat',
+                    good + '\nParse Error: retreat', good + '\nFAIL: retreat',
+                    good + '\nWARNING: ObjectDB instances leaked'):
+            self.assertFalse(smoke.test_passed(0, bad, test), bad)
+        self.assertFalse(smoke.test_passed(1, good, test))
+
+    def test_zero_exit_error_on_either_real_process_stream_rejected(self):
+        for stream in ['stdout', 'stderr']:
+            command = 'import sys; print("Paused safe retreat: 376 checks, 0 failures");sys.' + stream + '.write("SCRIPT ERROR: retreat\\n")'
+            with contextlib.redirect_stdout(io.StringIO()):
+                code, output = smoke.run([sys.executable, '-c', command], 10)
+            self.assertEqual(code, 0)
+            self.assertFalse(smoke.test_passed(code, output, 'test_paused_retreat.gd'))
 
 
 class ChapterObjectiveMarkerTests(unittest.TestCase):

@@ -82,8 +82,11 @@ static func _chapter_objective(h,chosen:Dictionary,status:Dictionary) -> String:
 		return "后续目标 · "+str(chapter_status(h).get("next_objective","这段山路已写入归途，可随心重游。"))
 	return "本章目标 · 走过两场交锋，击退守关者。"
 
-static func _depart(h):
+static func _depart(h,expected_run_id:int=-1):
 	# Read fresh state at click time: stale controls never overwrite a checkpoint.
+	if h.practice_session!=null or h.closing or h.get_meta("update_transaction",false):return
+	if not h.is_inside_tree() or h.get_tree().paused:return
+	if expected_run_id>=0 and (not h.encounter_active or h.encounter_run_id!=expected_run_id):return
 	if h.encounter_active:
 		h._retreat_encounter();h._refresh_drawer();return
 	if h.paused:return
@@ -177,14 +180,15 @@ static func build_expedition(h,x:float,y:float):
 	var label:String="整装出发"
 	var hint:String="只出发这一章；两场交锋与守关者，途中机缘不限时。通关后回山，不自动连关。"
 	if h.encounter_active:
-		label="归山暂歇";hint="归山调息，已过路段与收获都保留。下一次亲点继续，从尚未击退的敌人开始，恢复气血。"
+		label="归山暂歇";hint="归山调息，已过路段与收获都保留。暂停时也可归山，不会恢复修行或交锋。下一次亲点继续，从尚未击退的敌人开始，恢复气血。"
 	elif bool(status.get("paused",false)):
 		label="继续此程" if str(chosen.get("id",""))==str(status.get("id","")) else "回到未完之程"
 		hint="已通过 %d / %d 敌，回到「%s」继续；已获奖励不会重复发放。"%[int(status.get("kills",0)),int(status.get("total",3)),str(status.get("name","山路"))]
 	elif not bool(chosen.get("unlocked",false)):
 		label="尚待机缘";hint=_chapter_gate(h,chosen)
-	var depart:Button=button(h,"depart_stage",label,Rect2(x,y+237,202,30),func():_depart(h),hint,true)
-	depart.disabled=h.paused or (not h.encounter_active and not bool(status.get("paused",false)) and not bool(chosen.get("unlocked",false)))
+	var retreat_run_id:int=h.encounter_run_id if h.encounter_active else -1
+	var depart:Button=button(h,"depart_stage",label,Rect2(x,y+237,202,30),func():_depart(h,retreat_run_id),hint,true)
+	depart.disabled=not h._can_retreat_encounter() if h.encounter_active else (h.paused or (not bool(status.get("paused",false)) and not bool(chosen.get("unlocked",false))))
 	button(h,"expedition_gear","整理衣冠 ↗",Rect2(x+225,y+240,119,27),func():h.wardrobe_tab="equipment";h._refresh_drawer(),"穿上已拥有的装备，或用草露淬炼旧物")
 	button(h,"expedition_meridian","疏通经脉 ↗",Rect2(x+354,y+240,119,27),func():h.wardrobe_tab="meridian";h._refresh_drawer(),"有限的永久成长；经脉不阻挡境界突破")
 	button(h,"expedition_chest","木箱 · %d"%h.state.chest_count,Rect2(x+483,y+240,121,27),h._open_treasure,"启封现有木箱；不会自动穿戴",true).disabled=h.state.chest_count<=0

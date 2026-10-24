@@ -68,3 +68,7 @@ The freed-provider lifecycle test requires the exact ordered 17 cases and JSON s
 ## v1.3.23 chapter objective registration
 
 The twelve source entries now include `test_chapter_objective_ui.gd`; its success marker requires positive checks and zero failures, with error streams still gated. Registration is not evidence that a native job has run for this version. Historical installed-package and research pins are unchanged.
+
+## v1.3.24 paused-retreat registration
+
+The thirteen source entries include `test_paused_retreat.gd`; require exactly one complete `Paused safe retreat: 376 checks, 0 failures` marker, zero exit and no error/leak stream. Wrong/duplicate counts and injected errors on either stream are rejected. This is registration, not current Windows/macOS execution evidence. Historical native package and research pins are unchanged.

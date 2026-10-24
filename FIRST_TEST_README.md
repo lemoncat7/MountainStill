@@ -1,3 +1,20 @@
+# v1.3.24-test.1 暂停安全归山测试版
+
+正式历练按空格暂停后，可直接点击「归山暂歇」：只推进回程传送，回家后仍全局暂停，不先恢复战斗。重复点击不会重开传送或重复写报；试招、更新事务、关闭、树冻结、陈旧run等仍拒绝。
+
+本轮普通 **115入口：114通过，保留encounter_balance原4474检查中的2条节奏失败**（同一剑式summit案例6.8161秒（显示6.82）低于7.0下界，未改阈值）。15个Python driver共181单测、2个真实多进程入口通过；特殊敏感度及实际产物Guard单列。
+
+Windows实际EXE嵌入载荷、macOS实际完整PCK由Linux Godot4.6.3从空project加载：两者暂停归山376、章节目标1844、provider62、exact217及资源/容量/装备等通过。oldv10/v23双平台普通/满箧两启共16boots，新fullv24+合法activev23共4boots，真实载荷本地HTTP6阶段通过。**不是Windows/macOS本机GUI、签名、公证或公网更新链验收。**
+
+独立Linux自然档副本GUI已覆盖960×540遗物待搜、1200×400真实fight、125%字号、空格暂停→直接归山→正常退出→重开，共4exit0。资源/RNG/进度保持暂停；fight仅新增一条retreat，原12主备档及70runtime不变。保留环境音频ERR_CANT_OPEN→Dummy警告，不称全日志clean，也不是六章自然全通。
+
+保持schema4、Bootstrap ABI1及原更新选择：新fullv24若已有合法activev23，仍运行旧gameplay和旧暂停归山交互；实际内容更新后才得到修复。State/战斗公式/奖励/美术未改。既有33.3ms CPU门槛未关闭，无Windows代码签名、无Apple Developer ID/公证，仍为测试版，不称正式版或性能改善。不要关闭系统防护。
+
+目标包：`MountainStill-v1.3.24-test.1-Windows-x86_64.zip`、`MountainStill-v1.3.24-test.1-macOS-Universal.zip`。详见 `docs/PAUSED-SAFE-RETREAT-v1.3.24.md`。本报告记录本地构建；发布/公共下载/原生CI后验另行证明。
+
+---
+## 以下为历史轮次记录，不是 v24 验收结果
+
 # v1.3.23-test.1 动态章节目标测试版
 
 已通章重读现在显示真实后续目标；在途/暂停、遗物、机缘和首通待领仍优先。达到炼气中期后重读青竹关，不再重复要求同一突破。显示复用 State 真实门槛，不自动跳章、启程、领奖或改存档/战斗规则。

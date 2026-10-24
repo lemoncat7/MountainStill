@@ -182,6 +182,9 @@ var pickup_status:Dictionary={}
 var pickup_block_reason=""
 var encounter_counter_hit=false
 var encounter_reward:Dictionary={}
+# A player-requested paused return may animate only the two homebound portals.
+# This is presentation-only authority, never saved or shared with practice.
+var paused_retreat_run_id:int=-1
 var encounter_complete=false
 var encounter_first_clear=false
 var encounter_chapter_reward:Dictionary={}
@@ -1206,6 +1209,7 @@ func _encounter_target_x()->float:
 
 func _start_encounter():
 	if encounter_active or paused:return
+	paused_retreat_run_id=-1
 	var result:Dictionary=state.start_stage()
 	if not bool(result.get("ok",false)):
 		var reason:=str(result.get("reason",""))
@@ -1331,21 +1335,52 @@ func _advance_field_battle_resources(delta:float):
 	battle_resources=DuelTimeline.rest_resource_snapshot(battle_resources,delta,float(effective.get("combat_qi_max",40.0)),float(effective.get("combat_qi_regen",2.0)))
 	_persist_battle_resources()
 
+func _can_retreat_encounter()->bool:
+	# Space pauses simulation, unlike a recovery/update transaction or a trial.
+	# Recheck at the action boundary; a stale paper control is not authority.
+	if practice_session!=null or closing or get_meta("update_transaction",false):return false
+	if not is_inside_tree() or get_tree().paused or not encounter_active:return false
+	if encounter_run_id<=0 or encounter_phase not in ["prepare_portal","teleport_out","teleport_arrive","travel","fight","pickup","opportunity","teleport_return_out","teleport_home_in"]:return false
+	var returning:bool=encounter_phase in ["teleport_return_out","teleport_home_in"]
+	if not state.stage_run.is_empty():
+		if int(state.stage_run.get("run_id",0))!=encounter_run_id:return false
+		var status:Dictionary=state.stage_status()
+		return bool(status.get("active",false)) or (returning and bool(status.get("paused",false)))
+	# The final real search atomically clears stage_run before its receipt and
+	# homeward presentation finish. It is not a stale or abandoned encounter.
+	return bool(encounter_reward.get("stage_finished",false)) and int(encounter_reward.get("run_id",0))==encounter_run_id and pickup_claimed_at>=0.0 and (encounter_phase=="pickup" or (returning and encounter_complete))
+
 func _retreat_encounter(defeated:bool=false):
+	if not _can_retreat_encounter():return
+	if paused:paused_retreat_run_id=encounter_run_id
+	# A second click may authorize a paused existing return, never restart it,
+	# duplicate its report, or discard its completed-chapter presentation.
+	if encounter_phase in ["teleport_return_out","teleport_home_in"]:return
+	var finished:bool=state.stage_run.is_empty() and bool(encounter_reward.get("stage_finished",false))
 	if encounter_phase == "fight": _record_combat_report("defeat" if defeated else "retreat")
 	_persist_battle_resources()
 	duel.cancel();duel_pose={};route_scroll_velocity=0.0;combat_impacts.clear()
 	# Going home keeps the next unclaimed enemy. Resuming still needs an explicit click.
-	if defeated and state.has_method("fail_stage"):state.fail_stage(encounter_run_id)
-	elif state.has_method("pause_stage"):state.pause_stage(encounter_run_id)
-	elif state.has_method("fail_stage"):state.fail_stage(encounter_run_id)
-	else:state.cancel_stage()
+	if not finished:
+		if defeated and state.has_method("fail_stage"):state.fail_stage(encounter_run_id)
+		elif state.has_method("pause_stage"):state.pause_stage(encounter_run_id)
+		elif state.has_method("fail_stage"):state.fail_stage(encounter_run_id)
+		else:state.cancel_stage()
 	state.expedition_auto=false
-	if encounter_active:encounter_phase="teleport_return_out" if not world_route.is_empty() else "teleport_home_in";encounter_phase_age=0.0
-	encounter_complete=false;_save_loadout();_notice("收步归山 · 收获保留，下次从此处继续")
+	encounter_phase="teleport_return_out" if not world_route.is_empty() else "teleport_home_in";encounter_phase_age=0.0
+	encounter_complete=finished
+	if not finished:_notice("调息归山 · 行装修为无损，已击退守灵不会重打。" if defeated else "收步归山 · 收获保留，下次从此处继续")
+	# Keep a failed write visible; it must not be covered by a success notice.
+	_save_loadout()
 
 func _update_encounter(delta:float):
-	if paused:return
+	if paused:
+		# Only an explicit request for this formal run may cross the pause and
+		# seated-pose gates. No fight, field resources or outward portal ticks.
+		if paused_retreat_run_id==encounter_run_id and encounter_phase in ["teleport_return_out","teleport_home_in"] and _can_retreat_encounter():
+			encounter_phase_age+=delta
+			_update_portal(delta)
+		return
 	# Only the two combatants and contact effects stop. The window, book,
 	# landscape wind, interface and cultivation clock continue normally.
 	combat_frame_delta=delta
@@ -1417,7 +1452,7 @@ func _update_encounter(delta:float):
 			_present_duel_contact(event)
 		elif str(event.type)=="finished":
 			if bool(event.victory):_complete_duel()
-			else:_retreat_encounter(true);_notice("调息归山 · 行装修为无损，已击退守灵不会重打。")
+			else:_retreat_encounter(true)
 	duel_pose=duel.pose() if encounter_phase=="fight" else {}
 	if encounter_phase=="fight":_persist_battle_resources()
 
@@ -2123,6 +2158,7 @@ func _capture_now():
 	get_viewport().get_texture().get_image().save_png(ProjectSettings.globalize_path("res://builds/MountainStill-equipment-preview.png"))
 
 func _reset_presentation():
+	paused_retreat_run_id=-1
 	CapacityPages.clear(self);set_meta("capacity_corpse_hold",{})
 	set_meta("ink_journal_tab","guide");set_meta("ink_stage_id","bamboo_pass");set_meta("ink_stage_page",0);set_meta("ink_guide_step",1);set_meta("expedition_view","route")
 	battle_resources={};hero_support_text="";hero_support_time=0.0
@@ -2145,6 +2181,7 @@ func _set_paused(value:bool):
 	if practice_session != null: return
 	_persist_battle_resources()
 	paused=value
+	if not value:paused_retreat_run_id=-1
 	state.settings.paused=value
 	_save_loadout()
 
@@ -2246,7 +2283,7 @@ func _update_portal(_delta:float):
 		portal_viewport.render_target_update_mode=SubViewport.UPDATE_DISABLED;portal_dissolve=0.0
 		if encounter_phase=="teleport_arrive":_prepare_stage_monster()
 		else:
-			encounter_active=false;encounter_phase="idle"
+			encounter_active=false;encounter_phase="idle";paused_retreat_run_id=-1
 			if encounter_complete:
 				var ending:Dictionary=state.chapter_status()
 				if bool(ending.get("story_resolved",false)):_notice("六印归一 · 山路已解结，札记中可读归山尾声。","level")

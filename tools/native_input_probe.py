@@ -25,6 +25,14 @@ CLOSE_AT = 43
 ROOT = Path(__file__).parent
 
 
+def pinned_boot_observed(output):
+    expected = 'UPDATE BOOT: ' + gui.TAG.removeprefix('v')
+    markers = [line.strip() for line in output.splitlines()
+               if line.strip().startswith('UPDATE BOOT:')]
+    return bool(markers) and all(line == expected or line.startswith(expected + ' / ')
+                                 for line in markers)
+
+
 def native_json(command, timeout):
     """Bounded helper IO/time, including at most2s failed-helper cleanup.
 
@@ -205,7 +213,7 @@ def session(binary,root,inputroot,label,processes,interactive=False,guide_only=F
     filtered,audio_unavailable=filter_audio_environment(output)
     errors=unexpected_errors(filtered,'native-input')
     if errors:failure='APPLICATION_ERRORS: '+repr(errors)
-    if 'UPDATE BOOT: 1.3.26-test.1' not in output:failure=failure or 'PINNED_BOOT_NOT_OBSERVED'
+    if not pinned_boot_observed(output):failure=failure or 'PINNED_BOOT_NOT_OBSERVED'
     if process is None or process.returncode!=0:failure=failure or 'NONZERO_OR_MISSING_EXIT'
     if forced:failure=failure or 'OWNED_PROCESS_HARD_TIMEOUT'
     if close.get('status')!='CLOSE_REQUEST_SENT':failure=failure or 'NORMAL_CLOSE_UNCONFIRMED'

@@ -11,6 +11,14 @@ sys.path.insert(0,str(TOOLS))
 import native_input_probe as probe
 
 class InputContract(unittest.TestCase):
+    def test_exact_formal_boot_not_prerelease_or_prefix(self):
+        self.assertTrue(probe.pinned_boot_observed('UPDATE BOOT: 1.3.26\n'))
+        self.assertTrue(probe.pinned_boot_observed('UPDATE BOOT: 1.3.26 / installed\n'))
+        for text in ('', 'UPDATE BOOT: 1.3.26-test.1\n', 'UPDATE BOOT: 1.3.260\n',
+                     'UPDATE BOOT: 1.3.26junk\n',
+                     'UPDATE BOOT: 1.3.26\nUPDATE BOOT: 1.3.26-test.1\n'):
+            self.assertFalse(probe.pinned_boot_observed(text))
+
     def setUp(self):
         self.before={'version':4,'settings':{'paused':True},'arrival_seen':False,'activity':'meditate','saved_at':1,'qi':10,'lifetime_seconds':30,'gear':{},'adventure':{'stage_clears':{}}}
         self.after=copy.deepcopy(self.before);self.after.update(arrival_seen=True,activity='gather',saved_at=3)
@@ -222,7 +230,7 @@ class IndependentFailurePaths(unittest.TestCase):
                 stack.enter_context(patch.object(probe,'native_json',side_effect=native))
                 stack.enter_context(patch.object(probe.gui,'geometry_command',return_value=['geometry']))
                 stack.enter_context(patch.object(probe.gui,'close_command',return_value=['close']))
-                stack.enter_context(patch.object(probe.gui,'log_text',return_value='UPDATE BOOT: 1.3.26-test.1\nLoading resource: res://assets/cultivation/beasts/opportunity_cairn.png'))
+                stack.enter_context(patch.object(probe.gui,'log_text',return_value='UPDATE BOOT: 1.3.26\nLoading resource: res://assets/cultivation/beasts/opportunity_cairn.png'))
                 stack.enter_context(patch.object(probe,'emit'))
                 stack.enter_context(patch.object(probe.gui,'bounded_log'))
                 stack.enter_context(patch.object(probe,'read_save'))

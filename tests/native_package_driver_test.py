@@ -13,6 +13,16 @@ import native_package_smoke as smoke
 
 
 class DriverSafety(unittest.TestCase):
+    def test_exact_formal_pins(self):
+        self.assertEqual(smoke.TAG, 'v1.3.26')
+        self.assertEqual(smoke.VERSION, '1.3.26')
+        self.assertEqual(smoke.PACKAGES['win32'], ('MountainStill-v1.3.26-Windows-x86_64.zip',
+            '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873',
+            'MountainStill/MountainStill.exe', 114552389))
+        self.assertEqual(smoke.PACKAGES['darwin'], ('MountainStill-v1.3.26-macOS-Universal.zip',
+            '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d',
+            smoke.APP+'.app/Contents/MacOS/'+smoke.APP, 141283216))
+
     def archive(self, name, mode=0):
         stream = io.BytesIO()
         with zipfile.ZipFile(stream, 'w') as bundle:
@@ -88,6 +98,10 @@ class DriverSafety(unittest.TestCase):
     def test_boot_requires_resource_loader_and_version(self):
         valid = 'UPDATE BOOT: ' + smoke.VERSION + '\n' + ''.join('Loading resource: ' + asset + '\n' for asset in smoke.ASSETS)
         smoke.check_boot(valid)
+        for suffix in ('-test.1', '0', 'junk'):
+            with self.assertRaises(AssertionError):
+                smoke.check_boot(valid.replace('UPDATE BOOT: '+smoke.VERSION,
+                                              'UPDATE BOOT: '+smoke.VERSION+suffix))
         for text in ('', '\n'.join(smoke.ASSETS), valid.replace('Loading resource:', 'archive listing:'), valid + 'ERROR: failed\n', valid.replace(smoke.VERSION, '1.3.14-test.1')):
             with self.subTest(text=text), self.assertRaises(AssertionError):
                 smoke.check_boot(text)

@@ -30,34 +30,35 @@ def manifest():
 class CompatibilityContracts(unittest.TestCase):
     def test_exact_old_and_new_pins_both_platforms(self):
         expected = {
-            'win32': ('windows', 114533871, '5de31cfed0bc1ed9038d605e8a03ff0cd8a0c8e2265aeb7f7857c9be99dd0cda',
-                      114548564, '30940b6ee4f4541bdc7610d84bbfd051e212477f0099fc3c4ac12a1107012d7f'),
-            'darwin': ('macos', 141264802, 'ac0f3603f0ad8d80fc262c66442b475aeb266dee3c59f8ed414b968022e99a28',
-                       141279331, '06a6fd42ff7e3fa809c657ac4bb90457226d5162f15d69ae217417635f8a2f78'),
+            'win32': ('windows', 114548564, '30940b6ee4f4541bdc7610d84bbfd051e212477f0099fc3c4ac12a1107012d7f',
+                      114552389, '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873'),
+            'darwin': ('macos', 141279331, '06a6fd42ff7e3fa809c657ac4bb90457226d5162f15d69ae217417635f8a2f78',
+                       141283216, '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d'),
         }
         try:
             for platform_name, (package_platform, old_size, old_sha, new_size, new_sha) in expected.items():
                 with patch.object(sys, 'platform', platform_name):
                     importlib.reload(compat)
-                    self.assertEqual(compat.OLD_TAG, 'v1.3.25-test.1')
-                    self.assertEqual(compat.NEW_TAG, 'v1.3.26-test.1')
+                    self.assertEqual(compat.OLD_TAG, 'v1.3.26-test.1')
+                    self.assertEqual(compat.NEW_TAG, 'v1.3.26')
                     self.assertEqual(compat.PINS['old_zip'][2:], (old_size, old_sha))
                     self.assertEqual(compat.PINS['new_zip'][2:], (new_size, new_sha))
-                    self.assertIn('v1.3.25-test.1', compat.PINS['old_zip'][1])
-                    self.assertIn('v1.3.26-test.1', compat.PINS['new_zip'][1])
-                    self.assertEqual(compat.PINS['pck'], ('v1.3.26-test.1', 'MountainStill-'+package_platform+'.pck',
-                        78491732, '777774ad17ba866a670aa4e7946fcdc285969fd9c7d2eb246c4662f0cc9712fd'))
-                    self.assertEqual(compat.PINS['manifest'][2:], (579,
-                        '860ef463e762a12acfa81ab5c21cf91409d17c35eb49596f8a3a7a40002ba0ba'))
+                    suffix = 'Windows-x86_64.zip' if package_platform == 'windows' else 'macOS-Universal.zip'
+                    self.assertEqual(compat.PINS['old_zip'][1], 'MountainStill-v1.3.26-test.1-'+suffix)
+                    self.assertEqual(compat.PINS['new_zip'][1], 'MountainStill-v1.3.26-'+suffix)
+                    self.assertEqual(compat.PINS['pck'], ('v1.3.26', 'MountainStill-'+package_platform+'.pck',
+                        78491732, '63d9e8c81011a85f9edc7f0b0bff249b88cffdc8ff25d23548e0f1d63248bc9e'))
+                    self.assertEqual(compat.PINS['manifest'][2:], (572,
+                        'e725dc2b61ed42beebed9394ea9a94a7e6c8ac56450b99357d2f7d5b63e08f1d'))
         finally:
             importlib.reload(compat)
 
     def test_hard_pins_and_manifest_fields(self):
-        self.assertEqual(compat.PINS['old_zip'][2],114533871 if compat.PLATFORM=='windows' else 141264802)
-        self.assertEqual(compat.PINS['pck'][3],'777774ad17ba866a670aa4e7946fcdc285969fd9c7d2eb246c4662f0cc9712fd')
+        self.assertEqual(compat.PINS['old_zip'][2],114548564 if compat.PLATFORM=='windows' else 141279331)
+        self.assertEqual(compat.PINS['pck'][3],'63d9e8c81011a85f9edc7f0b0bff249b88cffdc8ff25d23548e0f1d63248bc9e')
         value=manifest();record=compat.installed_record(value)
         self.assertEqual(record['path'],'user://updates/'+record['sha256']+'.pck')
-        for key,bad in [('version','1.3.25-test.1'),('engine','4.5'),('save_schema',3),('bootstrap',2),('schema',True)]:
+        for key,bad in [('version','1.3.26-test.1'),('engine','4.5'),('save_schema',3),('bootstrap',2),('schema',True)]:
             invalid=copy.deepcopy(value);invalid[key]=bad
             with self.assertRaises(RuntimeError):compat.installed_record(invalid)
         for key,bad in [('sha256','0'*64),('size',1),('asset','other.pck'),('restart_required',False),('restart_required',1)]:

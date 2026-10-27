@@ -12,14 +12,14 @@ class Contracts(unittest.TestCase):
     def test_default_renderer_args(self):
         self.assertEqual(probe.ARGS, ['--verbose','--max-fps','60'])
     def test_pin(self):
-        self.assertEqual(probe.TAG, 'v1.3.26-test.1')
+        self.assertEqual(probe.TAG, 'v1.3.26')
         self.assertEqual(len(probe.PACKAGES),2)
-        self.assertEqual(probe.PACKAGES['win32'][0], 'MountainStill-v1.3.26-test.1-Windows-x86_64.zip')
-        self.assertEqual(probe.PACKAGES['win32'][1], '30940b6ee4f4541bdc7610d84bbfd051e212477f0099fc3c4ac12a1107012d7f')
-        self.assertEqual(probe.PACKAGES['win32'][3], 114548564)
-        self.assertEqual(probe.PACKAGES['darwin'][0], 'MountainStill-v1.3.26-test.1-macOS-Universal.zip')
-        self.assertEqual(probe.PACKAGES['darwin'][1], '06a6fd42ff7e3fa809c657ac4bb90457226d5162f15d69ae217417635f8a2f78')
-        self.assertEqual(probe.PACKAGES['darwin'][3], 141279331)
+        self.assertEqual(probe.PACKAGES['win32'][0], 'MountainStill-v1.3.26-Windows-x86_64.zip')
+        self.assertEqual(probe.PACKAGES['win32'][1], '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873')
+        self.assertEqual(probe.PACKAGES['win32'][3], 114552389)
+        self.assertEqual(probe.PACKAGES['darwin'][0], 'MountainStill-v1.3.26-macOS-Universal.zip')
+        self.assertEqual(probe.PACKAGES['darwin'][1], '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d')
+        self.assertEqual(probe.PACKAGES['darwin'][3], 141283216)
     def test_png_frame(self):
         import base64
         with tempfile.TemporaryDirectory() as tmp:

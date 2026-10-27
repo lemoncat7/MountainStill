@@ -11,15 +11,17 @@ var _outcome := ""
 var _seed := DEFAULT_SEED
 var _enemy_name := ""
 var _report: Dictionary = {}
+var _loadout: Dictionary = {}
 # Practice-only observers. These never alter engine events, state or RNG.
 var _slowed_enemy_actions: Dictionary = {}
 var _interrupted_enemy_contacts: Dictionary = {}
 
-func start(hero: Dictionary, enemy: Dictionary, technique: String = "mist", style: String = "unarmed", run_seed: int = DEFAULT_SEED) -> Dictionary:
+func start(hero: Dictionary, enemy: Dictionary, technique: String = "mist", style: String = "unarmed", run_seed: int = DEFAULT_SEED, loadout: Dictionary = {}) -> Dictionary:
 	# Drop the old simulation wholesale, including its RNG, report and callbacks.
 	duel = Duel.new()
 	_started = false; _paused = false; _outcome = ""; _report = {}
 	_slowed_enemy_actions.clear(); _interrupted_enemy_contacts.clear()
+	_loadout = {}
 	if hero.is_empty() or enemy.is_empty():
 		return {"ok": false, "reason": "invalid_snapshot"}
 	var snapshot := hero.duplicate(true)
@@ -34,6 +36,7 @@ func start(hero: Dictionary, enemy: Dictionary, technique: String = "mist", styl
 	snapshot.erase("battle_resources")
 	_seed = run_seed
 	_enemy_name = str(foe.get("name", "守灵")).left(80)
+	_loadout = loadout.duplicate(true)
 	duel.start(snapshot, foe, technique, style, _seed)
 	_started = true
 	if duel.finished: _finish("invalid")
@@ -84,6 +87,7 @@ func _finish(outcome: String) -> void:
 func _snapshot_report() -> Dictionary:
 	var result: Dictionary = duel.combat_report()
 	result.merge({"outcome": _outcome, "practice": true, "seed": _seed,
+		"practice_loadout": _loadout.duplicate(true),
 		"control_metrics_version": 1, "slowed_enemy_starts": _slowed_enemy_actions.size(),
 		"enemy_action_interrupts": _interrupted_enemy_contacts.size(),
 		"enemy_name": _enemy_name, "stage_name": "镜中试招", "rewarded": false,

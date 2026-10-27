@@ -26,7 +26,7 @@ func _init() -> void:
 	assert(packer.flush() == OK)
 	var hash = FileAccess.get_sha256(payload);var target = store.directory.path_join(hash + ".pck")
 	assert(DirAccess.rename_absolute(payload, target) == OK)
-	var record = {"schema":1,"version":"1.3.25-test.2","engine":"4.6.3","platform":store.platform,"kind":"pck","asset":"MountainStill-fixture.pck","size":FileAccess.get_file_as_bytes(target).size(),"sha256":hash,"restart_required":true,"save_schema":4,"bootstrap":1,"path":target}
+	var record = {"schema":1,"version":"1.3.26-test.2","engine":"4.6.3","platform":store.platform,"kind":"pck","asset":"MountainStill-fixture.pck","size":FileAccess.get_file_as_bytes(target).size(),"sha256":hash,"restart_required":true,"save_schema":4,"bootstrap":1,"path":target}
 	assert(store._write("pending.json", record))
 	assert(store.activate_pending())
 	print("FIXTURE STAGED " + ("broken" if broken else "healthy"));quit()

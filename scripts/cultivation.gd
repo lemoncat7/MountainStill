@@ -2182,6 +2182,8 @@ func _capture_now():
 	get_viewport().get_texture().get_image().save_png(ProjectSettings.globalize_path("res://builds/MountainStill-equipment-preview.png"))
 
 func _reset_presentation():
+	practice_previous_reports.clear();practice_comparison.clear()
+	set_meta("practice_show_loadout",false);set_meta("practice_loadout_page",0)
 	paused_retreat_run_id=-1
 	CapacityPages.clear(self);set_meta("capacity_corpse_hold",{})
 	set_meta("ink_journal_tab","guide");set_meta("ink_stage_id","bamboo_pass");set_meta("ink_stage_page",0);set_meta("ink_guide_step",1);set_meta("expedition_view","route")

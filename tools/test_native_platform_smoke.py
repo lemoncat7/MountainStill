@@ -34,14 +34,14 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_fourteen_tests_preserve_previous_coverage(self):
+    def test_sixteen_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
             'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
-            'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd', 'test_combat_hud_readability.gd',
+            'test_practice_loadout.gd', 'test_practice_loadout_ui.gd', 'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd', 'test_combat_hud_readability.gd',
         })
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
@@ -105,6 +105,25 @@ class PausedRetreatMarkerTests(unittest.TestCase):
                 code, output = smoke.run([sys.executable, '-c', command], 10)
             self.assertEqual(code, 0)
             self.assertFalse(smoke.test_passed(code, output, 'test_paused_retreat.gd'))
+
+
+class PracticeLoadoutMarkerTests(unittest.TestCase):
+    def test_exact_single_marker_and_clean_exit_required(self):
+        for test, good in [('test_practice_loadout.gd', 'Practice loadout: 69 checks, 0 failures'), ('test_practice_loadout_ui.gd', 'Practice loadout UI: 3626 checks, 0 failures')]:
+            self.assertTrue(smoke.test_passed(0, good, test))
+            for bad in ['', good.replace('69 checks', '0 checks').replace('3626 checks', '0 checks'), good.replace('69 checks', '68 checks').replace('3626 checks', '3625 checks'), good.replace('69 checks', '70 checks').replace('3626 checks', '3627 checks'), good.replace('checks', 'check'), good.replace('0 failures', '1 failures'), good + ' EXTRA', good + '\n' + good, 'prefix ' + good, good + '\nParse Error: failed', good + '\nERROR: failed', good + '\nSCRIPT ERROR: failed', good + '\nObjectDB instances leaked']:
+                self.assertFalse(smoke.test_passed(0, bad, test), bad)
+            self.assertFalse(smoke.test_passed(1, good, test))
+            self.assertFalse(smoke.test_passed(124, good, test))
+
+    def test_both_process_streams_reject_errors(self):
+        for test in ['test_practice_loadout.gd', 'test_practice_loadout_ui.gd']:
+            for stream in ['stdout', 'stderr']:
+                command = 'import sys; print(' + repr(smoke.TESTS[test]) + '); sys.' + stream + '.write("SCRIPT ERROR: loadout\\n")'
+                with contextlib.redirect_stdout(io.StringIO()):
+                    code, output = smoke.run([sys.executable, '-c', command], 10)
+                self.assertEqual(code, 0)
+                self.assertFalse(smoke.test_passed(code, output, test))
 
 
 class ChapterObjectiveMarkerTests(unittest.TestCase):

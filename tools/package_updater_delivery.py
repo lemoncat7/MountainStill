@@ -6,7 +6,7 @@ from release_file_policy import exclusion_reason
 ROOT = Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('output', type=Path)
-p.add_argument('--version', default='1.3.25-test.1')
+p.add_argument('--version', default='1.3.26-test.1')
 a = p.parse_args()
 out = a.output.resolve(); out.mkdir(parents=True, exist_ok=True)
 build = ROOT / 'builds/updater-release'

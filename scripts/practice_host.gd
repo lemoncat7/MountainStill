@@ -1,6 +1,7 @@
 extends RefCounted
 ## Presentation adapter. Formal state is read only; never invokes adventure APIs.
 const Session = preload("res://scripts/practice_session.gd")
+const Loadout = preload("res://scripts/practice_loadout.gd")
 const Content = preload("res://scripts/cultivation_content.gd")
 const FIELDS := ["duel", "paused", "encounter_active", "encounter_phase", "encounter_phase_age", "encounter_clock", "world_route", "route_distance", "route_scroll_velocity", "route_frame_velocity", "route_boss", "encounter_index", "encounter_enemy_x", "encounter_enemy_name", "encounter_stage_name", "encounter_enemy_attack", "encounter_enemy_defense", "enemy_hp", "enemy_max_hp", "enemy_flash", "enemy_defeat", "vitality", "vitality_max", "duel_pose", "side_motion", "walk_motion", "character_x", "character_y", "meditation_amount", "meditation_settle", "meditation_phase", "practice_time", "cast_blend", "combat_impacts", "combat_hitstop", "hero_hit", "combat_number_time", "combat_number", "duel_resolution", "hero_resolution", "hero_damage", "hero_support_text", "hero_support_time", "route_enemy_definition"]
 
@@ -44,7 +45,11 @@ static func start(h, enemy_id: String) -> bool:
 	var key: String = str(enemy.stage_id) + ("_boss" if bool(enemy.get("boss", false)) else "") + "_attack"
 	enemy.enemy_front_extent = maxf(24.0, -h.BeastPresentation.visible_bounds(key, 174.0 if bool(enemy.get("boss", false)) else 112.0).position.x)
 	var session = Session.new()
-	if not bool(session.start(hero, enemy, str(h.state.technique), h._attack_style(), 17).get("ok", false)): return false
+	var style: String = h._attack_style()
+	var loadout: Dictionary = Loadout.capture(h.state, hero, enemy, str(h.state.technique), style, 17)
+	if not bool(session.start(hero, enemy, str(h.state.technique), style, 17, loadout).get("ok", false)): return false
+	h.set_meta("practice_show_loadout", false)
+	h.set_meta("practice_loadout_page", 0)
 	h._close_drawer()
 	h.practice_snapshot.clear()
 	for field in FIELDS:

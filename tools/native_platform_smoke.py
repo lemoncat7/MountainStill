@@ -15,6 +15,8 @@ import uuid
 from qa_verify_provider_lifecycle import validate as validate_provider_lifecycle
 
 TESTS = {
+    'test_practice_loadout.gd': r'Practice loadout: 69 checks, 0 failures',
+    'test_practice_loadout_ui.gd': r'Practice loadout UI: 3626 checks, 0 failures',
     'test_cultivation.gd': r'Cultivation tests: [1-9]\d* checks, 0 failures',
     'test_scene_art_layout.gd': r'Scene original-art layout: [1-9]\d* checks, 0 failures \(geometry/resource, not native graphics\)',
     'test_stone_recovery_contract.gd': r'Stone recovery contract: [1-9]\d* checks, 0 failures',
@@ -47,6 +49,10 @@ def unexpected_errors(output, test):
 def test_passed(code, output, test):
     if code != 0 or unexpected_errors(output, test):
         return False
+    if test in ('test_practice_loadout.gd', 'test_practice_loadout_ui.gd'):
+        prefix = 'Practice loadout UI:' if test.endswith('_ui.gd') else 'Practice loadout:'
+        markers = [line for line in output.splitlines() if prefix in line]
+        return markers == [TESTS[test]] and 'Parse Error' not in output
     if test == 'test_combat_hud_readability.gd':
         markers = [line for line in output.splitlines() if 'Combat HUD readability:' in line]
         return markers == ['Combat HUD readability: 221 checks, 0 failures'] and 'Parse Error' not in output

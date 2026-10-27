@@ -222,7 +222,7 @@ class IndependentFailurePaths(unittest.TestCase):
                 stack.enter_context(patch.object(probe,'native_json',side_effect=native))
                 stack.enter_context(patch.object(probe.gui,'geometry_command',return_value=['geometry']))
                 stack.enter_context(patch.object(probe.gui,'close_command',return_value=['close']))
-                stack.enter_context(patch.object(probe.gui,'log_text',return_value='UPDATE BOOT: 1.3.20-test.1\nLoading resource: res://assets/cultivation/beasts/opportunity_cairn.png'))
+                stack.enter_context(patch.object(probe.gui,'log_text',return_value='UPDATE BOOT: 1.3.26-test.1\nLoading resource: res://assets/cultivation/beasts/opportunity_cairn.png'))
                 stack.enter_context(patch.object(probe,'emit'))
                 stack.enter_context(patch.object(probe.gui,'bounded_log'))
                 stack.enter_context(patch.object(probe,'read_save'))

@@ -18,6 +18,15 @@ def state(life=30):
 
 
 class StabilityContracts(unittest.TestCase):
+    def test_exact_v26_pins(self):
+        self.assertEqual(gate.TAG, 'v1.3.26-test.1')
+        self.assertEqual(gate.PACKAGES['win32'][0], 'MountainStill-v1.3.26-test.1-Windows-x86_64.zip')
+        self.assertEqual(gate.PACKAGES['win32'][1], '30940b6ee4f4541bdc7610d84bbfd051e212477f0099fc3c4ac12a1107012d7f')
+        self.assertEqual(gate.PACKAGES['win32'][3], 114548564)
+        self.assertEqual(gate.PACKAGES['darwin'][0], 'MountainStill-v1.3.26-test.1-macOS-Universal.zip')
+        self.assertEqual(gate.PACKAGES['darwin'][1], '06a6fd42ff7e3fa809c657ac4bb90457226d5162f15d69ae217417635f8a2f78')
+        self.assertEqual(gate.PACKAGES['darwin'][3], 141279331)
+
     def test_fps_diagnostic_not_rendered_or_exact_frames(self):
         value=gate.fps_summary('Project FPS: 44 (22.73 mspf)\nProject FPS: 45 (22.22 mspf)\n')
         self.assertEqual(value['bucket_count'],2)
@@ -60,9 +69,9 @@ class StabilityContracts(unittest.TestCase):
             self.assertEqual(gate.userdata_path(),Path('/test/home/Library/Application Support/Godot/app_userdata')/gate.APP)
 
     def test_readiness_requires_fixed_version_and_both_loads(self):
-        text='UPDATE BOOT: 1.3.20-test.1\n'+''.join('Loading resource: res://assets/cultivation/beasts/'+x+'\n' for x in gate.ASSETS)
+        text='UPDATE BOOT: 1.3.26-test.1\n'+''.join('Loading resource: res://assets/cultivation/beasts/'+x+'\n' for x in gate.ASSETS)
         self.assertTrue(gate.boot_ready(text))
-        self.assertFalse(gate.boot_ready(text.replace('1.3.20','1.3.19')))
+        self.assertFalse(gate.boot_ready(text.replace('1.3.26','1.3.25')))
         for asset in gate.ASSETS:self.assertFalse(gate.boot_ready(text.replace(asset,'absent.png')))
 
     def test_fixture_uses_actual_save_and_no_mutation(self):

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pinned v20 native OS input evidence. Never read saves while any game is alive."""
+"""Pinned v26 native OS input evidence. Never read saves while any game is alive."""
 import copy
 import contextlib
 import hashlib
@@ -205,7 +205,7 @@ def session(binary,root,inputroot,label,processes,interactive=False,guide_only=F
     filtered,audio_unavailable=filter_audio_environment(output)
     errors=unexpected_errors(filtered,'native-input')
     if errors:failure='APPLICATION_ERRORS: '+repr(errors)
-    if 'UPDATE BOOT: 1.3.20-test.1' not in output:failure=failure or 'PINNED_BOOT_NOT_OBSERVED'
+    if 'UPDATE BOOT: 1.3.26-test.1' not in output:failure=failure or 'PINNED_BOOT_NOT_OBSERVED'
     if process is None or process.returncode!=0:failure=failure or 'NONZERO_OR_MISSING_EXIT'
     if forced:failure=failure or 'OWNED_PROCESS_HARD_TIMEOUT'
     if close.get('status')!='CLOSE_REQUEST_SENT':failure=failure or 'NORMAL_CLOSE_UNCONFIRMED'

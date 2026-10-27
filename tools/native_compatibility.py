@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native representative v19-save/full-v20 and installed-v20-PCK/old-host checks."""
+"""Native representative v25-save/full-v26 and installed-v26-PCK/old-host checks."""
 import hashlib
 import json
 import os
@@ -16,24 +16,24 @@ import uuid
 import native_package_stability as gate
 from native_compat_session import session, native_json
 
-OLD_TAG='v1.3.19-test.1'
-NEW_TAG='v1.3.20-test.1'
-OLD_VERSION='1.3.19-test.1'
-NEW_VERSION='1.3.20-test.1'
+OLD_TAG='v1.3.25-test.1'
+NEW_TAG='v1.3.26-test.1'
+OLD_VERSION='1.3.25-test.1'
+NEW_VERSION='1.3.26-test.1'
 DRIVER_SECONDS=12*60
 PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
- 'old_zip':(OLD_TAG,'MountainStill-v1.3.19-test.1-macOS-Universal.zip',141140901,'5f26a064049da7f1ed7da3e6ab170cde4b86da642dda20fa379a436b958c17cc'),
- 'new_zip':(NEW_TAG,'MountainStill-v1.3.20-test.1-macOS-Universal.zip',141164315,'1473f14531b993df673b0fab7cab53775d24200894772c97c100a8aae9215163'),
- 'pck':(NEW_TAG,'MountainStill-macos.pck',78474352,'623bd2cc3c8f7df4eec9d46fe8559cb34f2515637c9f5b0433a683e99304fc8a'),
- 'manifest':(NEW_TAG,'MountainStill-update.json',579,'4a1ccd8d5d458bb4617da6c356d4ee0e15e3426d60b7c2076478537398d5846e'),
+ 'old_zip':(OLD_TAG,'MountainStill-v1.3.25-test.1-macOS-Universal.zip',141264802,'ac0f3603f0ad8d80fc262c66442b475aeb266dee3c59f8ed414b968022e99a28'),
+ 'new_zip':(NEW_TAG,'MountainStill-v1.3.26-test.1-macOS-Universal.zip',141279331,'06a6fd42ff7e3fa809c657ac4bb90457226d5162f15d69ae217417635f8a2f78'),
+ 'pck':(NEW_TAG,'MountainStill-macos.pck',78491732,'777774ad17ba866a670aa4e7946fcdc285969fd9c7d2eb246c4662f0cc9712fd'),
+ 'manifest':(NEW_TAG,'MountainStill-update.json',579,'860ef463e762a12acfa81ab5c21cf91409d17c35eb49596f8a3a7a40002ba0ba'),
 }
 
 if PLATFORM == 'windows':
     PINS.update({
-      'old_zip':(OLD_TAG,'MountainStill-v1.3.19-test.1-Windows-x86_64.zip',114408760,'17eb818f31de294e3a8edd3ff4d6115b63c5f46177a572bb98b573f260e54e58'),
-      'new_zip':(NEW_TAG,'MountainStill-v1.3.20-test.1-Windows-x86_64.zip',114432439,'18fc6381156896ea8eac46317a28d6a1f18e35f4d89cf32819e9324d0a446150'),
-      'pck':(NEW_TAG,'MountainStill-windows.pck',78474352,'623bd2cc3c8f7df4eec9d46fe8559cb34f2515637c9f5b0433a683e99304fc8a'),
+      'old_zip':(OLD_TAG,'MountainStill-v1.3.25-test.1-Windows-x86_64.zip',114533871,'5de31cfed0bc1ed9038d605e8a03ff0cd8a0c8e2265aeb7f7857c9be99dd0cda'),
+      'new_zip':(NEW_TAG,'MountainStill-v1.3.26-test.1-Windows-x86_64.zip',114548564,'30940b6ee4f4541bdc7610d84bbfd051e212477f0099fc3c4ac12a1107012d7f'),
+      'pck':(NEW_TAG,'MountainStill-windows.pck',78491732,'777774ad17ba866a670aa4e7946fcdc285969fd9c7d2eb246c4662f0cc9712fd'),
     })
 
 
@@ -164,7 +164,7 @@ def recovery(before,after,backup,offline_upper):
     if life<=offline_upper+10 or prior<=offline_upper+5:raise RuntimeError('No live recovery beyond offline credit')
     return dict(lifetime_gain=life,prior_save_lifetime_gain=prior,offline_upper_seconds=offline_upper,
         primary_backup_lifetime_delta=after['lifetime_seconds']-backup['lifetime_seconds'],
-        schema=after['version'],old_schema_migration='NOT_TESTED; v19 and v20 schema4')
+        schema=after['version'],old_schema_migration='NOT_TESTED; v25 and v26 schema4')
 
 
 def scenario(kind,old_binary,new_binary,pck,manifest,root,deadline,all_registry):

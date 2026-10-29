@@ -3,10 +3,10 @@
 import hashlib, json, time, copy
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 PACK = b'GDPC' + b'fixture-content-only-not-a-loadable-pack' * 1024
-ROOT = 'https://github.com/lemoncat7/MountainStill/releases/download/v1.3.27-test.1/'
-MANIFEST = dict(schema=1, save_schema=4, bootstrap=1, engine='4.6.3', version='1.3.27-test.1', packages={'windows': dict(kind='pck', asset='MountainStill-windows.pck', size=len(PACK), sha256=hashlib.sha256(PACK).hexdigest(), restart_required=True)})
+ROOT = 'https://github.com/lemoncat7/MountainStill/releases/download/v1.3.27-test.2/'
+MANIFEST = dict(schema=1, save_schema=4, bootstrap=1, engine='4.6.3', version='1.3.27-test.2', packages={'windows': dict(kind='pck', asset='MountainStill-windows.pck', size=len(PACK), sha256=hashlib.sha256(PACK).hexdigest(), restart_required=True)})
 BODY = json.dumps(MANIFEST).encode()
-RELEASE = dict(tag_name='v1.3.27-test.1', draft=False, prerelease=True, assets=[dict(name=n,state='uploaded',size=len(b),browser_download_url=ROOT+n) for n,b in [('MountainStill-update.json',BODY),('MountainStill-windows.pck',PACK)]])
+RELEASE = dict(tag_name='v1.3.27-test.2', draft=False, prerelease=True, assets=[dict(name=n,state='uploaded',size=len(b),browser_download_url=ROOT+n) for n,b in [('MountainStill-update.json',BODY),('MountainStill-windows.pck',PACK)]])
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         mode, kind = self.path.strip('/').split('/', 1)

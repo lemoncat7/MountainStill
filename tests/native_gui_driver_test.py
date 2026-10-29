@@ -12,14 +12,14 @@ class Contracts(unittest.TestCase):
     def test_default_renderer_args(self):
         self.assertEqual(probe.ARGS, ['--verbose','--max-fps','60'])
     def test_pin(self):
-        self.assertEqual(probe.TAG, 'v1.3.26')
+        self.assertEqual(probe.TAG, 'v1.3.27-test.1')
         self.assertEqual(len(probe.PACKAGES),2)
-        self.assertEqual(probe.PACKAGES['win32'][0], 'MountainStill-v1.3.26-Windows-x86_64.zip')
-        self.assertEqual(probe.PACKAGES['win32'][1], '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873')
-        self.assertEqual(probe.PACKAGES['win32'][3], 114552389)
-        self.assertEqual(probe.PACKAGES['darwin'][0], 'MountainStill-v1.3.26-macOS-Universal.zip')
-        self.assertEqual(probe.PACKAGES['darwin'][1], '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d')
-        self.assertEqual(probe.PACKAGES['darwin'][3], 141283216)
+        self.assertEqual(probe.PACKAGES['win32'][0], 'MountainStill-v1.3.27-test.1-Windows-x86_64.zip')
+        self.assertEqual(probe.PACKAGES['win32'][1], '3dae6af8dd4c5bacdd91f4e5ff4552065a1518ebf0134e85fd3923b3394f3f58')
+        self.assertEqual(probe.PACKAGES['win32'][3], 114556300)
+        self.assertEqual(probe.PACKAGES['darwin'][0], 'MountainStill-v1.3.27-test.1-macOS-Universal.zip')
+        self.assertEqual(probe.PACKAGES['darwin'][1], '01bc98334157b0a0758c299deefbab545bc59b0869934a46dc4018f4cdcd1326')
+        self.assertEqual(probe.PACKAGES['darwin'][3], 141286722)
     def test_png_frame(self):
         import base64
         with tempfile.TemporaryDirectory() as tmp:
@@ -86,8 +86,8 @@ class Contracts(unittest.TestCase):
         self.assertIn('app.terminate()',swift);self.assertNotIn('forceTerminate',swift)
         source=Path(probe.__file__).read_text()
         self.assertIn('time.monotonic()-started<=37.5',source)
-        self.assertIn('remaining=43-',source)
-        self.assertIn('remaining=45-',source)
+        self.assertIn('remaining=min(43-',source)
+        self.assertIn('remaining=min(45-',source)
         self.assertIn('min(5,remaining)',source)
     def test_windows_helper_precompiled_in_owned_scratch(self):
         from unittest.mock import patch
@@ -186,5 +186,174 @@ class Contracts(unittest.TestCase):
         self.assertIn('ReleaseDC',ps)
         self.assertNotIn('$graphics.CopyFromScreen',ps)
         self.assertNotIn('ExecutionPolicy',ps)
+
+class DesktopCompatibilityContracts(unittest.TestCase):
+    def diagnostic(self,driver='opengl3_angle',**values):
+        import json
+        return 'DESKTOP DISPLAY: '+json.dumps(dict(schema=1,window_attached=True,native_window_ready=True,rendering_driver=driver,**values))
+
+    def test_default_angle_and_explicit_native_fallback_distinguished(self):
+        from unittest.mock import patch
+        with patch.object(probe.sys,'platform','win32'):
+            default=probe.renderer_evidence(self.diagnostic(),'project_default')
+            self.assertEqual(default['selection'],'REQUEST_MATCH')
+            fallback=probe.renderer_evidence(self.diagnostic(),'opengl3')
+            self.assertEqual(fallback['requested_driver'],'opengl3')
+            self.assertEqual(fallback['actual_driver'],'opengl3_angle')
+            self.assertEqual(fallback['selection'],'FALLBACK_OBSERVED')
+            self.assertFalse(fallback['native_opengl_verified'])
+            self.assertFalse(fallback['pixel_transparency_verified'])
+            native=probe.renderer_evidence(self.diagnostic('opengl3'),'opengl3')
+            self.assertTrue(native['native_opengl_verified'])
+            self.assertEqual(probe.renderer_evidence(self.diagnostic('opengl3'),'project_default')['selection'],'FALLBACK_OBSERVED')
+
+    def test_bad_or_unready_diagnostics_are_not_renderer_evidence(self):
+        for text in ['','DESKTOP DISPLAY: broken','DESKTOP DISPLAY: []','DESKTOP DISPLAY: {"schema":1}']:
+            self.assertEqual(probe.renderer_evidence(text,'opengl3')['selection'],'UNVERIFIED')
+        text=self.diagnostic()+'\nDESKTOP DISPLAY: {"schema":1,"native_window_ready":false}'
+        self.assertEqual(probe.renderer_evidence(text,'opengl3')['actual_driver'],'opengl3_angle')
+
+    def test_mac_default_is_not_reported_as_fallback(self):
+        from unittest.mock import patch
+        with patch.object(probe.sys,'platform','darwin'):
+            self.assertEqual(probe.renderer_evidence(self.diagnostic('opengl3'),'project_default')['selection'],'REQUEST_MATCH')
+
+    def test_structured_records_never_split_or_silently_truncate(self):
+        import json
+        out=io.StringIO()
+        with contextlib.redirect_stdout(out):probe.emit_record('EVIDENCE','case',{'reason':'字'*50})
+        line=out.getvalue().strip();self.assertLess(len(line.encode()),4096)
+        self.assertEqual(json.loads(line.split(' ',1)[1])['reason'],'字'*50)
+        with self.assertRaises(ValueError):probe.emit_record('EVIDENCE','case',{'reason':'x'*4000})
+
+    def test_offline_only_save_and_exact_gameplay_projection(self):
+        from unittest.mock import Mock
+        with self.assertRaisesRegex(RuntimeError,'LIVE_PROCESS_SAVE_READ_FORBIDDEN'):
+            probe.offline_save(Path('/not-read'),'token',[Mock(poll=lambda:None)])
+        before={'version':4,'gear':{'x':1},'settings':{'transparent':True},'saved_at':2}
+        after=dict(before,settings={'transparent':False},saved_at=3)
+        self.assertEqual(probe.gameplay_projection(before),probe.gameplay_projection(after))
+        after['gear']={'x':0};self.assertNotEqual(probe.gameplay_projection(before),probe.gameplay_projection(after))
+
+    def test_opaque_fixture_and_restored_geometry(self):
+        seed={'settings':{'paused':True},'gear':{'x':1}}
+        fixture,_=probe.apply_geometry_fixture(seed,'strip',[0,0,1024,728],False)
+        self.assertFalse(fixture['settings']['transparent']);self.assertTrue(fixture['settings']['paused'])
+        self.assertEqual(seed,{'settings':{'paused':True},'gear':{'x':1}})
+        geometry=probe.native_geometry_verdict('restored',{'work_area':[0,0,1024,728],'backing_scale':1,'client_width':1000,'client_height':672})
+        self.assertEqual(geometry['status'],'NATIVE_GEOMETRY_OBSERVED')
+        self.assertEqual(probe.native_geometry_verdict('restored',{})['status'],'CAPTURE_INCONCLUSIVE')
+
+    def test_desktop_input_is_explicit_no_general_click_relaxation(self):
+        source=Path(probe.__file__).with_name('native_input_helper.ps1').read_text()
+        self.assertIn("[switch]$DesktopKeys",source)
+        self.assertIn("$Action -notin @('Inspect','Key')",source)
+        self.assertIn("$Key -notin @('F2','F8')",source)
+        self.assertIn('case "F2":vk=0x71',source);self.assertIn('case "F8":vk=0x77',source)
+        self.assertIn('!DesktopKeys && (r.Right-r.Left!=960 || r.Bottom-r.Top!=540)',source)
+        self.assertIn('GetForegroundWindow()!=h || !Owns(GetForegroundWindow(),pid)',source)
+        self.assertIn('Requested key already down',source)
+        cmd=probe.input_command(Path('/owned'),42,'Key',123,'F8')
+        self.assertIn('-DesktopKeys',cmd);self.assertIn('42',cmd);self.assertIn('123',cmd)
+        self.assertNotIn('-DesktopKeys',probe.input_command(Path('/owned'),0,'Prepare'))
+
+    def test_image_and_suite_budgets_are_explicit(self):
+        self.assertEqual(probe.PNG_BUDGET,6*1024*1024)
+        source=Path(probe.__file__).read_text()
+        self.assertIn('suite_deadline=time.monotonic()+235',source)
+        self.assertIn("'expected_png_count':6 if sys.platform=='win32' else 2",source)
+        self.assertNotIn('ExecutionPolicy',source)
+        workflow=(Path(probe.__file__).parents[1]/'.github/workflows/native-gui-probe.yml').read_text()
+        self.assertIn('permissions: {}',workflow);self.assertIn('timeout-minutes: 5',workflow)
+
+    def test_recovery_uses_owned_keys_and_observed_states(self):
+        from unittest.mock import Mock, patch
+        import json
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);log=root/'game.log';stage=[-1];keys=[]
+            sizes=[[960,540],[1000,400],[1000,672]]
+            def helper(command,timeout):
+                if '-Action' in command:
+                    action=command[command.index('-Action')+1]
+                    if action=='Inspect':return {'status':'INSPECT_READY','owner_pid':42,'window_id':77}
+                    key=command[command.index('-Key')+1];keys.append(key);stage[0]+=1
+                    log.write_text(self.diagnostic(borderless=stage[0]==1,transparency_requested=stage[0]!=2,
+                        window_transparent_flag=stage[0]!=2,viewport_transparent_background=stage[0]!=2))
+                    return {'status':'INPUT_SENT','owner_pid':42,'window_id':77}
+                if '-OutputPath' in command:
+                    Path(command[command.index('-OutputPath')+1]).write_bytes(b'\x89PNG\r\n\x1a\n'+b'x'*20)
+                    return {'status':'CAPTURE_READY','palette':2,'directly_behind_target':True}
+                width,height=sizes[stage[0]]
+                return {'work_area':[0,0,1024,728],'backing_scale':1,'client_width':width,'client_height':height}
+            with patch.object(probe.sys,'platform','win32'),patch.object(probe,'native_json',side_effect=helper),patch.object(probe.time,'sleep'),contextlib.redirect_stdout(io.StringIO()):
+                result,png=probe.recover_desktop(root,root,Mock(pid=42),log,'owned-strip',1024,probe.time.monotonic()+60)
+            self.assertEqual(keys,['F2','F2','F8'])
+            self.assertEqual(result['status'],'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW')
+            self.assertTrue(png.exists())
+
+    def test_recovery_refused_input_has_no_retry_or_following_keys(self):
+        from unittest.mock import Mock, patch
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            replies=[{'status':'INSPECT_READY','owner_pid':42,'window_id':77},{'status':'INPUT_REFUSED'}]
+            with patch.object(probe,'native_json',side_effect=replies) as helper,contextlib.redirect_stdout(io.StringIO()):
+                with self.assertRaisesRegex(RuntimeError,'no retry'):
+                    probe.recover_desktop(root,root,Mock(pid=42),root/'log','owned',1024,probe.time.monotonic()+60)
+            self.assertEqual(helper.call_count,2)
+
+    def test_complete_windows_matrix_offline_mock(self):
+        from unittest.mock import patch
+        import json, os
+        calls=[]
+        with tempfile.TemporaryDirectory() as tmp:
+            userdata=Path(tmp)/'userdata'
+            def session(binary,root,path,token,label,capture,budget,registry,**kwargs):
+                calls.append((label,kwargs))
+                if label=='seed':
+                    saved={'version':4,'lifetime_seconds':20,'arrival_seen':True,'settings':{'paused':False},'gear':{'x':1}}
+                    (path/'cultivation_save.json').write_text(json.dumps(saved))
+                else:saved=json.loads((path/'cultivation_save.json').read_text())
+                recovery={'status':'NOT_REQUESTED'}
+                if kwargs.get('inputroot'):
+                    saved['settings'].update(window_mode='window',transparent=False,click_through=False)
+                    (path/'cultivation_save.json').write_text(json.dumps(saved))
+                    recovery={'status':'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW'}
+                return {'case':label,'exit_code':0,'forced_timeout':False,'after_save':{'status':'valid'},'status':'CAPTURE_INCONCLUSIVE',
+                    'pinned_boot_marker_observed':True,'pre_capture_geometry':{'work_area':[0,0,1024,728]},
+                    'recovery':recovery,'renderer':{'diagnostic':{'borderless':False,'window_transparent_flag':False}},
+                    'png_emitted':capture,'recovery_png_emitted':bool(kwargs.get('inputroot'))},100 if capture else 0
+            env={'GITHUB_ACTIONS':'true','RUNNER_ENVIRONMENT':'github-hosted','GITHUB_REPOSITORY':'lemoncat7/MountainStill','RUNNER_TEMP':tmp}
+            with patch.dict(os.environ,env),patch.object(probe.sys,'platform','win32'),patch.object(probe,'userdata_path',return_value=userdata),patch.object(probe,'run_session',side_effect=session),patch.object(probe,'native_json',return_value={'status':'HELPER_PREPARED'}),patch.object(probe,'prepare_package'),patch.object(probe,'configure_output'),contextlib.redirect_stdout(io.StringIO()) as output:
+                self.assertEqual(probe.main(),0)
+            self.assertEqual([c[0] for c in calls],['seed','default-window','default-strip','restored-restart','opaque-strip','native-request-strip'])
+            self.assertEqual(calls[-1][1]['driver'],'opengl3')
+            self.assertFalse(calls[-2][1]['expected_transparent'])
+            self.assertIsNone(calls[1][1]['driver'])
+            summary=json.loads(next(x.split(' ',1)[1] for x in output.getvalue().splitlines() if x.startswith('GUI_PROBE_RESULT ')))
+            self.assertEqual(summary['png_count'],summary['expected_png_count'])
+            self.assertEqual(summary['case_count'],6)
+            self.assertFalse(userdata.exists())
+
+    def test_expired_budget_never_launches_seed_or_restart(self):
+        from unittest.mock import patch
+        for label in ['seed','restored-restart']:
+            with patch.object(probe.subprocess,'Popen') as launch:
+                with self.assertRaisesRegex(RuntimeError,'no game process launched'):
+                    probe.run_session(Path('/exe'),Path('/tmp'),Path('/userdata'),'token',label,False,0,[],suite_deadline=probe.time.monotonic()+1)
+                launch.assert_not_called()
+
+    def test_package_preparation_has_owned_child_total_timeout(self):
+        from unittest.mock import Mock, patch
+        with patch.object(probe.subprocess,'run',return_value=Mock(returncode=0)) as run:
+            probe.prepare_package(Path('/owned/package.zip'),Path('/owned/app'),123,'a'*64,probe.time.monotonic()+70)
+            args,kwargs=run.call_args
+            self.assertEqual(args[0][0],sys.executable)
+            self.assertLessEqual(kwargs['timeout'],45)
+            self.assertEqual(args[0][-1],'/owned/app')
+            self.assertIn('p.download',args[0][2]);self.assertIn('p.extract',args[0][2])
+        with patch.object(probe.subprocess,'run') as run:
+            with self.assertRaisesRegex(RuntimeError,'operation not started'):
+                probe.prepare_package(Path('/unused'),Path('/unused'),0,'',probe.time.monotonic()-1)
+            run.assert_not_called()
 
 if __name__=='__main__': unittest.main()

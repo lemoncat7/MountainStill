@@ -26,6 +26,7 @@ var _safe_rect := Rect2()
 var _interactive_rects: Array = []
 var _note := ""
 var _last_polygon := PackedVector2Array()
+var _last_display_diagnostic := ""
 
 
 func attach(window: Window) -> void:
@@ -54,6 +55,7 @@ func dispose() -> void:
 		if _window.tree_exiting.is_connected(dispose):
 			_window.tree_exiting.disconnect(dispose)
 	_window = null
+	_last_display_diagnostic = ""
 	_safe_rect = Rect2()
 	_interactive_rects.clear()
 
@@ -99,17 +101,20 @@ func set_top(enabled: bool) -> void:
 func set_transparent(enabled: bool) -> bool:
 	desired_transparent = enabled
 	if not _ready_window():
+		_log_display_diagnostic()
 		return false
 	if enabled and not DisplayServer.is_window_transparency_available():
 		transparent_enabled = false
 		_window.transparent = false
 		_window.transparent_bg = false
 		_note = "当前渲染器或桌面合成器不支持透明背景。"
+		_log_display_diagnostic()
 		return false
 	transparent_enabled = enabled
 	_window.transparent_bg = enabled
 	_window.transparent = enabled
 	_note = ""
+	_log_display_diagnostic()
 	return true
 
 
@@ -161,6 +166,7 @@ func safe_restore() -> void:
 	desired_transparent = false
 	desired_passthrough = false
 	if not _ready_window():
+		_log_display_diagnostic()
 		return
 	_normal_mode = Window.MODE_WINDOWED
 	_window.mode = Window.MODE_WINDOWED
@@ -176,6 +182,41 @@ func safe_restore() -> void:
 	_remember_normal()
 	_window.grab_focus()
 	_note = "已安全恢复普通窗口。"
+	_log_display_diagnostic()
+
+
+func display_diagnostic() -> Dictionary:
+	# Requested/applied flags are not evidence of composed transparent pixels.
+	# Keep this allowlist free of command lines, user paths and device IDs.
+	var attached := is_instance_valid(_window)
+	return {
+		"schema": 1,
+		"os": OS.get_name(),
+		"display_server": DisplayServer.get_name(),
+		"rendering_method": RenderingServer.get_current_rendering_method(),
+		"rendering_driver": RenderingServer.get_current_rendering_driver_name(),
+		"adapter_name": RenderingServer.get_video_adapter_name(),
+		"adapter_vendor": RenderingServer.get_video_adapter_vendor(),
+		"adapter_api": RenderingServer.get_video_adapter_api_version(),
+		"window_attached": attached,
+		"native_window_ready": _ready_window(),
+		"transparency_requested": desired_transparent,
+		"transparency_supported": DisplayServer.is_window_transparency_available(),
+		"helper_transparency_applied": transparent_enabled,
+		"window_transparent_flag": _window.transparent if attached else false,
+		"viewport_transparent_background": _window.transparent_bg if attached else false,
+		"borderless": _window.borderless if attached else false,
+		"pixel_transparency_verified": false,
+	}
+
+
+func _log_display_diagnostic() -> bool:
+	var payload := JSON.stringify(display_diagnostic())
+	if payload == _last_display_diagnostic:
+		return false
+	_last_display_diagnostic = payload
+	print("DESKTOP DISPLAY: " + payload)
+	return true
 
 
 func update_passthrough(safe_rect: Rect2, interactive_rects: Array = []) -> void:

@@ -6,7 +6,7 @@ from release_file_policy import exclusion_reason
 ROOT = Path(__file__).resolve().parents[1]
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('output', type=Path)
-p.add_argument('--version', default='1.3.26')
+p.add_argument('--version', default='1.3.27-test.1')
 a = p.parse_args()
 out = a.output.resolve(); out.mkdir(parents=True, exist_ok=True)
 build = ROOT / 'builds/updater-release'
@@ -18,6 +18,7 @@ prefix = f'MountainStill-v{a.version}'
 win = out / (prefix+'-Windows-x86_64.zip')
 with zipfile.ZipFile(win,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
     z.write(build/'MountainStill.exe','MountainStill/MountainStill.exe')
+    z.write(ROOT/'tools/Start-OpenGL.cmd','MountainStill/Start-OpenGL.cmd')
     for f in docs: z.write(f,'MountainStill/'+str(f.relative_to(ROOT)))
 mac = out / (prefix+'-macOS-Universal.zip')
 shutil.copyfile(build/'MountainStill-macOS.zip',mac)

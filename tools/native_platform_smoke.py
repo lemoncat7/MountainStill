@@ -15,6 +15,7 @@ import uuid
 from qa_verify_provider_lifecycle import validate as validate_provider_lifecycle
 
 TESTS = {
+    'test_display_diagnostics.gd': r'Display diagnostics: 73 checks, 0 failures; Windows preference, actual backend, deduplication, and recovery',
     'test_practice_loadout.gd': r'Practice loadout: 69 checks, 0 failures',
     'test_practice_loadout_ui.gd': r'Practice loadout UI: 3626 checks, 0 failures',
     'test_cultivation.gd': r'Cultivation tests: [1-9]\d* checks, 0 failures',

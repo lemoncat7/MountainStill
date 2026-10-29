@@ -50,7 +50,8 @@ for folder in ("sidewalk", "routes", "beasts"):
         if path.is_file() and path.suffix in (".png", ".json", ".txt", ".md", ".svg", ".gd") and "preview" not in path.name:
             ASSETS.append(str(path.relative_to(ROOT)))
 
-TOOLS += ["tools/release_file_policy.py", "tools/verify_export_dependencies.py", "tools/package_updater_delivery.py", "tools/build_update_pack.gd", "tools/build_updater_release.sh", "tools/write_update_manifest.py", "tools/verify_updater_artifacts.py"]
+TESTS += ["tests/windows_fallback_launcher_test.py"]
+TOOLS += ["tools/Start-OpenGL.cmd", "tools/release_file_policy.py", "tools/verify_export_dependencies.py", "tools/package_updater_delivery.py", "tools/build_update_pack.gd", "tools/build_updater_release.sh", "tools/write_update_manifest.py", "tools/verify_updater_artifacts.py"]
 TESTS += [str(path.relative_to(ROOT)) for path in sorted((ROOT / "tests").glob("*")) if path.suffix == ".py" and path.name.startswith(("update_", "bootstrap_"))]
 
 parser = argparse.ArgumentParser(description=__doc__)

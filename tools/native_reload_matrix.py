@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fixed v26 current-save recovery: one seed plus 50 independent native GUI processes."""
+"""Fixed v27-test.1 current-save recovery: one seed plus 50 independent native GUI processes."""
 import hashlib
 import json
 import math
@@ -179,7 +179,7 @@ def main():
                 passed=False;gate.emit('CLEANUP_FAILURE',dict(type=type(error).__name__))
         if time.monotonic()>=deadline:passed=False
         outcome='PASS current-save 50 independent-process recoveries' if passed else 'FAIL/incomplete current-save recovery matrix'
-        summary='## v26 native current-save recovery matrix\n\n'+outcome+'\n\n'+json.dumps(progress)+'\n\nOne extra seed process, not included in50. No old-save/update-path,60-minute mixedGUI, visual, FPS or formal-release certification. No retry masks a failed cycle.\n'
+        summary='## v27-test.1 native current-save recovery matrix\n\n'+outcome+'\n\n'+json.dumps(progress)+'\n\nOne extra seed process, not included in50. No old-save/update-path,60-minute mixedGUI, visual, FPS or formal-release certification. No retry masks a failed cycle.\n'
         print(summary,flush=True)
         if os.environ.get('GITHUB_STEP_SUMMARY'):
             with open(os.environ['GITHUB_STEP_SUMMARY'],'a',encoding='utf-8') as sink:sink.write(summary)

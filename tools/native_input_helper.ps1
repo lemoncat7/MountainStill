@@ -1,7 +1,8 @@
 param(
  [ValidateSet('Prepare','Inspect','Key','Click','Capture')][string]$Action,
  [string]$NativeAssembly, [int]$TargetPid, [long]$WindowId,
- [ValidateSet('Space','I','Esc','G')][string]$Key,
+ [ValidateSet('Space','I','Esc','G','F2','F8')][string]$Key,
+ [switch]$DesktopKeys,
  [int]$ClientX=-1, [int]$ClientY=-1,
  [int]$RoiX=-1, [int]$RoiY=-1, [int]$RoiWidth=0, [int]$RoiHeight=0,
  [string]$OutputPath
@@ -23,6 +24,7 @@ try {
 using System;
 using System.Runtime.InteropServices;
 public static class NativeInputProbe {
+ public static bool DesktopKeys=false;
  public struct Point { public int X,Y; }
  public struct Rect { public int Left,Top,Right,Bottom; }
  [StructLayout(LayoutKind.Sequential)] public struct Mouse { public int dx,dy; public uint data,flags,time; public UIntPtr extra; }
@@ -56,7 +58,7 @@ public static class NativeInputProbe {
   if(count!=1) throw new Exception("Expected exactly one visible target PID window"); return found;
  }
  public static void Geometry(IntPtr h,uint pid) {
-  Rect r; if(!Owns(h,pid) || !GetClientRect(h,out r) || r.Right-r.Left!=960 || r.Bottom-r.Top!=540 || GetDpiForWindow(h)!=96) throw new Exception("Owned visible 960x540 client at exactly 96 DPI required");
+  Rect r; if(!Owns(h,pid) || !GetClientRect(h,out r) || (!DesktopKeys && (r.Right-r.Left!=960 || r.Bottom-r.Top!=540)) || (DesktopKeys && (r.Right-r.Left<1 || r.Bottom-r.Top<1 || r.Right-r.Left>8192 || r.Bottom-r.Top>8192)) || GetDpiForWindow(h)!=96) throw new Exception("Owned visible 960x540 client at exactly 96 DPI required");
  }
  public static void IdleInput() {
   // Never release keys/buttons held by another actor; refuse instead.
@@ -76,7 +78,8 @@ public static class NativeInputProbe {
   if(n!=inputs.Length) throw new Exception("Partial/refused SendInput: "+n+"/"+inputs.Length+"; abort, input state may be uncertain"); return n;
  }
  public static uint Key(IntPtr h,uint pid,string action) {
-  ushort vk; switch(action) { case "Space":vk=0x20;break;case "I":vk=0x49;break;case "Esc":vk=0x1B;break;case "G":vk=0x47;break;default:throw new Exception("Key not allowlisted"); }
+  ushort vk; switch(action) { case "Space":vk=0x20;break;case "I":vk=0x49;break;case "Esc":vk=0x1B;break;case "G":vk=0x47;break;case "F2":vk=0x71;break;case "F8":vk=0x77;break;default:throw new Exception("Key not allowlisted"); }
+  if(DesktopKeys && action!="F2" && action!="F8") throw new Exception("Desktop mode only permits F2/F8");
   Foreground(h,pid);
   if((GetAsyncKeyState(vk)&0x8000)!=0) throw new Exception("Requested key already down");
   Input down=new Input();down.type=1;down.data.key.vk=vk;
@@ -104,6 +107,8 @@ public static class NativeInputProbe {
  }
  if (-not (Test-Path -LiteralPath $assemblyFull -PathType Leaf) -or ((Get-Item -LiteralPath $assemblyFull).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Prepared non-reparse assembly required' }
  Add-Type -Path $assemblyFull
+ if ($DesktopKeys -and ($Action -notin @('Inspect','Key') -or ($Action -eq 'Key' -and $Key -notin @('F2','F8')))) { throw 'DesktopKeys only permits Inspect or F2/F8' }
+ [NativeInputProbe]::DesktopKeys=[bool]$DesktopKeys
  $old=[NativeInputProbe]::SetThreadDpiAwarenessContext([IntPtr](-4))
  if ($old -eq [IntPtr]::Zero) { throw 'Physical coordinate DPI context unavailable' }
  if ($TargetPid -le 0 -or $null -eq (Get-Process -Id $TargetPid -ErrorAction SilentlyContinue)) { throw 'Live owned target PID required' }
@@ -111,7 +116,7 @@ public static class NativeInputProbe {
  [NativeInputProbe]::Geometry($h,$TargetPid)
  $outer=New-Object NativeInputProbe+Rect; $client=New-Object NativeInputProbe+Rect; $origin=New-Object NativeInputProbe+Point
  if (-not [NativeInputProbe]::GetWindowRect($h,[ref]$outer) -or -not [NativeInputProbe]::GetClientRect($h,[ref]$client) -or -not [NativeInputProbe]::ClientToScreen($h,[ref]$origin)) { throw 'Native geometry unavailable' }
- $result=@{status='INSPECT_READY';action=$Action;owner_pid=$TargetPid;window_id=$h.ToInt64();client_frame=@($origin.X,$origin.Y,960,540);client_to_screen=@($origin.X,$origin.Y);outer_frame=@($outer.Left,$outer.Top,($outer.Right-$outer.Left),($outer.Bottom-$outer.Top));dpi=96;coordinate_units='physical_pixels';foreground_owned=([NativeInputProbe]::GetForegroundWindow() -eq $h);input_delivery_does_not_prove_callback=$true}
+ $result=@{status='INSPECT_READY';action=$Action;owner_pid=$TargetPid;window_id=$h.ToInt64();client_frame=@($origin.X,$origin.Y,($client.Right-$client.Left),($client.Bottom-$client.Top));client_to_screen=@($origin.X,$origin.Y);outer_frame=@($outer.Left,$outer.Top,($outer.Right-$outer.Left),($outer.Bottom-$outer.Top));dpi=96;coordinate_units='physical_pixels';foreground_owned=([NativeInputProbe]::GetForegroundWindow() -eq $h);input_delivery_does_not_prove_callback=$true}
  if ($Action -eq 'Key') { $result.sent_events=[NativeInputProbe]::Key($h,$TargetPid,$Key); $result.status='INPUT_SENT'; $result.key=$Key }
  if ($Action -eq 'Click') { $result.sent_events=[NativeInputProbe]::Click($h,$TargetPid,$ClientX,$ClientY); $result.status='INPUT_SENT'; $result.click_client=@($ClientX,$ClientY) }
  if ($Action -eq 'Capture') {

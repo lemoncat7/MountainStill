@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pinned v26 native OS input evidence. Never read saves while any game is alive."""
+"""Pinned v27-test.1 native OS input evidence. Never read saves while any game is alive."""
 import copy
 import contextlib
 import hashlib

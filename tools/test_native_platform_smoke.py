@@ -34,15 +34,22 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_sixteen_tests_preserve_previous_coverage(self):
+    def test_seventeen_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
-            'test_cultivation.gd', 'test_scene_art_layout.gd',
+            'test_display_diagnostics.gd', 'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
             'test_practice_loadout.gd', 'test_practice_loadout_ui.gd', 'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd', 'test_combat_hud_readability.gd',
         })
+
+    def test_display_marker_requires_exact_coverage(self):
+        marker = 'Display diagnostics: 73 checks, 0 failures; Windows preference, actual backend, deduplication, and recovery'
+        self.assertTrue(smoke.test_passed(0, marker, 'test_display_diagnostics.gd'))
+        for text in (marker.replace('73', '72'), marker.replace('0 failures', '1 failures'), marker + ' EXTRA'):
+            self.assertFalse(smoke.test_passed(0, text, 'test_display_diagnostics.gd'))
+        self.assertFalse(smoke.test_passed(1, marker, 'test_display_diagnostics.gd'))
 
     def test_chapter_marker_requires_positive_checks_and_zero_failures(self):
         pattern = smoke.TESTS['test_chapter_practice_navigation.gd']

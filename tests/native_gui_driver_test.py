@@ -349,7 +349,7 @@ class DesktopCompatibilityContracts(unittest.TestCase):
             args,kwargs=run.call_args
             self.assertEqual(args[0][0],sys.executable)
             self.assertLessEqual(kwargs['timeout'],45)
-            self.assertEqual(args[0][-1],'/owned/app')
+            self.assertEqual(args[0][-1],str(Path('/owned/app')))
             self.assertIn('p.download',args[0][2]);self.assertIn('p.extract',args[0][2])
         with patch.object(probe.subprocess,'run') as run:
             with self.assertRaisesRegex(RuntimeError,'operation not started'):

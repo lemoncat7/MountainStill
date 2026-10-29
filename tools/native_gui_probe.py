@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import platform
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -13,6 +14,8 @@ import sys
 import tempfile
 import time
 import uuid
+
+from native_input_pty import OwnedPTYLog
 
 from native_package_smoke import (APP, claim_userdata, configure_output,
                                   download, extract, userdata_path, read_save)
@@ -70,10 +73,21 @@ def renderer_evidence(output, requested):
             and item.get('native_window_ready') is True):diagnostics.append(item)
     actual=diagnostics[-1].get('rendering_driver') if diagnostics else None
     expected=('opengl3_angle' if sys.platform=='win32' else 'opengl3') if requested=='project_default' else requested
+    diagnostic=diagnostics[-1] if diagnostics else {}
+    # Driver IDs describe Godot selection, not necessarily the underlying API:
+    # macOS ARM can report opengl3 while its adapter is ANGLE over Metal.
+    adapter=[diagnostic.get(key) for key in ('adapter_name','adapter_vendor','adapter_api')]
+    complete=all(isinstance(value,str) and value.strip() for value in adapter)
+    translated=any(token in ' '.join(str(value) for value in adapter).lower()
+                   for token in ('angle','metal','direct3d','opengl es','vulkan'))
+    api=diagnostic.get('adapter_api','')
+    desktop_api=isinstance(api,str) and re.match(r'^(?:OpenGL\s+)?[3-9]\.\d+(?:\.\d+)*(?:\s|$)',api.strip()) is not None
+    # Native API evidence is not physical GPU/hardware acceleration evidence.
+    native=actual=='opengl3' and complete and desktop_api and not translated
     return {'requested_driver':requested, 'expected_preference':expected,
             'actual_driver':actual, 'actual_backend_observed':bool(actual),
             'selection':'REQUEST_MATCH' if actual==expected else ('FALLBACK_OBSERVED' if actual else 'UNVERIFIED'),
-            'native_opengl_verified':actual=='opengl3',
+            'native_opengl_verified':native,
             'pixel_transparency_verified':False, 'diagnostic':diagnostics[-1] if diagnostics else None}
 
 
@@ -360,7 +374,7 @@ def check_boot_identity(status, reason, output):
 
 
 def run_session(binary, root, userdata, token, label, capture, budget, process_registry, *, mode=None, driver=None, inputroot=None, suite_deadline=None, expected_transparent=None):
-    process=None
+    process=None;pty_log=None
     logfile=root/(label+'.log')
     started=time.monotonic()
     deadline=min(started+55,suite_deadline or started+55)
@@ -375,57 +389,69 @@ def run_session(binary, root, userdata, token, label, capture, budget, process_r
     metadata={}; before_geometry={}; png=None; close_result={'status':'CLOSE_NOT_SENT','handler_handled':'unknown'}
     timed_out=False
     try:
-        with logfile.open('wb') as log:
-            process=subprocess.Popen([str(binary),*args],stdout=log,stderr=subprocess.STDOUT)
-            process_registry.append(process)
-            bounded_log('OWNED_LAUNCH '+json.dumps({'case':label,'pid':process.pid,'args':args}))
-            hint=None
-            while process.poll() is None:
-                elapsed=time.monotonic()-started
-                if hint is None and 'Loading resource: res://assets/cultivation/beasts/opportunity_cairn.png' in log_text(logfile):hint=elapsed
-                target=min(30,max(18 if not capture else 12,hint+2)) if hint is not None else 30
-                if elapsed>=target or time.monotonic()+20>=deadline:break
-                time.sleep(.2)
-            if process.poll() is None:
-                try:
-                    remaining=min(38-(time.monotonic()-started),deadline-time.monotonic()-12)
-                    if remaining>0:
-                        before_geometry=native_json(geometry_command(root,process.pid),min(4,remaining))
-                        bounded_log('GEOMETRY_SAMPLE '+json.dumps({'case':label,'sample':'pre_capture','metadata':before_geometry}))
-                    if capture and time.monotonic()-started<=37.5:
-                        time.sleep(.2)
-                        candidate=root/(label+'.png')
-                        remaining=min(43-(time.monotonic()-started),deadline-time.monotonic()-10)
+        if sys.platform=='darwin':pty_log=OwnedPTYLog(logfile)
+        with (pty_log if pty_log is not None else logfile.open('wb')) as log:
+            try:
+                process=subprocess.Popen([str(binary),*args],stdout=log,stderr=subprocess.STDOUT,
+                                         **({'stdin':subprocess.DEVNULL} if pty_log is not None else {}))
+                process_registry.append(process)
+                if pty_log is not None:pty_log.started(before_error_close=lambda:stop_owned(process))
+                bounded_log('OWNED_LAUNCH '+json.dumps({'case':label,'pid':process.pid,'args':args}))
+                hint=None
+                while process.poll() is None:
+                    if pty_log is not None:pty_log.check()
+                    elapsed=time.monotonic()-started
+                    if hint is None and 'Loading resource: res://assets/cultivation/beasts/opportunity_cairn.png' in log_text(logfile):hint=elapsed
+                    target=min(30,max(18 if not capture else 12,hint+2)) if hint is not None else 30
+                    if elapsed>=target or time.monotonic()+20>=deadline:break
+                    time.sleep(.2)
+                if process.poll() is None:
+                    try:
+                        remaining=min(38-(time.monotonic()-started),deadline-time.monotonic()-12)
                         if remaining>0:
-                            metadata=native_json(capture_command(root,process.pid,candidate,1),min(5,remaining))
-                            bounded_log('CAPTURE_METADATA '+json.dumps({'case':label,**metadata}))
-                            if metadata.get('status')=='CAPTURE_READY':
-                                size=candidate.stat().st_size
-                                if not 8<=size<=budget:raise ValueError('PNG exceeds explicit combined image budget; no downsampling')
-                                if candidate.read_bytes()[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Invalid PNG')
-                                png=candidate
-                except (ValueError,RuntimeError,OSError,subprocess.TimeoutExpired) as error:
-                    bounded_log('CASE_CAPTURE_DIAGNOSTIC '+json.dumps({'case':label,'reason':str(error)[:500]}))
-            initial_evidence=renderer_evidence(log_text(logfile),requested)
-            emit_record('INITIAL_RENDERER_EVIDENCE',label,initial_evidence)
-            if inputroot is not None and process.poll() is None:
-                try:
-                    recovery,recovery_png=recover_desktop(root,inputroot,process,logfile,label,budget-(png.stat().st_size if png else 0),deadline-8)
-                except (ValueError,RuntimeError,OSError,subprocess.TimeoutExpired) as error:
-                    recovery={'status':'CAPTURE_INCONCLUSIVE','reason':str(error)[:400]}
-                emit_record('DESKTOP_RECOVERY',label,recovery)
-            if process.poll() is None:
-                remaining=min(45-(time.monotonic()-started),deadline-time.monotonic()-8)
-                if remaining>0:
-                    try:close_result=native_json(close_command(root,process.pid),min(2,remaining))
+                            before_geometry=native_json(geometry_command(root,process.pid),min(4,remaining))
+                            bounded_log('GEOMETRY_SAMPLE '+json.dumps({'case':label,'sample':'pre_capture','metadata':before_geometry}))
+                        if capture and time.monotonic()-started<=37.5:
+                            time.sleep(.2)
+                            candidate=root/(label+'.png')
+                            remaining=min(43-(time.monotonic()-started),deadline-time.monotonic()-10)
+                            if remaining>0:
+                                metadata=native_json(capture_command(root,process.pid,candidate,1),min(5,remaining))
+                                bounded_log('CAPTURE_METADATA '+json.dumps({'case':label,**metadata}))
+                                if metadata.get('status')=='CAPTURE_READY':
+                                    size=candidate.stat().st_size
+                                    if not 8<=size<=budget:raise ValueError('PNG exceeds explicit combined image budget; no downsampling')
+                                    if candidate.read_bytes()[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Invalid PNG')
+                                    png=candidate
                     except (ValueError,RuntimeError,OSError,subprocess.TimeoutExpired) as error:
-                        close_result={'status':'CLOSE_REQUEST_UNCONFIRMED','reason':str(error)[:300],'handler_handled':'unknown'}
-                else:close_result['reason']='close_deadline_missed_no_late_request'
-            close_result['observed_request_return_elapsed_seconds']=round(time.monotonic()-started,2)
-            bounded_log('NATIVE_CLOSE_REQUEST '+json.dumps({'case':label,**close_result}))
-            try:process.wait(timeout=max(.01,deadline-time.monotonic()))
-            except subprocess.TimeoutExpired:
-                timed_out=True;stop_owned(process)
+                        bounded_log('CASE_CAPTURE_DIAGNOSTIC '+json.dumps({'case':label,'reason':str(error)[:500]}))
+                if pty_log is not None:pty_log.check()
+                live_output=log_text(logfile) if process.poll() is None else ''
+                if pty_log is not None:pty_log.check()
+                # Never promote an exit-flushed diagnostic to initial live state.
+                initial_evidence=renderer_evidence(live_output if process.poll() is None else '',requested)
+                emit_record('INITIAL_RENDERER_EVIDENCE',label,initial_evidence)
+                if inputroot is not None and process.poll() is None:
+                    try:
+                        recovery,recovery_png=recover_desktop(root,inputroot,process,logfile,label,budget-(png.stat().st_size if png else 0),deadline-8)
+                    except (ValueError,RuntimeError,OSError,subprocess.TimeoutExpired) as error:
+                        recovery={'status':'CAPTURE_INCONCLUSIVE','reason':str(error)[:400]}
+                    emit_record('DESKTOP_RECOVERY',label,recovery)
+                if process.poll() is None:
+                    remaining=min(45-(time.monotonic()-started),deadline-time.monotonic()-8)
+                    if remaining>0:
+                        try:close_result=native_json(close_command(root,process.pid),min(2,remaining))
+                        except (ValueError,RuntimeError,OSError,subprocess.TimeoutExpired) as error:
+                            close_result={'status':'CLOSE_REQUEST_UNCONFIRMED','reason':str(error)[:300],'handler_handled':'unknown'}
+                    else:close_result['reason']='close_deadline_missed_no_late_request'
+                close_result['observed_request_return_elapsed_seconds']=round(time.monotonic()-started,2)
+                bounded_log('NATIVE_CLOSE_REQUEST '+json.dumps({'case':label,**close_result}))
+                try:process.wait(timeout=max(.01,deadline-time.monotonic()))
+                except subprocess.TimeoutExpired:
+                    timed_out=True;stop_owned(process)
+            finally:
+                stop_owned(process)  # Child must be reaped before PTY EOF drain/close.
+        if pty_log is not None:pty_log.check()
         after_save=owned_save_snapshot(userdata,token)
         output=log_text(logfile)
         status,reason=classify(output,process.returncode,timed_out,[metadata] if metadata else [],png is not None)

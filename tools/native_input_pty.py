@@ -44,8 +44,12 @@ class OwnedPTYLog:
             self.close()
             raise
 
-    def started(self):
-        """Call immediately after Popen succeeds; the child owns its slave copy."""
+    def started(self, before_error_close=None):
+        """Call immediately after Popen succeeds; the child owns its slave copy.
+
+        before_error_close, if supplied, stops/reaps the child before cleanup
+        when thread startup fails. Cleanup errors propagate, never become evidence.
+        """
         if not self._entered or self._closed or self._thread is not None:
             raise RuntimeError("PTY capture is not awaiting a child")
         self._close_fd("slave_fd")
@@ -54,7 +58,11 @@ class OwnedPTYLog:
             self._thread.start()
         except BaseException:
             self._thread = None
-            self.close()
+            try:
+                if before_error_close is not None:
+                    before_error_close()
+            finally:
+                self.close()
             raise
 
     def _record_error(self, error):

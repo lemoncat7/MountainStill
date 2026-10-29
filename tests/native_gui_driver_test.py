@@ -145,6 +145,14 @@ class Contracts(unittest.TestCase):
             def poll(self):return self.returncode
             def wait(self,timeout):return self.returncode
             def kill(self):self.returncode=-9
+        # This is a platform-independent orchestration test, not a PTY test.
+        # sys.platform is mocked below even on Windows, where os.openpty is absent.
+        class MockPTYLog:
+            def __init__(self,path):self.path=path
+            def __enter__(self):self.stream=self.path.open('wb');return self.stream
+            def started(self, **kwargs):pass
+            def check(self):pass
+            def __exit__(self,*args):self.stream.close()
         process=Process();clock=[0.0]
         def now():clock[0]+=.5;return clock[0]
         with tempfile.TemporaryDirectory() as tmp:
@@ -166,12 +174,18 @@ class Contracts(unittest.TestCase):
                 Path(command[2]).write_bytes(b'\x89PNG\r\n\x1a\n'+b'a'*100)
                 return dict(metadata,status='CAPTURE_READY')
             out=io.StringIO();registry=[]
-            with patch.object(probe.time,'monotonic',side_effect=now),patch.object(probe.time,'sleep'),patch.object(probe.subprocess,'Popen',side_effect=launch),patch.object(probe,'native_json',side_effect=helper),patch.object(probe.sys,'platform','darwin'),contextlib.redirect_stdout(out):
+            with patch.object(probe.time,'monotonic',side_effect=now),patch.object(probe.time,'sleep'),patch.object(probe.subprocess,'Popen',side_effect=launch),patch.object(probe,'native_json',side_effect=helper),patch.object(probe.sys,'platform','darwin'),patch.object(probe,'OwnedPTYLog',MockPTYLog),contextlib.redirect_stdout(out):
                 result,size=probe.run_session(root/'fake',root,userdata,'ours','window',True,probe.PNG_BUDGET,registry)
             self.assertEqual(size,108);self.assertEqual(result['exit_code'],0);self.assertFalse(result['forced_timeout'])
             self.assertTrue(result['geometry']['pre_capture_and_capture_geometry_stable'])
             self.assertLess(out.getvalue().index('NATIVE_CLOSE_REQUEST'),out.getvalue().index('BEGIN_GUI_PNG'))
             self.assertEqual(registry,[])
+    def test_mocked_session_without_posix_openpty(self):
+        from unittest.mock import patch
+        with patch.object(probe.os,'openpty',create=True,side_effect=AttributeError('os.openpty unavailable on Windows')) as openpty:
+            self.test_mocked_session_defers_png_until_after_close()
+        openpty.assert_not_called()
+
     def test_controlled_backdrop_contract(self):
         tools=Path(probe.__file__).parent
         swift=(tools/'native_gui_capture.swift').read_text(); ps=(tools/'native_gui_capture.ps1').read_text()

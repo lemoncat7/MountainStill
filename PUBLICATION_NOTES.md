@@ -1,3 +1,16 @@
+# 山隐 v1.3.27-test.1 · Windows 透明兼容候选
+
+**测试版，不是新的正式版。** Windows 默认优先 ANGLE，保留 Godot 原生 OpenGL 后备；macOS/Linux 后端不变。新增去重的实际显示后端诊断与 Windows 完整包内一次性 `Start-OpenGL.cmd` 备用启动入口。没有更改玩法、美术、统一比例、存档 schema 4 或 Bootstrap ABI 1。
+
+用户报告的 Windows 黑布背景尚未在其机器复现，未证实已修复。新 ANGLE 路径与具体完整包仍待绑定 SHA 的原生运行和桌面透明像素验收；Linux headless 检查不代替此证据，历史正式包验收不移作本候选通过证明。
+
+**后端选择发生于 host 启动，必须安装本版 Windows 完整包。仅更新 gameplay PCK 不会改变旧 EXE 的默认后端。** 旧完整包可以一次性命令行请求 ANGLE，详见 `docs/WINDOWS_TRANSPARENCY.md`。合法旧 active 内容继续保留，可能仍运行旧玩法脚本且没有新诊断；不自动清除更新记录或存档。备用脚本仅请求原生 OpenGL，实际后端仍以日志为准。
+
+Windows 未发行商签名，macOS 仅 ad-hoc 签名，未公证；不要关闭安全防护。既有战斗峰值和历史节奏诊断保留，不宣称本轮解决。最终候选验证状态以对应 Release 的同字节证据为准。
+
+---
+以下为历史记录，不代表本候选通过其全部验证。
+
 # 山隐 v1.3.26 · 首个正式版本说明
 
 这一版保留现有修行、出行、战斗、镜中试招与同敌搭配对照。首发收尾只调整版本标识与交付验证，不新增玩法、不改变战斗公式、存档 schema 4 或 Bootstrap ABI 1。GitHub Release 是否标记为预发布决定当前分发阶段；版本号本身不代表已经完成正式发布。

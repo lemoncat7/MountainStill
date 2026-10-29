@@ -1,3 +1,5 @@
+> **当前交付：v1.3.27-test.1 Windows 透明兼容测试版，不是新的正式版。** 用户实机黑底尚未证实修复；本候选验证范围见 [PUBLICATION_NOTES.md](PUBLICATION_NOTES.md)，完整 Windows host 升级与备用启动说明见 [WINDOWS_TRANSPARENCY.md](docs/WINDOWS_TRANSPARENCY.md)。下方保留历史版本记录，不代表本候选已经通过其中全部验收。
+
 # 山隐 v1.3.26 · 首个正式版本说明
 
 这一版保留现有修行、出行、战斗、镜中试招与同敌搭配对照。首发收尾只调整版本标识与交付验证，不新增玩法、不改变战斗公式、存档 schema 4 或 Bootstrap ABI 1。GitHub Release 是否标记为预发布决定当前分发阶段；版本号本身不代表已经完成正式发布。

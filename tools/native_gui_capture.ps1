@@ -24,6 +24,7 @@ public class GuiProbe {
  public delegate bool Callback(IntPtr h, IntPtr p);
  [DllImport("user32.dll")] public static extern bool EnumWindows(Callback cb, IntPtr p);
  [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+ [DllImport("user32.dll", CharSet=CharSet.Unicode)] public static extern int GetClassNameW(IntPtr h, System.Text.StringBuilder name, int size);
  [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
  [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out Rect r);
  [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr h);
@@ -63,6 +64,7 @@ if (-not (Test-Path -LiteralPath $NativeAssembly -PathType Leaf)) { throw 'Prepa
 if (((Get-Item -LiteralPath $NativeAssembly).Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) { throw 'Helper DLL cannot be a reparse point' }
 Add-Type -Path $NativeAssembly
 $board = $null
+$placementAttempts = @()
 try {
  # Thread-local coordinate awareness only; no OS/user display setting changed.
  $old = [GuiProbe]::SetThreadDpiAwarenessContext([IntPtr](-4))
@@ -109,13 +111,43 @@ try {
  $board.StartPosition = [System.Windows.Forms.FormStartPosition]::Manual
  $board.Bounds = $background
  $board.Inverted = ($Palette -eq 2)
- $board.Show()
- if (-not [GuiProbe]::SetWindowPos($board.Handle,$h,$background.X,$background.Y,$background.Width,$background.Height,0x0210)) { throw 'Backdrop placement failed' }
- $board.Refresh()
+ # Only our own board may be reordered. A changed target invalidates this sample.
+ function Assert-OwnedCaptureGeometry {
+  [uint32]$actualPid = 0
+  [void][GuiProbe]::GetWindowThreadProcessId($h,[ref]$actualPid)
+  if ($actualPid -ne $TargetPid -or $null -eq (Get-Process -Id $TargetPid -ErrorAction SilentlyContinue) -or -not [GuiProbe]::IsWindowVisible($h)) { throw 'Capture target ownership/visibility changed' }
+  [uint32]$boardPid = 0
+  [void][GuiProbe]::GetWindowThreadProcessId($board.Handle,[ref]$boardPid)
+  if ($boardPid -ne $PID) { throw 'Backdrop ownership changed' }
+  $nowOuter = New-Object GuiProbe+Rect
+  $nowClient = New-Object GuiProbe+Rect
+  $nowOrigin = New-Object GuiProbe+Point
+  if (-not [GuiProbe]::GetWindowRect($h,[ref]$nowOuter) -or -not [GuiProbe]::GetClientRect($h,[ref]$nowClient) -or -not [GuiProbe]::ClientToScreen($h,[ref]$nowOrigin)) { throw 'Capture geometry revalidation unavailable' }
+  if ($nowOuter.Left -ne $r.Left -or $nowOuter.Top -ne $r.Top -or $nowOuter.Right -ne $r.Right -or $nowOuter.Bottom -ne $r.Bottom -or $nowClient.Left -ne $client.Left -or $nowClient.Top -ne $client.Top -or $nowClient.Right -ne $client.Right -or $nowClient.Bottom -ne $client.Bottom -or $nowOrigin.X -ne $origin.X -or $nowOrigin.Y -ne $origin.Y -or [GuiProbe]::GetDpiForWindow($h) -ne $dpi) { throw 'Capture geometry changed' }
+ }
  $wait = [Diagnostics.Stopwatch]::StartNew()
- while ($wait.ElapsedMilliseconds -lt 350) { [System.Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 20 }
- $behind = [GuiProbe]::GetWindow($h,2)
- if ($behind -ne $board.Handle) { throw 'Backdrop is not directly behind target; inconclusive' }
+ $board.Show()
+ $adjacent = $false
+ for ($attempt=1; $attempt -le 3 -and $wait.ElapsedMilliseconds -lt 350; $attempt++) {
+  Assert-OwnedCaptureGeometry
+  if ($wait.ElapsedMilliseconds -ge 350) { break }
+  $placed = [GuiProbe]::SetWindowPos($board.Handle,$h,$background.X,$background.Y,$background.Width,$background.Height,0x0210)
+  $board.Refresh()
+  $settleUntil = [Math]::Min(350,$wait.ElapsedMilliseconds+100)
+  while ($wait.ElapsedMilliseconds -lt $settleUntil) { [System.Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds ([Math]::Max(1,[Math]::Min(10,$settleUntil-$wait.ElapsedMilliseconds))) }
+  Assert-OwnedCaptureGeometry
+  $behind = [GuiProbe]::GetWindow($h,2)
+  [uint32]$behindPid = 0
+  [void][GuiProbe]::GetWindowThreadProcessId($behind,[ref]$behindPid)
+  $className = New-Object System.Text.StringBuilder 256
+  [void][GuiProbe]::GetClassNameW($behind,$className,$className.Capacity)
+  $placementAttempts += @{attempt=$attempt;placed=$placed;elapsed_ms=$wait.ElapsedMilliseconds;behind_hwnd=$behind.ToInt64();behind_pid=$behindPid;behind_class=$className.ToString();behind_visible=[GuiProbe]::IsWindowVisible($behind)}
+  if (-not $placed) { throw 'Backdrop placement failed' }
+  if ($behind -eq $board.Handle) { $adjacent=$true; break }
+ }
+ $metadata.backdrop_placement_attempts = $placementAttempts
+ Assert-OwnedCaptureGeometry
+ if (-not $adjacent -or [GuiProbe]::GetWindow($h,2) -ne $board.Handle) { throw 'Backdrop is not directly behind target; inconclusive' }
  $bitmap = New-Object System.Drawing.Bitmap($w,$height)
  $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
  try {
@@ -125,6 +157,8 @@ try {
   $dest = [IntPtr]::Zero
   try {
    $dest = $graphics.GetHdc()
+   Assert-OwnedCaptureGeometry
+   if ([GuiProbe]::GetWindow($h,2) -ne $board.Handle) { throw 'Backdrop adjacency lost before BitBlt; inconclusive' }
    if (-not [GuiProbe]::BitBlt($dest,0,0,$w,$height,$source,$area.X,$area.Y,0x40CC0020)) { throw 'Composited desktop BitBlt failed' }
   } finally {
    if ($dest -ne [IntPtr]::Zero) { $graphics.ReleaseHdc($dest) }
@@ -136,4 +170,4 @@ try {
  $captureMetadata = @{backdrop_id=$board.Handle.ToInt64();directly_behind_target=$true;palette=$Palette;colors=@('#33CCD6','#DB4DC9');checker_pixels=48;backdrop_frame=@($background.X,$background.Y,$background.Width,$background.Height);crop_frame=@($area.X,$area.Y,$area.Width,$area.Height);top_control_pixels=[Math]::Max(0,$r.Top-$area.Top);bottom_control_pixels=[Math]::Max(0,$area.Bottom-$r.Bottom);left_control_pixels=[Math]::Max(0,$r.Left-$area.Left);right_control_pixels=[Math]::Max(0,$area.Right-$r.Right);pixel_width=$w;pixel_height=$height;capture='composited desktop full target window native pixels plus available 16px checkerboard controls; no scaling'}
  foreach ($key in $captureMetadata.Keys) { $metadata[$key] = $captureMetadata[$key] }
  $metadata | ConvertTo-Json -Compress -Depth 5
-} catch { @{status='CAPTURE_INCONCLUSIVE';reason=$_.Exception.Message} | ConvertTo-Json -Compress } finally { if ($null -ne $board) { $board.Close(); $board.Dispose() }; if ($null -ne $old -and $old -ne [IntPtr]::Zero) { [void][GuiProbe]::SetThreadDpiAwarenessContext($old) } }
+} catch { @{status='CAPTURE_INCONCLUSIVE';reason=$_.Exception.Message;backdrop_placement_attempts=$placementAttempts} | ConvertTo-Json -Compress -Depth 5 } finally { if ($null -ne $board) { $board.Close(); $board.Dispose() }; if ($null -ne $old -and $old -ne [IntPtr]::Zero) { [void][GuiProbe]::SetThreadDpiAwarenessContext($old) } }

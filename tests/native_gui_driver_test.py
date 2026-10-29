@@ -266,7 +266,7 @@ class DesktopCompatibilityContracts(unittest.TestCase):
         workflow=(Path(probe.__file__).parents[1]/'.github/workflows/native-gui-probe.yml').read_text()
         self.assertIn('permissions: {}',workflow);self.assertIn('timeout-minutes: 5',workflow)
 
-    def test_recovery_uses_owned_keys_and_observed_states(self):
+    def test_recovery_uses_owned_keys_and_observed_states(self, capture_failure=None):
         from unittest.mock import Mock, patch
         import json
         with tempfile.TemporaryDirectory() as tmp:
@@ -281,15 +281,36 @@ class DesktopCompatibilityContracts(unittest.TestCase):
                         window_transparent_flag=stage[0]!=2,viewport_transparent_background=stage[0]!=2))
                     return {'status':'INPUT_SENT','owner_pid':42,'window_id':77}
                 if '-OutputPath' in command:
+                    if capture_failure=='refused':return {'status':'CAPTURE_INCONCLUSIVE'}
+                    if capture_failure=='timeout':raise probe.subprocess.TimeoutExpired(command,5)
+                    if capture_failure=='invalid':
+                        Path(command[command.index('-OutputPath')+1]).write_bytes(b'bad')
+                        return {'status':'CAPTURE_READY'}
                     Path(command[command.index('-OutputPath')+1]).write_bytes(b'\x89PNG\r\n\x1a\n'+b'x'*20)
                     return {'status':'CAPTURE_READY','palette':2,'directly_behind_target':True}
                 width,height=sizes[stage[0]]
+                if capture_failure=='state' and stage[0]==2:width=999
                 return {'work_area':[0,0,1024,728],'backing_scale':1,'client_width':width,'client_height':height}
             with patch.object(probe.sys,'platform','win32'),patch.object(probe,'native_json',side_effect=helper),patch.object(probe.time,'sleep'),contextlib.redirect_stdout(io.StringIO()):
                 result,png=probe.recover_desktop(root,root,Mock(pid=42),log,'owned-strip',1024,probe.time.monotonic()+60)
             self.assertEqual(keys,['F2','F2','F8'])
-            self.assertEqual(result['status'],'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW')
-            self.assertTrue(png.exists())
+            if capture_failure=='state':
+                self.assertEqual(result['status'],'APPLICATION_FAILURE')
+                self.assertIsNot(result.get('state_observed'),True)
+                self.assertIsNone(png)
+                return
+            self.assertTrue(result['state_observed'])
+            if capture_failure:
+                self.assertEqual(result['status'],'CAPTURE_INCONCLUSIVE')
+                self.assertEqual(result['capture_status'],'CAPTURE_INCONCLUSIVE')
+                self.assertIsNone(png)
+            else:
+                self.assertEqual(result['status'],'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW')
+                self.assertTrue(png.exists())
+
+    def test_recovery_capture_failure_preserves_observed_state(self):
+        for failure in ('refused','timeout','invalid','state'):
+            with self.subTest(failure=failure):self.test_recovery_uses_owned_keys_and_observed_states(failure)
 
     def test_recovery_refused_input_has_no_retry_or_following_keys(self):
         from unittest.mock import Mock, patch
@@ -301,7 +322,7 @@ class DesktopCompatibilityContracts(unittest.TestCase):
                     probe.recover_desktop(root,root,Mock(pid=42),root/'log','owned',1024,probe.time.monotonic()+60)
             self.assertEqual(helper.call_count,2)
 
-    def test_complete_windows_matrix_offline_mock(self):
+    def test_complete_windows_matrix_offline_mock(self, capture_failure=False, bad_save=False, bad_exit=False, input_failure=False):
         from unittest.mock import patch
         import json, os
         calls=[]
@@ -317,22 +338,55 @@ class DesktopCompatibilityContracts(unittest.TestCase):
                 if kwargs.get('inputroot'):
                     saved['settings'].update(window_mode='window',transparent=False,click_through=False)
                     (path/'cultivation_save.json').write_text(json.dumps(saved))
-                    recovery={'status':'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW'}
-                return {'case':label,'exit_code':0,'forced_timeout':False,'after_save':{'status':'valid'},'status':'CAPTURE_INCONCLUSIVE',
+                    recovery={'status':'CAPTURE_INCONCLUSIVE' if capture_failure else 'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW','state_observed':not input_failure}
+                    if bad_save:
+                        saved['settings']['transparent']=True
+                        (path/'cultivation_save.json').write_text(json.dumps(saved))
+                return {'case':label,'exit_code':1 if bad_exit and kwargs.get('inputroot') else 0,'forced_timeout':False,'after_save':{'status':'valid'},'status':'CAPTURE_INCONCLUSIVE',
                     'pinned_boot_marker_observed':True,'pre_capture_geometry':{'work_area':[0,0,1024,728]},
-                    'recovery':recovery,'renderer':{'diagnostic':{'borderless':False,'window_transparent_flag':False}},
-                    'png_emitted':capture,'recovery_png_emitted':bool(kwargs.get('inputroot'))},100 if capture else 0
+                    'recovery':recovery,'renderer':{'diagnostic':{'borderless':False,'window_transparent_flag':False,'transparency_requested':False,'viewport_transparent_background':False}},
+                    'png_emitted':capture,'recovery_png_emitted':bool(kwargs.get('inputroot')) and not capture_failure},100 if capture else 0
             env={'GITHUB_ACTIONS':'true','RUNNER_ENVIRONMENT':'github-hosted','GITHUB_REPOSITORY':'lemoncat7/MountainStill','RUNNER_TEMP':tmp}
             with patch.dict(os.environ,env),patch.object(probe.sys,'platform','win32'),patch.object(probe,'userdata_path',return_value=userdata),patch.object(probe,'run_session',side_effect=session),patch.object(probe,'native_json',return_value={'status':'HELPER_PREPARED'}),patch.object(probe,'prepare_package'),patch.object(probe,'configure_output'),contextlib.redirect_stdout(io.StringIO()) as output:
-                self.assertEqual(probe.main(),0)
+                self.assertEqual(probe.main(),1 if bad_save or bad_exit else 0)
+            if bad_save or bad_exit or input_failure:
+                self.assertNotIn('restored-restart',[c[0] for c in calls])
+                return
             self.assertEqual([c[0] for c in calls],['seed','default-window','default-strip','restored-restart','opaque-strip','native-request-strip'])
             self.assertEqual(calls[-1][1]['driver'],'opengl3')
             self.assertFalse(calls[-2][1]['expected_transparent'])
             self.assertIsNone(calls[1][1]['driver'])
             summary=json.loads(next(x.split(' ',1)[1] for x in output.getvalue().splitlines() if x.startswith('GUI_PROBE_RESULT ')))
-            self.assertEqual(summary['png_count'],summary['expected_png_count'])
+            self.assertEqual(summary['png_count'],summary['expected_png_count']-int(capture_failure))
             self.assertEqual(summary['case_count'],6)
             self.assertFalse(userdata.exists())
+
+    def test_capture_failure_still_checks_save_and_restarts(self):
+        self.test_complete_windows_matrix_offline_mock(capture_failure=True)
+
+    def test_capture_failure_does_not_hide_bad_save_or_exit(self):
+        self.test_complete_windows_matrix_offline_mock(capture_failure=True,bad_save=True)
+        self.test_complete_windows_matrix_offline_mock(capture_failure=True,bad_exit=True)
+
+    def test_unobserved_input_state_never_restarts(self):
+        self.test_complete_windows_matrix_offline_mock(capture_failure=True,input_failure=True)
+
+    def test_windows_backdrop_bounded_owned_revalidation(self):
+        ps=Path(probe.__file__).with_name('native_gui_capture.ps1').read_text()
+        self.assertIn('$attempt -le 3 -and $wait.ElapsedMilliseconds -lt 350',ps)
+        self.assertIn('[Math]::Min(350,$wait.ElapsedMilliseconds+100)',ps)
+        self.assertEqual(ps.count('[GuiProbe]::SetWindowPos('),1)
+        self.assertIn('SetWindowPos($board.Handle,$h,',ps)
+        self.assertIn('$boardPid -ne $PID',ps)
+        self.assertIn('$actualPid -ne $TargetPid',ps)
+        self.assertIn('Capture geometry changed',ps)
+        self.assertEqual(ps.count('  Assert-OwnedCaptureGeometry'),3)
+        self.assertIn('Assert-OwnedCaptureGeometry\n if (-not $adjacent -or [GuiProbe]::GetWindow($h,2) -ne $board.Handle)',ps)
+        self.assertLess(ps.index('if (-not $adjacent'),ps.index('[GuiProbe]::BitBlt('))
+        self.assertIn('reason=$_.Exception.Message;backdrop_placement_attempts=$placementAttempts',ps)
+        for key in ('behind_hwnd','behind_pid','behind_class','behind_visible'):
+            self.assertIn(key,ps)
+        self.assertNotIn('GetWindowText',ps)
 
     def test_expired_budget_never_launches_seed_or_restart(self):
         from unittest.mock import patch

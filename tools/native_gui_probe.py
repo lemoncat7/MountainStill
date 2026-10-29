@@ -130,13 +130,21 @@ def recover_desktop(root,inputroot,process,logfile,label,budget,deadline):
         if key=='F8':valid=valid and all(diag.get(k) is False for k in ('transparency_requested','window_transparent_flag','viewport_transparent_background'))
         emit_record('DESKTOP_RECOVERY_STEP',label,{'key':key,'expected_mode':mode,'geometry':geometry,'diagnostic':diag,'state_observed':valid})
         if not valid:return {'status':'APPLICATION_FAILURE','reason':'delivered_key_state_not_observed','geometry':geometry},None
-    if time.monotonic()+5>=deadline:raise RuntimeError('Recovery capture deadline exhausted')
-    png=root/(label+'-restored.png')
-    capture=native_json(capture_command(root,process.pid,png,2),5)
-    emit_record('RECOVERY_CAPTURE',label,capture)
-    if capture.get('status')!='CAPTURE_READY':return {'status':'CAPTURE_INCONCLUSIVE','reason':'restore_screenshot_unavailable'},None
-    if not 8<=png.stat().st_size<=budget or png.read_bytes()[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Recovery PNG invalid or budget exhausted')
-    return {'status':'RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW','geometry':geometry},png
+    # State evidence survives a separately inconclusive screenshot. No input is retried.
+    result={'status':'CAPTURE_INCONCLUSIVE','state_observed':True,'geometry':geometry,
+            'capture_status':'CAPTURE_INCONCLUSIVE','reason':'restore_screenshot_unavailable'}
+    try:
+        if time.monotonic()+5>=deadline:raise RuntimeError('Recovery capture deadline exhausted')
+        png=root/(label+'-restored.png')
+        capture=native_json(capture_command(root,process.pid,png,2),5)
+        emit_record('RECOVERY_CAPTURE',label,capture)
+        if capture.get('status')!='CAPTURE_READY':return result,None
+        if not 8<=png.stat().st_size<=budget or png.read_bytes()[:8]!=b'\x89PNG\r\n\x1a\n':raise ValueError('Recovery PNG invalid or budget exhausted')
+        result.update(status='RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW',capture_status='CAPTURE_READY',reason='independent_image_review_required')
+        return result,png
+    except (ValueError,RuntimeError,OSError,subprocess.TimeoutExpired) as error:
+        result['reason']=str(error)[:400]
+        return result,None
 
 def frame_png(path, remaining):
     size = path.stat().st_size
@@ -523,7 +531,9 @@ def main():
                 if not preserved or after.get('settings',{}).get('paused') is not True:raise AssertionError('Display fixture gameplay/save preservation failed')
                 if list(userdata.glob('*invalid*')):raise AssertionError('Synthetic geometry settings rejected/corrupt-save recovery')
                 if restore:
-                    observed=result['recovery'].get('status')=='RESTORE_STATE_OBSERVED_REQUIRES_IMAGE_REVIEW'
+                    observed=result['recovery'].get('state_observed') is True
+                    if observed and (result['exit_code']!=0 or result['forced_timeout'] or not result['pinned_boot_marker_observed'] or result['status'] in ('APPLICATION_FAILURE','ENVIRONMENT_UNAVAILABLE')):
+                        raise AssertionError('Observed restoration lacks a valid normally-closed pinned session')
                     saved=after.get('settings',{})
                     if observed and not (saved.get('window_mode')=='window' and saved.get('transparent') is False and saved.get('click_through') is False):
                         raise AssertionError('Observed F8 restoration did not persist')
@@ -532,10 +542,14 @@ def main():
                         budget-=used;results.append(restart)
                         reopened=offline_save(userdata,token,process_registry)
                         diag=restart['renderer'].get('diagnostic') or {}
-                        valid=(gameplay_projection(after)==gameplay_projection(reopened)
+                        valid=(restart['exit_code']==0 and not restart['forced_timeout']
+                            and restart['pinned_boot_marker_observed'] and restart['status'] not in ('APPLICATION_FAILURE','ENVIRONMENT_UNAVAILABLE')
+                            and gameplay_projection(after)==gameplay_projection(reopened)
                             and reopened.get('settings',{}).get('window_mode')=='window'
                             and reopened.get('settings',{}).get('transparent') is False
-                            and diag.get('borderless') is False and diag.get('window_transparent_flag') is False)
+                            and reopened.get('settings',{}).get('click_through') is False
+                            and diag.get('borderless') is False
+                            and all(diag.get(k) is False for k in ('transparency_requested','window_transparent_flag','viewport_transparent_background')))
                         emit_record('RESTORED_RESTART_ASSERTION','restored-restart',{'saved_state_and_runtime_observed':valid})
                         if not valid:raise AssertionError('Restoration restart state/save mismatch')
             status='APPLICATION_FAILURE' if any(r['status']=='APPLICATION_FAILURE' for r in results) else 'CAPTURE_INCONCLUSIVE'

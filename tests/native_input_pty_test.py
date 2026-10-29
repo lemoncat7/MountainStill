@@ -109,6 +109,18 @@ class OwnedPTYLogTests(unittest.TestCase):
             with self.assertRaises(OSError):
                 os.fstat(old)
 
+    def test_start_failure_cleanup_callback_error_is_not_swallowed(self):
+        log = OwnedPTYLog(self.path)
+        log.__enter__()
+        def failed_cleanup():
+            raise RuntimeError("owned cleanup failed")
+        with mock.patch("native_input_pty.threading.Thread.start", side_effect=RuntimeError("thread unavailable")):
+            with self.assertRaisesRegex(RuntimeError, "owned cleanup failed"):
+                log.started(before_error_close=failed_cleanup)
+        self.assertIsNone(log.master_fd)
+        self.assertIsNone(log.slave_fd)
+        self.assertIsNone(log._stream)
+
     def test_write_failure_is_reported_and_further_bytes_discarded(self):
         log = OwnedPTYLog(self.path, budget=100)
         log.__enter__()

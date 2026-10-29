@@ -153,7 +153,13 @@ class Contracts(unittest.TestCase):
             (userdata/'cultivation_save.json').write_text(json.dumps({'version':4,'lifetime_seconds':20,'settings':{'window_mode':'window','normal_width':960,'normal_height':540}}))
             metadata={'status':'GEOMETRY_READY','work_area':[0,0,1024,728],'backing_scale':1,'client_geometry_source':'GetClientRect+ClientToScreen','client_width':960,'client_height':540,'outer_frame':[12,44,976,579]}
             def launch(*args,**kwargs):
-                kwargs['stdout'].write(('UPDATE BOOT: '+probe.TAG[1:]+'\nLoading resource: res://assets/cultivation/beasts/opportunity_cairn.png\n').encode());kwargs['stdout'].flush();return process
+                stream=kwargs['stdout']
+                data=('UPDATE BOOT: '+probe.TAG[1:]+'\nLoading resource: res://assets/cultivation/beasts/opportunity_cairn.png\n').encode()
+                if isinstance(stream,int):
+                    import os
+                    os.write(stream,data)
+                else:stream.write(data);stream.flush()
+                return process
             def helper(command,timeout):
                 if '--geometry-only' in command:return dict(metadata)
                 if '--request-close' in command:process.returncode=0;return {'status':'CLOSE_REQUEST_SENT','handler_handled':'unknown'}
@@ -203,7 +209,7 @@ class DesktopCompatibilityContracts(unittest.TestCase):
             self.assertEqual(fallback['selection'],'FALLBACK_OBSERVED')
             self.assertFalse(fallback['native_opengl_verified'])
             self.assertFalse(fallback['pixel_transparency_verified'])
-            native=probe.renderer_evidence(self.diagnostic('opengl3'),'opengl3')
+            native=probe.renderer_evidence(self.diagnostic('opengl3',adapter_name='Intel HD',adapter_vendor='Intel',adapter_api='4.1 INTEL-20.0'),'opengl3')
             self.assertTrue(native['native_opengl_verified'])
             self.assertEqual(probe.renderer_evidence(self.diagnostic('opengl3'),'project_default')['selection'],'FALLBACK_OBSERVED')
 

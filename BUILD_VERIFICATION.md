@@ -1,3 +1,12 @@
+# 山隐 v1.3.28-test.1 · 只读显示诊断候选
+
+**测试候选，尚未完成本轮构建及全量验收，不是新的正式版。** 设置中的显示诊断分三页展示安装宿主、运行内容与热内容版本、实际渲染后端，以及透明请求/支持/窗口标记。页面只读，不下载更新、不切换后端、不清除 active 更新或重置存档。宿主与内容版本可以不同；透明 flag 不等于真实桌面透明像素成功。
+
+保留 Windows ANGLE 优先和原生 OpenGL 备用启动、存档 schema 4、Bootstrap ABI 1。玩法与战斗性能代码不变，既有 33.3ms 峰值预算问题及两条剑式节奏失败未解决；用户 Windows 黑底亦未宣称修复。新制品需绑定实际 SHA 的验收，旧日志不冒作本轮结果。详见 [显示诊断说明](docs/DISPLAY-DIAGNOSTICS-v1.3.28.md)。
+
+---
+## 以下为历史版本说明（非本轮验收）
+
 > **当前交付：v1.3.27-test.1 Windows 透明兼容测试版，不是新的正式版。** 用户实机黑底尚未证实修复；本候选验证范围见 [PUBLICATION_NOTES.md](PUBLICATION_NOTES.md)，完整 Windows host 升级与备用启动说明见 [WINDOWS_TRANSPARENCY.md](docs/WINDOWS_TRANSPARENCY.md)。下方保留历史版本记录，不代表本候选已经通过其中全部验收。
 
 # 山隐 v1.3.26 · 首个正式版本说明

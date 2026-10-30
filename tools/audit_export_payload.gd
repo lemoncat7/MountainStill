@@ -4,6 +4,7 @@ extends SceneTree
 
 func _initialize() -> void:
 	var expected := [
+		"scripts/display_diagnostic_pages.gd",
 		"main.tscn", "default_bus_layout.tres", "icon.svg",
 		"scripts/readability_layout.gd",
 		"scripts/scene_art_layout.gd",

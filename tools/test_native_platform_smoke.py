@@ -34,15 +34,23 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_seventeen_tests_preserve_previous_coverage(self):
+    def test_eighteen_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
-            'test_display_diagnostics.gd', 'test_cultivation.gd', 'test_scene_art_layout.gd',
+            'test_display_diagnostic_pages.gd', 'test_display_diagnostics.gd', 'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
             'test_practice_loadout.gd', 'test_practice_loadout_ui.gd', 'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd', 'test_combat_hud_readability.gd',
         })
+
+    def test_diagnostic_pages_marker_requires_exact_coverage(self):
+        test = 'test_display_diagnostic_pages.gd'
+        marker = 'DISPLAY DIAGNOSTIC PAGES: 160 checks, 0 failures'
+        self.assertTrue(smoke.test_passed(0, marker, test))
+        for text in ('', marker.replace('160', '159'), marker.replace('160', '161'), marker.replace('0 failures', '1 failures'), marker + ' EXTRA', marker + '\n' + marker, 'prefix ' + marker, marker + '\nParse Error: failed', marker + '\nSCRIPT ERROR: failed', marker + '\nERROR: failed', marker + '\nObjectDB instances leaked'):
+            self.assertFalse(smoke.test_passed(0, text, test))
+        self.assertFalse(smoke.test_passed(1, marker, test))
 
     def test_display_marker_requires_exact_coverage(self):
         marker = 'Display diagnostics: 73 checks, 0 failures; Windows preference, actual backend, deduplication, and recovery'

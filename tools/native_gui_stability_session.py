@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Owned macOS ARM GUI lifecycle session; no input injection, AX or TCC requests.
 
-Caller provides the verified actual v27-test.1 binary and precompiled root/capture Swift
+Caller provides the verified actual v28-test.1 binary and precompiled root/capture Swift
 helper. No saves are opened here. This is not screenshots, GPU timing or proof
 that a particular application Quit handler ran.
 """

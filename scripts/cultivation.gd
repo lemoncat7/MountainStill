@@ -22,6 +22,10 @@ const CombatResponseCues = preload("res://scripts/combat_response_cues.gd")
 const CorpsePresentation = preload("res://scripts/corpse_presentation.gd")
 const State = preload("res://scripts/cultivation_state.gd")
 const Desktop = preload("res://scripts/desktop_mode.gd")
+const DisplayDiagnostics = preload("res://scripts/display_diagnostic_pages.gd")
+var diagnostic_page := 0
+var diagnostic_snapshot: Dictionary = {}
+var diagnostic_versions: Dictionary = {}
 const Readability = preload("res://scripts/readability_layout.gd")
 const SceneArt = preload("res://scripts/scene_art_layout.gd")
 var display_check_clock := 0.0
@@ -448,6 +452,23 @@ func _animate_content(turning:bool):
 	content_tween.tween_property(self,"content_offset",0.0,.28 if turning else .20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_sync_drawer_visuals()
 
+func _refresh_display_diagnostics():
+	diagnostic_snapshot=desktop.display_diagnostic()
+	var root=get_tree().root
+	diagnostic_versions=DisplayDiagnostics.versions((root.get_meta("update_store") if root.has_meta("update_store") else null),root.get_node_or_null("UpdateService"))
+	if drawer_name=="diagnostics":_refresh_drawer()
+	queue_redraw()
+
+func _open_display_diagnostics():
+	diagnostic_page=0
+	_refresh_display_diagnostics()
+	_toggle_drawer("diagnostics")
+
+func _turn_display_diagnostics():
+	diagnostic_page=(diagnostic_page+1)%DisplayDiagnostics.TITLES.size()
+	_refresh_drawer()
+	queue_redraw()
+
 func _toggle_drawer(value:String):
 	if practice_session != null: return
 	_record_cue("翻册："+value)
@@ -489,7 +510,7 @@ func _close_drawer():
 
 func _drawer_rect()->Rect2:
 	var page=drawer_name if not drawer_name.is_empty() else drawn_page
-	var width=700.0 if page in ["wardrobe","alchemy","practice","capacity"] else (460.0 if page in ["settings","display"] else 390.0)
+	var width=700.0 if page in ["wardrobe","alchemy","practice","capacity"] else (460.0 if page in ["settings","display","diagnostics"] else 390.0)
 	return Rect2(size.x-width-58,20,width,280)
 
 func _refresh_drawer(animated=false):
@@ -547,7 +568,12 @@ func _refresh_drawer(animated=false):
 	elif drawer_name=="desktop":
 		_check("透明街景（支持时）",Vector2(x,y+65),state.settings.transparent,func(v):state.settings.transparent=v;desktop.set_transparent(v);_notice(desktop.status()))
 		_check("景观区鼠标穿透",Vector2(x,y+107),state.settings.click_through,func(v):state.settings.click_through=v;_notice("收起书页后应用穿透；小印与场景入口仍可操作。" if v else "景观区穿透已关闭。"))
+		_qbutton(drawer,"desktop_diagnostics","显示诊断",Rect2(x+146,y+180,130,30),_open_display_diagnostics,"只读查看版本、显卡与透明状态；仅本地显示")
 		_qbutton(drawer,"desktop_back","返回设置",Rect2(x,y+180,130,30),func():_toggle_drawer("settings"))
+	elif drawer_name=="diagnostics":
+		_qbutton(drawer,"diagnostic_back","返回桌面",Rect2(x,y+232,106,28),func():_toggle_drawer("desktop"))
+		_qbutton(drawer,"diagnostic_refresh","刷新",Rect2(x+120,y+232,78,28),_refresh_display_diagnostics,"只重新读取本地状态，不改变设置")
+		_qbutton(drawer,"diagnostic_next","下一页  %d / 3" % (diagnostic_page+1),Rect2(x+222,y+232,156,28),_turn_display_diagnostics)
 	if animated:
 		# Retarget from the current paper, including interrupted closes and width changes.
 		# Only the ink is replaced; a partially visible leaf never teleports.
@@ -860,7 +886,7 @@ func _draw_drawer():
 	if interaction_pulse>0 and not drawer_name.is_empty() and r.encloses(interaction_rect):
 		var p=interaction_rect.position+Vector2(content_offset,(1.0-paper_reveal)*4.0)
 		InkPaper.brush(self,Rect2(p+Vector2(5,interaction_rect.size.y-2),Vector2(maxf(8,interaction_rect.size.x-10)*(1.0-interaction_pulse*.25),1.5)),Color(.56,.25,.17,interaction_pulse*.32*a))
-	var titles={"bag":"随身行囊","settings":"山居小记","desktop":"桌面相伴","display":"窗口与字号"}
+	var titles={"bag":"随身行囊","settings":"山居小记","desktop":"桌面相伴","display":"窗口与字号","diagnostics":"显示诊断 · "+DisplayDiagnostics.TITLES[diagnostic_page]}
 	if titles.has(page):_text(titles[page],Vector2(x,y+39),27,Color(INK,a),BRUSH)
 	if page=="capacity":
 		CapacityPages.draw(self,x,y,a)
@@ -885,6 +911,11 @@ func _draw_drawer():
 		_text("字体、按钮等比放大；小窗口会自动适配。",Vector2(x,y+64),11,Color(SUBTLE,a))
 		_text("普通窗口可拖动边框；大小与位置自动保存。",Vector2(x,y+124),11,Color(SUBTLE,a))
 		_text("小窗适合桌面陪伴；阅读建议使用普通窗口。",Vector2(x,y+183),11,Color(SUBTLE,a))
+	elif page=="diagnostics":
+		var rows=DisplayDiagnostics.rows(diagnostic_snapshot,diagnostic_versions,diagnostic_page)
+		for i in range(rows.size()):
+			_text(DisplayDiagnostics.fit(rows[i],SANS,13,r.size.x-48),Vector2(x,y+67+i*21),13,Color(INK,a))
+		_text("本地快照 · 未验证最终像素 · 不上传",Vector2(x,y+214),11,Color(SUBTLE,a))
 	elif page=="desktop":
 		_text("小印始终可点击；Esc / F8 恢复窗口。",Vector2(x,y+158),11,Color(SUBTLE,a))
 		_text("Windows 暂不启用区域穿透。",Vector2(x,y+175),10,Color(SUBTLE,a))

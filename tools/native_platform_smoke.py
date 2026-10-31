@@ -35,6 +35,15 @@ TESTS = {
     'update_policy_test.gd': r'update_policy: [1-9]\d* checks passed',
     'update_store_test.gd': r'UPDATE STORE: [1-9]\d* checks, 0 failures',
 }
+# The exact-trace contact case is longer on Intel CI; all other cases retain 60s.
+DEFAULT_TEST_TIMEOUT = 60
+TEST_TIMEOUTS = {'test_batched_enemy_contact.gd': 180}
+
+
+def test_timeout(test):
+    return TEST_TIMEOUTS.get(test, DEFAULT_TEST_TIMEOUT)
+
+
 # Deliberate fault-injection diagnostics must be listed by test and exact line.
 EXPECTED_ERRORS = {}
 ERROR = re.compile(r'^(?:SCRIPT ERROR:|ERROR:|FAIL:)|\b(?:leaked|orphan|crashed)\b', re.I)
@@ -150,7 +159,7 @@ def main():
             results.append(('source resource import', 'PASS'))
             for test, marker in TESTS.items():
                 print(f'\n=== {test} ===', flush=True)
-                code, output = run(common + ['--script', 'res://tests/' + test], 60)
+                code, output = run(common + ['--script', 'res://tests/' + test], test_timeout(test))
                 okay = test_passed(code, output, test)
                 results.append((test, 'PASS' if okay else 'FAIL'))
     except Exception as error:

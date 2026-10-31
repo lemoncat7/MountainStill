@@ -33,6 +33,19 @@ class OutputEncodingTests(unittest.TestCase):
         stderr.close()
 
 
+class CaseTimeoutTests(unittest.TestCase):
+    def test_only_exact_contact_case_has_180_second_budget(self):
+        self.assertEqual(smoke.DEFAULT_TEST_TIMEOUT, 60)
+        self.assertEqual(smoke.TEST_TIMEOUTS, {'test_batched_enemy_contact.gd': 180})
+        self.assertEqual(smoke.test_timeout('test_batched_enemy_contact.gd'), 180)
+        self.assertEqual(len(smoke.TESTS), 19)
+        for case in set(smoke.TESTS) - {'test_batched_enemy_contact.gd'}:
+            self.assertEqual(smoke.test_timeout(case), 60, case)
+        self.assertEqual(smoke.test_timeout('unknown.gd'), 60)
+        self.assertEqual(smoke.TESTS['test_batched_enemy_contact.gd'],
+                         'BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures')
+
+
 class ChapterPracticeMarkerTests(unittest.TestCase):
     def test_nineteen_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {

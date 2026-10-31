@@ -362,6 +362,17 @@ static func measure(hero:Dictionary,enemy:Dictionary,definition:Dictionary,sampl
 
 static func body_front(enemy:Dictionary,definition:Dictionary,height:float)->Dictionary:
  return _front_at_y(height,_body_data(enemy,definition))
+# Sample one unchanged enemy body at the supplied points' heights, preserving
+# input order and the scalar front arithmetic. No snapshot survives this call.
+# As with other geometry APIs, motion/definition use ordinary schema values
+# (strings, numbers, vectors, dictionaries), unchanged during this synchronous call.
+static func body_fronts(enemy:Dictionary,definition:Dictionary,points:PackedVector2Array)->Array[Dictionary]:
+ var fronts:Array[Dictionary]=[]
+ # Match an empty scalar loop: do not resolve sources or touch geometry caches.
+ if points.is_empty():return fronts
+ var data:=_body_data(enemy,definition)
+ for point in points:fronts.append(_front_at_y(point.y,data))
+ return fronts
 static func clearance_front(enemy:Dictionary,definition:Dictionary,height:float)->Dictionary:
  # Conservative union of the three painted body poses. The collision plane
  # cannot jump when the renderer swaps a windup/attack texture.

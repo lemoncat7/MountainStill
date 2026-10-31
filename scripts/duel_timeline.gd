@@ -1193,8 +1193,12 @@ func _measure_enemy_contact(action: Dictionary, current: Dictionary) -> Dictiona
 	var reach := float(geometry.get("reach",24.0))
 	var result := {"gap": INF, "reach": reach, "contact": false, "point": Vector2.ZERO, "target": Vector2.ZERO, "area": bool(geometry.get("area",false)),
 		"spacing_correction": float(current.enemy.get("body_separation", 0.0)), "spacing_reservation": float(current.enemy.get("body_reservation", 0.0))}
-	for hero_front in MeleeGeometry.hero_body_fronts(current.hero):
-		var front := MeleeGeometry.body_front(current.enemy, _enemy, hero_front.y)
+	# Resolve the hero first: its pose provider may update the enemy motion.
+	var hero_fronts := MeleeGeometry.hero_body_fronts(current.hero)
+	var enemy_fronts := MeleeGeometry.body_fronts(current.enemy, _enemy, hero_fronts)
+	for index in range(hero_fronts.size()):
+		var hero_front := hero_fronts[index]
+		var front := enemy_fronts[index]
 		if not bool(front.valid): continue
 		var gap := Vector2(front.point).x - hero_front.x
 		if gap < float(result.gap):

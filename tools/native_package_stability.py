@@ -21,15 +21,15 @@ from native_platform_smoke import unexpected_errors
 from native_process_metrics import sample, cpu_percent
 
 # Independent pin: ordinary package-smoke updates must not silently retarget this observation.
-TAG = 'v1.3.28-test.1'
+TAG = 'v1.3.29-test.1'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.28-test.1-Windows-x86_64.zip',
-              '712770c50a52cc21348fadea0a4bcf8efe6ff3987fff83175ff1be9afd0f227e',
-              'MountainStill/MountainStill.exe', 114561641),
-    'darwin': ('MountainStill-v1.3.28-test.1-macOS-Universal.zip',
-               'd914e746f06f32f2bc3a8803c57ed6a37f75ef08f085f43b972b3e034cd21aec',
-               APP + '.app/Contents/MacOS/' + APP, 141292607),
+    'win32': ('MountainStill-v1.3.29-test.1-Windows-x86_64.zip',
+              '00e9ed6436d450cd60788f7bc15d11b4b79a81ec3993c2ffac784174e15418b6',
+              'MountainStill/MountainStill.exe', 114565395),
+    'darwin': ('MountainStill-v1.3.29-test.1-macOS-Universal.zip',
+               'faf004c2700812ff8f3081daf77c6d220c2be360662804ea7213952290aed9d8',
+               APP + '.app/Contents/MacOS/' + APP, 141296431),
 }
 ASSETS = ('creek_bridge_boss_settle.png', 'creek_bridge_boss_retract.png')
 LONG_FRAMES = 78000
@@ -45,7 +45,7 @@ def emit(kind, value):
 
 
 def userdata_path():
-    # The immutable v28-test.1 app name must guard exactly the directory v28-test.1 writes,
+    # The immutable v29-test.1 app name must guard exactly the directory v29-test.1 writes,
     # even if a future ordinary package-smoke changes its own APP constant.
     if sys.platform == 'win32':
         base = Path(os.environ['APPDATA'])
@@ -81,7 +81,7 @@ def download_pinned(root):
 
 
 def boot_ready(text):
-    return bool(re.search(r'^UPDATE BOOT: 1\.3\.28-test\.1\s*$', text, re.M)) and all(
+    return bool(re.search(r'^UPDATE BOOT: ' + re.escape(TAG.removeprefix('v')) + r'\s*$', text, re.M)) and all(
         any('Loading resource:' in line and 'res://assets/cultivation/beasts/' + asset in line
             for line in text.splitlines()) for asset in ASSETS)
 
@@ -419,7 +419,7 @@ def main():
             except Exception as error:
                 emit('CLEANUP_FAILURE',dict(message=str(error)))
                 results.append('FAIL owned user-data cleanup')
-        summary = '## v28-test.1 actual-package 20-minute headless lifecycle precheck\n\n'+'\n'.join('- '+r for r in results)
+        summary = '## v29-test.1 actual-package 20-minute headless lifecycle precheck\n\n'+'\n'.join('- '+r for r in results)
         summary += '\n\nNo 60-minute mixed GUI, continuous chapter combat, FPS/GPU, internal static-memory/object count, or formal-release certification. RSS budget is a historical proposal; CPU utilization has no pass threshold.\n'
         print(summary,flush=True)
         if os.environ.get('GITHUB_STEP_SUMMARY'):

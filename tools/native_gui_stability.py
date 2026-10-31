@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent fixed-v28-test.1 ARM GUI wall-clock lifecycle observation, not a headless retry."""
+"""Independent fixed-v29-test.1 ARM GUI wall-clock lifecycle observation, not a headless retry."""
 import json
 import math
 import os
@@ -78,7 +78,7 @@ def main():
     registry=[];rows=[];owned=False;userdata=None;token=uuid.uuid4().hex;results=[]
     try:
         require_environment()
-        gate.emit('PROFILE',dict(name='v28-test.1_ARM_GUI_wall_clock',tag=gate.TAG,
+        gate.emit('PROFILE',dict(name='v29-test.1_ARM_GUI_wall_clock',tag=gate.TAG,
             independent_of_failed_headless_runs=True,headless=False,script_injection=False,
             minimum_long_seconds=1200,warmup_seconds=300,stage_watchdog_seconds=1500,
             close_grace_seconds=30,not_formal_stability_acceptance=True))
@@ -132,7 +132,7 @@ def main():
             except Exception as error:
                 gate.emit('CLEANUP_FAILURE',dict(type=type(error).__name__))
                 results.append('FAIL owned data cleanup')
-        summary='## Independent v28-test.1 ARM GUI lifecycle\n\n'+'\n'.join('- '+r for r in results)
+        summary='## Independent v29-test.1 ARM GUI lifecycle\n\n'+'\n'.join('- '+r for r in results)
         summary+='\n\nDoes not erase headless failures. No 60-minute mixed GUI, sustained combat, rendered FPS, physical close-button click, formal memory or release certification. GUI/headless CPU and RSS are not directly comparable.\n'
         print(summary,flush=True)
         if os.environ.get('GITHUB_STEP_SUMMARY'):

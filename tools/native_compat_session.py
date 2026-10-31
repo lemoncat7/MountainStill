@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Owned Windows/macOS compatibility GUI session; no input injection, AX or TCC requests.
 
-Caller provides the verified actual v26/v28-test.1 binary and precompiled native helper
+Caller provides the verified actual v26/v29-test.1 binary and precompiled native helper
 (root/capture.dll on Windows, root/capture on macOS). No saves are opened here.
 This is not screenshots, GPU timing or proof
 that a particular application Quit handler ran.
@@ -80,13 +80,13 @@ def visible_geometry(value, pid):
                     and math.isfinite(value[key]) and value[key] > 20 for key in fields))
 
 
-ALLOWED_VERSIONS = ('1.3.26', '1.3.28-test.1')
+ALLOWED_VERSIONS = ('1.3.26', '1.3.29-test.1')
 ASSETS = ('creek_bridge_boss_settle.png', 'creek_bridge_boss_retract.png')
 
 
 def boot_ready(text, expected_version, terminal=False):
     if expected_version not in ALLOWED_VERSIONS:
-        raise ValueError('Only fixed reviewed v26/v28-test.1 compatibility profiles allowed')
+        raise ValueError('Only fixed reviewed v26/v29-test.1 compatibility profiles allowed')
     lines = text.splitlines()
     if not terminal and text and not text.endswith(('\n', '\r')):
         lines = lines[:-1]  # Do not classify a partially written live marker.
@@ -167,7 +167,7 @@ def session(binary, root, label, expected_version, rows_out, registry, global_de
             or (sys.platform == 'darwin' and machine in ('arm64', 'aarch64', 'x86_64'))):
         raise RuntimeError('ENVIRONMENT_UNAVAILABLE: native Windows x64/macOS ARM64 or Intel only')
     if expected_version not in ALLOWED_VERSIONS:
-        raise ValueError('Only fixed reviewed v26/v28-test.1 compatibility profiles allowed')
+        raise ValueError('Only fixed reviewed v26/v29-test.1 compatibility profiles allowed')
     if not re.fullmatch(r'[a-zA-Z0-9_-]+', label):
         raise ValueError('Invalid phase label')
     if type(global_deadline) not in (int, float) or not math.isfinite(global_deadline):

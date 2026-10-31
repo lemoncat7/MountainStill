@@ -34,8 +34,9 @@ class OutputEncodingTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_eighteen_tests_preserve_previous_coverage(self):
+    def test_nineteen_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
+            'test_batched_enemy_contact.gd',
             'test_display_diagnostic_pages.gd', 'test_display_diagnostics.gd', 'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
             'test_shutdown_lifecycle.gd', 'update_policy_test.gd',
@@ -43,6 +44,14 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
             'test_practice_loadout.gd', 'test_practice_loadout_ui.gd', 'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd', 'test_combat_hud_readability.gd',
         })
+
+    def test_batched_contact_marker_requires_exact_coverage(self):
+        test = 'test_batched_enemy_contact.gd'
+        marker = 'BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures'
+        self.assertTrue(smoke.test_passed(0, marker, test))
+        for text in ('', marker.replace('184187', '184186'), marker.replace('184187', '184188'), marker.replace('0 failures', '1 failures'), marker + ' EXTRA', marker + '\n' + marker, 'prefix ' + marker, marker + '\nParse Error: failed', marker + '\nSCRIPT ERROR: failed', marker + '\nERROR: failed', marker + '\nObjectDB instances leaked'):
+            self.assertFalse(smoke.test_passed(0, text, test))
+        self.assertFalse(smoke.test_passed(1, marker, test))
 
     def test_diagnostic_pages_marker_requires_exact_coverage(self):
         test = 'test_display_diagnostic_pages.gd'

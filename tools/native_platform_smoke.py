@@ -15,6 +15,7 @@ import uuid
 from qa_verify_provider_lifecycle import validate as validate_provider_lifecycle
 
 TESTS = {
+    'test_batched_enemy_contact.gd': r'BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures',
     'test_display_diagnostic_pages.gd': r'DISPLAY DIAGNOSTIC PAGES: 160 checks, 0 failures',
     'test_display_diagnostics.gd': r'Display diagnostics: 73 checks, 0 failures; Windows preference, actual backend, deduplication, and recovery',
     'test_practice_loadout.gd': r'Practice loadout: 69 checks, 0 failures',
@@ -51,6 +52,9 @@ def unexpected_errors(output, test):
 def test_passed(code, output, test):
     if code != 0 or unexpected_errors(output, test):
         return False
+    if test == 'test_batched_enemy_contact.gd':
+        markers = [line for line in output.splitlines() if 'BATCHED_ENEMY_CONTACT:' in line]
+        return markers == [TESTS[test]] and 'Parse Error' not in output
     if test == 'test_display_diagnostic_pages.gd':
         markers = [line for line in output.splitlines() if 'DISPLAY DIAGNOSTIC PAGES:' in line]
         return markers == [TESTS[test]] and 'Parse Error' not in output

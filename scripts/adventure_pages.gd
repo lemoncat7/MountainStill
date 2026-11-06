@@ -189,7 +189,8 @@ static func build_expedition(h,x:float,y:float):
 	var retreat_run_id:int=h.encounter_run_id if h.encounter_active else -1
 	var depart:Button=button(h,"depart_stage",label,Rect2(x,y+237,202,30),func():_depart(h,retreat_run_id),hint,true)
 	depart.disabled=not h._can_retreat_encounter() if h.encounter_active else (h.paused or (not bool(status.get("paused",false)) and not bool(chosen.get("unlocked",false))))
-	button(h,"expedition_gear","整理衣冠 ↗",Rect2(x+225,y+240,119,27),func():h.wardrobe_tab="equipment";h._refresh_drawer(),"穿上已拥有的装备，或用草露淬炼旧物")
+	if h.InkPages.CraftSupply.has_return(h):h.InkPages.CraftSupply.build_return(h,Rect2(x+225,y+240,119,27))
+	else:button(h,"expedition_gear","整理衣冠 ↗",Rect2(x+225,y+240,119,27),func():h.wardrobe_tab="equipment";h._refresh_drawer(),"穿上已拥有的装备，或用草露淬炼旧物")
 	button(h,"expedition_meridian","疏通经脉 ↗",Rect2(x+354,y+240,119,27),func():h.wardrobe_tab="meridian";h._refresh_drawer(),"有限的永久成长；经脉不阻挡境界突破")
 	button(h,"expedition_chest","木箱 · %d"%h.state.chest_count,Rect2(x+483,y+240,121,27),h._open_treasure,"启封现有木箱；不会自动穿戴",true).disabled=h.state.chest_count<=0
 	var opportunity:Dictionary=h.state.opportunity_status()
@@ -300,6 +301,7 @@ static func _selected_meridian(h)->Dictionary:
 	return rows[0] if not rows.is_empty() else {}
 
 static func _choose_meridian_branch(h,id:String):
+	h.set_meta("meridian_trail",[])
 	h.set_meta("meridian_branch",id)
 	# Keep one remembered selection per branch, without changing any progression.
 	h.set_meta("meridian_id",str(h.get_meta("meridian_selected_"+id,"")))
@@ -315,6 +317,51 @@ static func _meridian_hint(row:Dictionary) -> String:
 	var parents:String="、".join(row.get("prerequisite_names",[]))
 	return str(row.description)+"\n"+str(row.effect)+"\n"+("起始穴位" if parents.is_empty() else "前置："+parents)+"\n"+str(row.locked_reason)
 
+static func _meridian_missing_target(h,row:Dictionary)->Dictionary:
+	# Resolve the actual graph in authored order, including cross-branch roots.
+	for required in row.get("prerequisites",[]):
+		if h.state.meridian_opened.get(str(required),false)==true:continue
+		for point in h.state.meridian_rows():
+			if str(point.id)==str(required):return point
+		return {} # Invalid content must not silently skip an unknown first gate.
+	return {}
+
+static func _meridian_resource_hint(h,row:Dictionary)->String:
+	if bool(row.get("active",false)) or not bool(row.get("unlocked",false)):return str(row.get("locked_reason",""))
+	var missing:Array[String]=[]
+	var energy:float=h.state.merit if h.state.realm==h.state.MAX_REALM else h.state.qi
+	if energy+h.state.EPSILON<float(row.cost_qi):missing.append("%d %s"%[ceili(float(row.cost_qi)-energy),str(row.energy_name)])
+	if h.state.herbs<int(row.cost_herbs):missing.append("%d 灵草"%[int(row.cost_herbs)-h.state.herbs])
+	if h.state.dew<int(row.cost_dew):missing.append("%d 晨露"%[int(row.cost_dew)-h.state.dew])
+	return "尚缺 "+" · ".join(missing) if not missing.is_empty() else "资源齐备 · 必定成功"
+
+static func _inspect_meridian_prerequisite(h,source_id:String,drawer):
+	# A removed page's signal must never override a newer selection or reopen it.
+	if not is_instance_valid(drawer) or h.drawer!=drawer or h.drawer_name!="wardrobe" or h.wardrobe_tab!="meridian" or h.closing:return
+	var selected:Dictionary=_selected_meridian(h)
+	if str(selected.get("id",""))!=source_id:return
+	var target:Dictionary=_meridian_missing_target(h,selected)
+	if target.is_empty():return
+	var trail:Array=h.get_meta("meridian_trail",[])
+	if trail.size()>=h.state.Content.ACUPOINTS.size() or str(target.id)==source_id:return
+	for previous in trail:
+		if str(previous.id)==str(target.id):return
+	trail.append({"id":source_id,"branch":str(selected.branch),"name":str(selected.name)})
+	h.set_meta("meridian_trail",trail)
+	h.set_meta("meridian_branch",str(target.branch))
+	h.set_meta("meridian_id",str(target.id))
+	h._refresh_drawer()
+
+static func _return_meridian(h,source_id:String,drawer):
+	if not is_instance_valid(drawer) or h.drawer!=drawer or h.drawer_name!="wardrobe" or h.wardrobe_tab!="meridian" or h.closing:return
+	if str(_selected_meridian(h).get("id",""))!=source_id:return
+	var trail:Array=h.get_meta("meridian_trail",[])
+	if trail.is_empty():return
+	var target:Dictionary=trail.pop_back()
+	h.set_meta("meridian_trail",trail)
+	h.set_meta("meridian_branch",str(target.branch));h.set_meta("meridian_id",str(target.id))
+	h._refresh_drawer()
+
 static func build_meridian(h,x:float,y:float):
 	var branches:Array=h.state.meridian_branch_rows()
 	for i in range(branches.size()):
@@ -323,14 +370,23 @@ static func build_meridian(h,x:float,y:float):
 		button(h,"meridian_branch_"+id,"%s %d/%d"%[str(branch.name),int(branch.opened),int(branch.total)],Rect2(x+i*121,y+60,116,27),func():_choose_meridian_branch(h,id),str(branch.description),false,_meridian_branch(h)==id)
 	var rows:Array=_meridian_branch_points(h)
 	var chosen:Dictionary=_selected_meridian(h)
+	var source_page=h.drawer
+	var trail:Array=h.get_meta("meridian_trail",[])
+	if not trail.is_empty():
+		button(h,"meridian_return","返回"+str(trail.back().name)+" ↩",Rect2(x+480,y+94,124,25),func():_return_meridian(h,str(chosen.id),source_page),"返回刚才查阅的穴位，不通脉、不消耗资源。")
 	for row in rows:
 		var id:String=str(row.id)
 		var p:Vector2=_point_position(row)+Vector2(x,y)
 		var b:Button=button(h,"meridian_row_"+id,str(row.name),Rect2(p-Vector2(34,20),Vector2(68,50)),func():
-			h.set_meta("meridian_id",id);h.set_meta("meridian_selected_"+str(row.branch),id);h._refresh_drawer(),_meridian_hint(row),false,str(chosen.get("id",""))==id)
+			h.set_meta("meridian_trail",[]);h.set_meta("meridian_id",id);h.set_meta("meridian_selected_"+str(row.branch),id);h._refresh_drawer(),_meridian_hint(row),false,str(chosen.get("id",""))==id)
 		b.set_meta("ink_region",true)
+	var target:Dictionary=_meridian_missing_target(h,chosen)
+	if not target.is_empty():
+		var page=h.drawer
+		button(h,"meridian_prerequisite","查看前置 ↗",Rect2(x+271,y+239,159,29),func():_inspect_meridian_prerequisite(h,str(chosen.id),page),"先看 "+str(target.name)+" · 仅翻页，不通脉、不消耗资源。")
 	var locked:bool=h.InkPages._live_loadout_locked(h)
 	var unlock:Button=button(h,"unlock_meridian","此穴已通" if bool(chosen.get("active",false)) else ("交锋后通脉" if locked else "温养通脉"),Rect2(x+435,y+239,169,29),func():
+		if not is_instance_valid(source_page) or h.drawer!=source_page or h.drawer_name!="wardrobe" or h.wardrobe_tab!="meridian" or h.closing or str(_selected_meridian(h).get("id",""))!=str(chosen.id):return
 		if h.InkPages._live_loadout_locked(h):
 			h._notice("交锋中可查阅经脉；此敌结束后再通脉，当前招式不受干扰。");return
 		var result:Dictionary=h.state.unlock_meridian(str(chosen.id))
@@ -385,5 +441,6 @@ static func draw_meridian(h,x:float,y:float,a:float):
 	wrapped(h,gate,Vector2(x+271,y+197),330,10,a,FADED,1)
 	var active:bool=bool(chosen.get("active",false))
 	txt(h,"永久生效 · 此穴不再付费" if active else "需 %d %s · %d 灵草 · %d 晨露"%[int(chosen.get("cost_qi",0)),str(chosen.get("energy_name","灵气")),int(chosen.get("cost_herbs",0)),int(chosen.get("cost_dew",0))],Vector2(x+271,y+220),11,a,FADED)
-	wrapped(h,str(chosen.get("locked_reason","")) if not bool(chosen.get("can_unlock",false)) else "资源齐备 · 必定成功",Vector2(x+271,y+249),159,10,a,hue if active else RED,2)
+	if _meridian_missing_target(h,chosen).is_empty():
+		wrapped(h,_meridian_resource_hint(h,chosen),Vector2(x+271,y+249),159,10,a,hue if active else RED,2)
 	txt(h,"已通 %d / %d · 可跨脉修习 · 不阻境界"%[h.state.meridian_count,h.state.Content.ACUPOINTS.size()],Vector2(x+2,y+272),9,a,FADED)

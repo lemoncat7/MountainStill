@@ -468,6 +468,45 @@ func _hero_action() -> Dictionary:
 	return action
 
 
+func skill_decision_snapshot() -> Dictionary:
+	# Explicit, read-only inspection at the current instant. Do not call
+	# _hero_action(): it consumes counters, use counts and provider selection.
+	# The real next start re-evaluates time/resources and can choose differently.
+	if not _started or finished: return {}
+	var candidates: Array = []
+	for offset in range(_skill_lanes.size()):
+		var lane := str(_skill_lanes[(_next_skill_index + offset) % _skill_lanes.size()])
+		if _skill_eligible(lane):
+			candidates.append({"lane": lane, "id": _skill_id(lane), "cost": _skill_cost(lane), "action_kind": str(_skills.get(lane, {}).get("action_kind", "spell"))})
+	var qi := _current_qi()
+	var mode := str(_hero.combat_tactic)
+	var selected := "basic" if _must_basic else Tactics.choose(mode, candidates, qi, _qi_max, hero_hp, hero_max_hp)
+	var rows: Array = []
+	for lane in _skill_lanes:
+		var skill: Dictionary = _skills.get(lane, {})
+		if skill.is_empty(): continue
+		var cost := _skill_cost(lane)
+		var remaining := maxf(0.0, float(_cooldowns.get(_skill_id(lane), 0.0)) - elapsed)
+		var reason := "selected"
+		if not _skill_available(lane): reason = "weapon_mismatch" if not _compatible(skill) else "unavailable"
+		elif cost > _qi_max + EPSILON: reason = "capacity"
+		elif elapsed + EPSILON < float(_cooldowns.get(_skill_id(lane), 0.0)): reason = "cooldown"
+		elif not _skill_eligible(lane): reason = "health_gate" if _skill_id(lane) == "mending" else ("shield" if _skill_id(lane) == "barrier" else "unavailable")
+		elif qi + EPSILON < cost: reason = "qi"
+		elif _must_basic: reason = "basic_interleave"
+		elif mode == "frugal" and Tactics.choose(mode, [{"lane": lane, "id": _skill_id(lane), "cost": cost, "action_kind": str(skill.get("action_kind", "spell"))}], qi, _qi_max, hero_hp, hero_max_hp) == "basic": reason = "reserve"
+		elif selected != lane: reason = "priority_wait" if selected == "basic" else "rotation"
+		rows.append({"lane": lane, "id": _skill_id(lane), "name": str(skill.get("name", _skill_id(lane))),
+			"reason": reason, "qi_cost": cost, "remaining": remaining,
+			"required_weapon": str(skill.get("required_weapon", ""))})
+	return {"elapsed": elapsed, "tactic": mode, "qi": qi, "max_qi": _qi_max,
+		"must_basic": _must_basic, "selected_lane": selected,
+		"selected_name": "普攻" if selected == "basic" else str(_skills.get(selected, {}).get("name", _skill_id(selected))),
+		"current_action": str(_lanes.hero.action.get("label", "")), "current_action_active": not _lanes.hero.action.is_empty(),
+		"rows": rows, "shield": _current_shield(), "missing_hp": hero_max_hp - hero_hp,
+		"healing_threshold": hero_max_hp * 0.12, "hero_slowed": elapsed < _hero_slow_until}
+
+
 func _reset_battle_resources() -> void:
 	_qi_max = clampf(_finite_number(_hero.get("combat_qi_max", 40.0 + clampi(int(_hero.get("realm", 0)), 0, 15) * 2.0), 40.0), 1.0, Content.COMBAT_QI_LIMIT)
 	_qi_regen = clampf(_finite_number(_hero.get("combat_qi_regen", 2.0), 2.0), 0.0, Content.COMBAT_QI_REGEN_LIMIT)

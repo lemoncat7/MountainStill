@@ -38,7 +38,7 @@ class CaseTimeoutTests(unittest.TestCase):
         self.assertEqual(smoke.DEFAULT_TEST_TIMEOUT, 60)
         self.assertEqual(smoke.TEST_TIMEOUTS, {'test_batched_enemy_contact.gd': 180})
         self.assertEqual(smoke.test_timeout('test_batched_enemy_contact.gd'), 180)
-        self.assertEqual(len(smoke.TESTS), 19)
+        self.assertEqual(len(smoke.TESTS), 27)
         for case in set(smoke.TESTS) - {'test_batched_enemy_contact.gd'}:
             self.assertEqual(smoke.test_timeout(case), 60, case)
         self.assertEqual(smoke.test_timeout('unknown.gd'), 60)
@@ -47,8 +47,9 @@ class CaseTimeoutTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_nineteen_tests_preserve_previous_coverage(self):
+    def test_twenty_seven_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
+            'test_display_diagnostic_copy.gd',
             'test_batched_enemy_contact.gd',
             'test_display_diagnostic_pages.gd', 'test_display_diagnostics.gd', 'test_cultivation.gd', 'test_scene_art_layout.gd',
             'test_stone_recovery_contract.gd', 'test_practice_host.gd',
@@ -56,6 +57,10 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
             'update_store_test.gd', 'test_chapter_practice_navigation.gd',
             'test_practice_control_contribution.gd', 'test_exact_planner_guard.gd',
             'test_practice_loadout.gd', 'test_practice_loadout_ui.gd', 'test_provider_lifecycle_guard.gd', 'test_chapter_objective_ui.gd', 'test_paused_retreat.gd', 'test_combat_hud_readability.gd',
+            'test_craft_supply_ui.gd', 'test_body_clearance_batch.gd',
+            'test_deformed_clearance_batch.gd', 'test_meridian_guidance.gd',
+            'test_active_replacement.gd',
+            'test_practice_decision.gd', 'test_practice_decision_ui.gd',
         })
 
     def test_batched_contact_marker_requires_exact_coverage(self):
@@ -63,6 +68,14 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
         marker = 'BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures'
         self.assertTrue(smoke.test_passed(0, marker, test))
         for text in ('', marker.replace('184187', '184186'), marker.replace('184187', '184188'), marker.replace('0 failures', '1 failures'), marker + ' EXTRA', marker + '\n' + marker, 'prefix ' + marker, marker + '\nParse Error: failed', marker + '\nSCRIPT ERROR: failed', marker + '\nERROR: failed', marker + '\nObjectDB instances leaked'):
+            self.assertFalse(smoke.test_passed(0, text, test))
+        self.assertFalse(smoke.test_passed(1, marker, test))
+
+    def test_diagnostic_copy_marker_requires_exact_coverage(self):
+        test = 'test_display_diagnostic_copy.gd'
+        marker = 'DISPLAY DIAGNOSTIC COPY: 141 checks, 0 failures'
+        self.assertTrue(smoke.test_passed(0, marker, test))
+        for text in ('', marker.replace('141', '140'), marker.replace('141', '142'), marker.replace('0 failures', '1 failures'), marker + ' EXTRA', marker + '\n' + marker, 'prefix ' + marker, marker + '\nParse Error: failed', marker + '\nSCRIPT ERROR: failed', marker + '\nERROR: failed', marker + '\nObjectDB instances leaked'):
             self.assertFalse(smoke.test_passed(0, text, test))
         self.assertFalse(smoke.test_passed(1, marker, test))
 
@@ -203,6 +216,47 @@ class ExactPlannerMarkerTests(unittest.TestCase):
                                               'test_exact_planner_guard.gd'))
 
 
+class UnpublishedFeatureMarkerTests(unittest.TestCase):
+    CASES = {
+        'test_craft_supply_ui.gd': 'Craft supply UI: 3032 checks, 0 failures',
+        'test_body_clearance_batch.gd': 'BODY_CLEARANCE_BATCH 3432 checks 0 failures',
+        'test_deformed_clearance_batch.gd': 'DEFORMED_CLEARANCE_BATCH 4076 checks 0 failures',
+        'test_meridian_guidance.gd': 'Meridian guidance: 8661 checks, 0 failures',
+        'test_active_replacement.gd': 'Active replacement: 655 checks, 0 failures',
+    }
+
+    def test_exact_single_markers_reject_missing_wrong_and_duplicate_results(self):
+        self.assertEqual(set(smoke.FEATURE_MARKER_PREFIXES), set(self.CASES) | {'test_practice_decision.gd', 'test_practice_decision_ui.gd'})
+        for test, good in self.CASES.items():
+            with self.subTest(test=test):
+                self.assertEqual(smoke.TESTS[test], good)
+                self.assertTrue(smoke.test_passed(0, good, test))
+                count = int(re.search(r'(\d+) checks', good)[1])
+                variants = ['']
+                variants += [good.replace(str(count) + ' checks', str(value) + ' checks')
+                             for value in [0, count - 1, count + 1]]
+                variants += [good.replace('0 failures', '1 failures'), good + ' EXTRA',
+                             'prefix ' + good, good + '\n' + good,
+                             good + '\n' + good.replace(str(count) + ' checks', '1 checks')]
+                variants += [good + '\n' + error for error in ['Parse Error: fixture',
+                             'SCRIPT ERROR: fixture', 'ERROR: fixture', 'FAIL: fixture',
+                             'WARNING: ObjectDB instances leaked']]
+                for bad in variants:
+                    self.assertFalse(smoke.test_passed(0, bad, test), bad)
+                for code in [1, 124]:
+                    self.assertFalse(smoke.test_passed(code, good, test))
+                self.assertEqual(smoke.test_timeout(test), 60)
+
+    def test_new_features_reject_zero_exit_errors_from_either_process_stream(self):
+        for test, good in self.CASES.items():
+            for stream in ['stdout', 'stderr']:
+                command = 'import sys; print(' + repr(good) + '); sys.' + stream + '.write("SCRIPT ERROR: feature\\n")'
+                with contextlib.redirect_stdout(io.StringIO()):
+                    code, output = smoke.run([sys.executable, '-c', command], 10)
+                self.assertEqual(code, 0)
+                self.assertFalse(smoke.test_passed(code, output, test))
+
+
 class ProviderLifecycleGateTests(unittest.TestCase):
     def output(self):
         from qa_verify_provider_lifecycle import EXPECTED_CASES
@@ -223,6 +277,38 @@ class ProviderLifecycleGateTests(unittest.TestCase):
                 code, output = smoke.run([sys.executable, '-c', command], 10)
             self.assertEqual(code, 0)
             self.assertFalse(smoke.test_passed(code, output, 'test_provider_lifecycle_guard.gd'))
+
+
+class PracticeDecisionMarkerTests(unittest.TestCase):
+    CASES = {
+        'test_practice_decision.gd': 'Practice decision state: 3114 checks, 0 failures',
+        'test_practice_decision_ui.gd': 'Practice decision UI: 3150 checks, 0 failures; lifecycle cycles=5',
+    }
+
+    def test_exact_observed_markers_require_full_counts_and_lifecycle(self):
+        for test, good in self.CASES.items():
+            self.assertEqual(smoke.TESTS[test], good)
+            self.assertTrue(smoke.test_passed(0, good, test))
+            count = int(re.search(r'(\d+) checks', good)[1])
+            bad = ['', 'prefix ' + good, good + ' EXTRA', good + '\n' + good,
+                   good.replace('0 failures', '1 failures')]
+            bad += [good.replace(str(count) + ' checks', str(n) + ' checks') for n in [0, count-1, count+1]]
+            bad += [good + '\n' + error for error in ['Parse Error: decision', 'SCRIPT ERROR: decision',
+                    'ERROR: decision', 'FAIL: decision', 'WARNING: ObjectDB instances leaked']]
+            if test.endswith('_ui.gd'):
+                bad += [good.replace('; lifecycle cycles=5', ''), good.replace('cycles=5', 'cycles=4'), good.replace('cycles=5', 'cycles=6')]
+            for text in bad: self.assertFalse(smoke.test_passed(0, text, test), text)
+            for code in [1, 124]: self.assertFalse(smoke.test_passed(code, good, test))
+            self.assertEqual(smoke.test_timeout(test), 60)
+
+    def test_zero_exit_errors_on_both_real_streams_rejected(self):
+        for test, good in self.CASES.items():
+            for stream in ['stdout', 'stderr']:
+                command = 'import sys; print(' + repr(good) + '); sys.' + stream + '.write("SCRIPT ERROR: decision\\n")'
+                with contextlib.redirect_stdout(io.StringIO()):
+                    code, output = smoke.run([sys.executable, '-c', command], 10)
+                self.assertEqual(code, 0)
+                self.assertFalse(smoke.test_passed(code, output, test))
 
 
 if __name__ == '__main__':

@@ -21,15 +21,15 @@ from native_platform_smoke import unexpected_errors
 from native_process_metrics import sample, cpu_percent
 
 # Independent pin: ordinary package-smoke updates must not silently retarget this observation.
-TAG = 'v1.3.29-test.1'
+TAG = 'v1.3.36-test.1'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.29-test.1-Windows-x86_64.zip',
-              '00e9ed6436d450cd60788f7bc15d11b4b79a81ec3993c2ffac784174e15418b6',
-              'MountainStill/MountainStill.exe', 114565395),
-    'darwin': ('MountainStill-v1.3.29-test.1-macOS-Universal.zip',
-               'faf004c2700812ff8f3081daf77c6d220c2be360662804ea7213952290aed9d8',
-               APP + '.app/Contents/MacOS/' + APP, 141296431),
+    'win32': ('MountainStill-v1.3.36-test.1-Windows-x86_64.zip',
+              '3283c886d13e119f998b189466eb2f6bfd9d392c0a050446885024a89af3a791',
+              'MountainStill/MountainStill.exe', 114619846),
+    'darwin': ('MountainStill-v1.3.36-test.1-macOS-Universal.zip',
+               '6bbfa52817466b5e5a0a7f2546d54532ec890c62f20ad818a9836d5a8c9d08f5',
+               APP + '.app/Contents/MacOS/' + APP, 141351904),
 }
 ASSETS = ('creek_bridge_boss_settle.png', 'creek_bridge_boss_retract.png')
 LONG_FRAMES = 78000
@@ -45,7 +45,7 @@ def emit(kind, value):
 
 
 def userdata_path():
-    # The immutable v29-test.1 app name must guard exactly the directory v29-test.1 writes,
+    # The immutable v30-test.1 app name must guard exactly the directory v30-test.1 writes,
     # even if a future ordinary package-smoke changes its own APP constant.
     if sys.platform == 'win32':
         base = Path(os.environ['APPDATA'])
@@ -419,7 +419,7 @@ def main():
             except Exception as error:
                 emit('CLEANUP_FAILURE',dict(message=str(error)))
                 results.append('FAIL owned user-data cleanup')
-        summary = '## v29-test.1 actual-package 20-minute headless lifecycle precheck\n\n'+'\n'.join('- '+r for r in results)
+        summary = '## v30-test.1 actual-package 20-minute headless lifecycle precheck\n\n'+'\n'.join('- '+r for r in results)
         summary += '\n\nNo 60-minute mixed GUI, continuous chapter combat, FPS/GPU, internal static-memory/object count, or formal-release certification. RSS budget is a historical proposal; CPU utilization has no pass threshold.\n'
         print(summary,flush=True)
         if os.environ.get('GITHUB_STEP_SUMMARY'):

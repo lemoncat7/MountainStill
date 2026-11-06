@@ -13,7 +13,11 @@ func start_practice(enemy_id: String) -> bool: return PracticeHost.start(self, e
 func end_practice(): PracticeHost.finish(self)
 func toggle_practice_pause():
 	if practice_session == null: return
-	if bool(practice_session.status().get("paused", false)): practice_session.resume()
+	if bool(practice_session.status().get("paused", false)):
+		if PracticeHost.decision_open(self):
+			PracticeHost.leave_decision(self, practice_session.get_instance_id(), int(get_meta("practice_decision_generation", 0)), true)
+			return
+		practice_session.resume()
 	else: practice_session.pause()
 	PracticeHost.controls(self)
 	_refresh_drawer()
@@ -452,10 +456,13 @@ func _animate_content(turning:bool):
 	content_tween.tween_property(self,"content_offset",0.0,.28 if turning else .20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_sync_drawer_visuals()
 
-func _refresh_display_diagnostics():
+func _read_display_diagnostics_snapshot():
 	diagnostic_snapshot=desktop.display_diagnostic()
 	var root=get_tree().root
 	diagnostic_versions=DisplayDiagnostics.versions((root.get_meta("update_store") if root.has_meta("update_store") else null),root.get_node_or_null("UpdateService"))
+
+func _refresh_display_diagnostics():
+	_read_display_diagnostics_snapshot()
 	if drawer_name=="diagnostics":_refresh_drawer()
 	queue_redraw()
 
@@ -464,6 +471,25 @@ func _open_display_diagnostics():
 	_refresh_display_diagnostics()
 	_toggle_drawer("diagnostics")
 
+# Called only by the explicit copy button; no clipboard access on open/refresh.
+func _copy_display_diagnostics(source_drawer):
+	if closing or practice_session != null or drawer_name != "diagnostics": return
+	if not is_instance_valid(source_drawer) or source_drawer != drawer or not source_drawer.is_inside_tree(): return
+	if paper_reveal <= .97 or content_alpha <= .5: return
+	if not _diagnostic_clipboard_available():
+		_notice("当前环境不支持剪贴板；诊断仍可在三页中查看。")
+		return
+	_read_display_diagnostics_snapshot()
+	_write_diagnostic_clipboard(DisplayDiagnostics.report(diagnostic_snapshot,diagnostic_versions))
+	queue_redraw()
+	_notice("已复制显示诊断 · 未上传；透明像素仍需实机确认。")
+
+func _diagnostic_clipboard_available() -> bool:
+	return DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD)
+
+func _write_diagnostic_clipboard(report: String):
+	DisplayServer.clipboard_set(report)
+
 func _turn_display_diagnostics():
 	diagnostic_page=(diagnostic_page+1)%DisplayDiagnostics.TITLES.size()
 	_refresh_drawer()
@@ -471,8 +497,10 @@ func _turn_display_diagnostics():
 
 func _toggle_drawer(value:String):
 	if practice_session != null: return
+	InkPages.ActiveReplacement.clear(self)
 	_record_cue("翻册："+value)
 	if drawer_name==value:_close_drawer();return
+	InkPages.CraftSupply.clear(self)
 	if value=="practice" and not state.arrival_seen:
 		# _ready chooses the first-entry default. Explicit links to a quest,
 		# breakthrough or ending must retain their chosen destination.
@@ -483,6 +511,9 @@ func _toggle_drawer(value:String):
 	_refresh_drawer(true)
 
 func _close_drawer():
+	InkPages.ActiveReplacement.clear(self)
+	set_meta("meridian_trail",[])
+	InkPages.CraftSupply.clear(self)
 	CapacityPages.clear(self)
 	if practice_session != null: end_practice(); return
 	_record_cue("收册")
@@ -514,6 +545,8 @@ func _drawer_rect()->Rect2:
 	return Rect2(size.x-width-58,20,width,280)
 
 func _refresh_drawer(animated=false):
+	InkPages.ActiveReplacement.reconcile(self)
+	if drawer_name!="wardrobe" or wardrobe_tab!="meridian":set_meta("meridian_trail",[])
 	if drawer_name.is_empty():return
 	var focus_key=""
 	var focus_owner=get_viewport().gui_get_focus_owner()
@@ -571,9 +604,10 @@ func _refresh_drawer(animated=false):
 		_qbutton(drawer,"desktop_diagnostics","显示诊断",Rect2(x+146,y+180,130,30),_open_display_diagnostics,"只读查看版本、显卡与透明状态；仅本地显示")
 		_qbutton(drawer,"desktop_back","返回设置",Rect2(x,y+180,130,30),func():_toggle_drawer("settings"))
 	elif drawer_name=="diagnostics":
-		_qbutton(drawer,"diagnostic_back","返回桌面",Rect2(x,y+232,106,28),func():_toggle_drawer("desktop"))
-		_qbutton(drawer,"diagnostic_refresh","刷新",Rect2(x+120,y+232,78,28),_refresh_display_diagnostics,"只重新读取本地状态，不改变设置")
-		_qbutton(drawer,"diagnostic_next","下一页  %d / 3" % (diagnostic_page+1),Rect2(x+222,y+232,156,28),_turn_display_diagnostics)
+		_qbutton(drawer,"diagnostic_back","返回桌面",Rect2(x,y+232,90,28),func():_toggle_drawer("desktop"))
+		_qbutton(drawer,"diagnostic_refresh","刷新",Rect2(x+100,y+232,60,28),_refresh_display_diagnostics,"只重新读取本地状态，不改变设置")
+		_qbutton(drawer,"diagnostic_copy","复制诊断",Rect2(x+170,y+232,100,28),_copy_display_diagnostics.bind(drawer),"仅点击后复制本地诊断；不含存档、路径或启动参数，不上传")
+		_qbutton(drawer,"diagnostic_next","下一页  %d / 3" % (diagnostic_page+1),Rect2(x+280,y+232,132,28),_turn_display_diagnostics)
 	if animated:
 		# Retarget from the current paper, including interrupted closes and width changes.
 		# Only the ink is replaced; a partially visible leaf never teleports.
@@ -2213,6 +2247,7 @@ func _capture_now():
 	get_viewport().get_texture().get_image().save_png(ProjectSettings.globalize_path("res://builds/MountainStill-equipment-preview.png"))
 
 func _reset_presentation():
+	InkPages.ActiveReplacement.clear(self)
 	practice_previous_reports.clear();practice_comparison.clear()
 	set_meta("practice_show_loadout",false);set_meta("practice_loadout_page",0)
 	paused_retreat_run_id=-1

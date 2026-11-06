@@ -62,3 +62,46 @@ static func fit(text: String, font: Font, font_size: int, width: float) -> Strin
 		result = result.left(result.length() - 1)
 		if font.get_string_size(result + "…", HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= width: return result + "…"
 	return "…"
+
+# Clipboard reports use an explicit field allowlist, not a dump of runtime metadata.
+# Reject unexpected types, paths, command lines and controls instead of stringifying
+# arbitrary values. Hardware strings are bounded ASCII supplied by RenderingServer.
+const REPORT_MAX_BYTES = 4096
+static func report_value(value, version: bool = false) -> String:
+	if not value is String or value.is_empty() or value.length() > 512: return UNKNOWN
+	if value.contains("--"): return UNKNOWN
+	var allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-" if version else "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .-_()+[],"
+	for character in value:
+		if not allowed.contains(character): return UNKNOWN
+	var result: String = value.strip_edges()
+	if result.is_empty(): return UNKNOWN
+	return result.left(96)
+
+static func report_adapter_name(value) -> String:
+	if not value is String or value.length() > 512: return UNKNOWN
+	# Common OpenGL NVIDIA names include a bus/instruction suffix. Permit only
+	# these known suffixes in this field, not arbitrary slash-separated strings.
+	for suffix in ["/PCIe/SSE2", "/PCI/SSE2", "/SSE2"]:
+		if value.ends_with(suffix):
+			var base = report_value(value.trim_suffix(suffix))
+			return UNKNOWN if base == UNKNOWN else (base + suffix).left(96)
+	return report_value(value)
+
+static func report(snapshot: Dictionary, version: Dictionary) -> String:
+	var lines: Array[String] = ["MountainStill 显示诊断（本地快照）"]
+	for field in [["host", "安装宿主"], ["running", "运行内容"], ["hot_content", "热内容"]]:
+		lines.append(field[1] + "：" + report_value(version.get(field[0]), true))
+	for field in [["os", "系统"], ["display_server", "窗口系统"],
+		["rendering_method", "渲染方式"], ["rendering_driver", "实际驱动"],
+		["adapter_api", "图形 API"], ["adapter_name", "显卡"], ["adapter_vendor", "厂商"]]:
+		var value = snapshot.get(field[0])
+		lines.append(field[1] + "：" + (report_adapter_name(value) if field[0] == "adapter_name" else report_value(value)))
+	for field in [["transparency_requested", "透明请求"], ["transparency_supported", "系统报告支持"],
+		["native_window_ready", "原生窗口就绪"], ["helper_transparency_applied", "辅助器已应用"],
+		["window_attached", "窗口已连接"]]:
+		lines.append(field[1] + "：" + flag(snapshot, field[0]))
+	for field in [["window_transparent_flag", "窗口透明标记"], ["viewport_transparent_background", "视口透明背景"]]:
+		lines.append(field[1] + "：" + (flag(snapshot, field[0]) if snapshot.get("window_attached") is bool and snapshot.get("window_attached") else UNKNOWN))
+	lines.append("真实桌面透明像素：未验证；标记 / 支持不代表透明显示成功。")
+	lines.append("仅反映当前后端，不推断启动器选择。仅手动复制，不上传。")
+	return "\n".join(lines)

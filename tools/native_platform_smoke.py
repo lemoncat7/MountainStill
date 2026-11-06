@@ -15,6 +15,7 @@ import uuid
 from qa_verify_provider_lifecycle import validate as validate_provider_lifecycle
 
 TESTS = {
+    'test_display_diagnostic_copy.gd': r'DISPLAY DIAGNOSTIC COPY: 141 checks, 0 failures',
     'test_batched_enemy_contact.gd': r'BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures',
     'test_display_diagnostic_pages.gd': r'DISPLAY DIAGNOSTIC PAGES: 160 checks, 0 failures',
     'test_display_diagnostics.gd': r'Display diagnostics: 73 checks, 0 failures; Windows preference, actual backend, deduplication, and recovery',
@@ -34,6 +35,22 @@ TESTS = {
     'test_shutdown_lifecycle.gd': r'Shutdown lifecycle: [1-9]\d* checks, 0 failures',
     'update_policy_test.gd': r'update_policy: [1-9]\d* checks passed',
     'update_store_test.gd': r'UPDATE STORE: [1-9]\d* checks, 0 failures',
+    'test_craft_supply_ui.gd': r'Craft supply UI: 3032 checks, 0 failures',
+    'test_body_clearance_batch.gd': r'BODY_CLEARANCE_BATCH 3432 checks 0 failures',
+    'test_deformed_clearance_batch.gd': r'DEFORMED_CLEARANCE_BATCH 4076 checks 0 failures',
+    'test_meridian_guidance.gd': r'Meridian guidance: 8661 checks, 0 failures',
+    'test_active_replacement.gd': r'Active replacement: 655 checks, 0 failures',
+    'test_practice_decision.gd': r'Practice decision state: 3114 checks, 0 failures',
+    'test_practice_decision_ui.gd': r'Practice decision UI: 3150 checks, 0 failures; lifecycle cycles=5',
+}
+FEATURE_MARKER_PREFIXES = {
+    'test_craft_supply_ui.gd': 'Craft supply UI:',
+    'test_body_clearance_batch.gd': 'BODY_CLEARANCE_BATCH ',
+    'test_deformed_clearance_batch.gd': 'DEFORMED_CLEARANCE_BATCH ',
+    'test_meridian_guidance.gd': 'Meridian guidance:',
+    'test_active_replacement.gd': 'Active replacement:',
+    'test_practice_decision.gd': 'Practice decision state:',
+    'test_practice_decision_ui.gd': 'Practice decision UI:',
 }
 # The exact-trace contact case is longer on Intel CI; all other cases retain 60s.
 DEFAULT_TEST_TIMEOUT = 60
@@ -61,8 +78,14 @@ def unexpected_errors(output, test):
 def test_passed(code, output, test):
     if code != 0 or unexpected_errors(output, test):
         return False
+    if test in FEATURE_MARKER_PREFIXES:
+        markers = [line for line in output.splitlines() if FEATURE_MARKER_PREFIXES[test] in line]
+        return markers == [TESTS[test]] and 'Parse Error' not in output
     if test == 'test_batched_enemy_contact.gd':
         markers = [line for line in output.splitlines() if 'BATCHED_ENEMY_CONTACT:' in line]
+        return markers == [TESTS[test]] and 'Parse Error' not in output
+    if test == 'test_display_diagnostic_copy.gd':
+        markers = [line for line in output.splitlines() if 'DISPLAY DIAGNOSTIC COPY:' in line]
         return markers == [TESTS[test]] and 'Parse Error' not in output
     if test == 'test_display_diagnostic_pages.gd':
         markers = [line for line in output.splitlines() if 'DISPLAY DIAGNOSTIC PAGES:' in line]

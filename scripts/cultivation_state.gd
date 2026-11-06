@@ -1104,6 +1104,23 @@ func equip_technique(id: String, slot: String = "") -> Dictionary:
 	return {"ok": true, "reason": "equipped", "id": id, "slot": slot}
 
 
+func replace_active_technique(id: String, previous_id: String, expected: Array) -> Dictionary:
+	# Validate the entire choice before one in-place replacement. Never unequip
+	# first: a stale or ineligible choice must leave every old slot untouched.
+	if not Content.TECHNIQUES.has(id): return {"ok": false, "reason": "missing"}
+	if not "active" in Content.TECHNIQUES[id].slots: return {"ok": false, "reason": "wrong_slot"}
+	if not _manual_eligible(id): return {"ok": false, "reason": "not_attuned_or_learned"}
+	if equipped_actives != expected: return {"ok": false, "reason": "stale_loadout"}
+	if equipped_actives.size() != active_capacity(): return {"ok": false, "reason": "active_slots_not_full"}
+	if equipped_actives.has(id): return {"ok": false, "reason": "already_equipped"}
+	var index := equipped_actives.find(previous_id)
+	if index < 0: return {"ok": false, "reason": "not_equipped"}
+	equipped_actives[index] = id
+	technique = id
+	_invalidate_heart_quote()
+	return {"ok": true, "reason": "replaced", "id": id, "previous_id": previous_id, "slot": "active"}
+
+
 func unequip_technique(id: String, slot: String = "") -> Dictionary:
 	if not Content.TECHNIQUES.has(id): return {"ok": false, "reason": "missing"}
 	if slot.is_empty(): slot = String(Content.TECHNIQUES[id].slot)

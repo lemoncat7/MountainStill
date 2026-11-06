@@ -85,13 +85,31 @@ static func separate(enemy:Dictionary,hero:Dictionary,definition:Dictionary,prep
  # Planning only consumes the corrected origin; its final measure performs
  # the real contact checks. Avoid computing an unused diagnostic there.
  if not include_clearance:return result
- var clearance:=INF
- var solid:=_body_data(result,definition)
- for nose in probes:
-  var current:=_front_at_y(nose.y,solid)
-  if bool(current.valid):clearance=minf(clearance,Vector2(current.point).x-nose.x)
+ var clearance:=_body_clearance(probes,_body_data(result,definition))
  if is_finite(clearance):result.body_clearance=clearance
  return result
+# The live spacing diagnostic reduces many front samples to one minimum.
+# Painted, unrotated sources share row/transform data for this call. Preserve
+# scalar row rounding, Vector2 precision, probe order and subtraction exactly,
+# without allocating a point/valid Dictionary for every outline sample.
+# Rotated and deforming sources retain the existing scalar implementation.
+static func _body_clearance(probes:PackedVector2Array,data:Dictionary)->float:
+ var clearance:=INF
+ if "_authored_" in str(data.key) and absf(float(data.rotation))<.0001:
+  var rect:Rect2=data.rect;var origin:Vector2=data.origin
+  var scale:=rect.size.y/256.0;var rows:PackedInt32Array=data.front_rows
+  origin+=Vector2(data.registration)*scale
+  for nose in probes:
+   var row:=int(round((nose.y-origin.y-rect.position.y)/scale))
+   if row>=0 and row<rows.size() and int(rows[row])>=0:
+    var front:=Vector2(origin.x+rect.position.x+float(rows[row])*scale,nose.y)
+    clearance=minf(clearance,front.x-nose.x)
+ else:
+  for nose in probes:
+   var current:=_front_at_y(nose.y,data)
+   if bool(current.valid):clearance=minf(clearance,Vector2(current.point).x-nose.x)
+ return clearance
+
 # Planning tests many hero candidates against one immutable enemy prediction.
 # Resolve its identical temporal preview silhouettes once, not for every aim.
 static func _clearance_sources(enemy:Dictionary,definition:Dictionary)->Array:
@@ -129,6 +147,26 @@ static func _clearance_correction(probes:PackedVector2Array,data:Dictionary,cach
     var front_x:=Vector2(origin.x+rect.position.x+float(rows[row])*scale,nose.y).x
     correction=maxf(correction,maxf(0.0,nose.x+3.0-front_x))
   cache[signature]=correction
+ elif bool(data.get("articulated",false)) and not probes.is_empty():
+  # Populate the existing immutable silhouette exactly as the scalar path did.
+  # Resolve its shape/bins once per reduction, not once per body-outline row.
+  var first:=_front_at_y(probes[0].y,data)
+  if bool(first.valid):correction=maxf(correction,maxf(0.0,probes[0].x+3.0-Vector2(first.point).x))
+  var shape_key:=str(data.key)+(str(data.motion.get("monster_pose",{})) if "_authored_" not in str(data.key) else "")+str(data.rotation)
+  var shape:PackedVector2Array=_deformed_fronts[shape_key]
+  var bins:Dictionary=_deformed_front_bins[shape_key]
+  var origin:Vector2=data.origin
+  for index in range(1,probes.size()):
+   var nose:=probes[index]
+   var local_y:=nose.y-origin.y
+   var best:=Vector2(INF,nose.y)
+   for row in bins.get(int(floor(local_y/FRONT_BIN_HEIGHT)),PackedInt32Array()):
+    var a:=shape[row-1];var b:=shape[row]
+    if local_y<minf(a.y,b.y)-.3 or local_y>maxf(a.y,b.y)+.3:continue
+    var fraction:=clampf((local_y-a.y)/(b.y-a.y),0.0,1.0) if absf(b.y-a.y)>.001 else 0.0
+    var x:=lerpf(a.x,b.x,fraction)+origin.x
+    if x<best.x:best=Vector2(x,nose.y)
+   if best.is_finite():correction=maxf(correction,maxf(0.0,nose.x+3.0-best.x))
  else:
   for nose in probes:
    var front:=_front_at_y(nose.y,data)

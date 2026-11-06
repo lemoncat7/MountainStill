@@ -14,6 +14,8 @@ const SLOT_NAMES = {"head":"头饰", "chest":"上衣", "legs":"下装", "feet":"
 const RARITY_NAMES = {"common":"凡品", "uncommon":"灵品", "rare":"珍品", "epic":"仙品"}
 const RARITY_INK = {"common":Color("777568"), "uncommon":Color("5c8266"), "rare":Color("60768b"), "epic":Color("976c89")}
 const Adventure = preload("res://scripts/adventure_pages.gd")
+const CraftSupply = preload("res://scripts/craft_supply_pages.gd")
+const ActiveReplacement = preload("res://scripts/active_replacement_pages.gd")
 const CombatTiming = preload("res://scripts/combat_timing.gd")
 const EquipmentComparison = preload("res://scripts/equipment_comparison_pages.gd")
 const CombatInsight = preload("res://scripts/combat_insight_pages.gd")
@@ -77,6 +79,7 @@ static func _book_header(h, title:String, subtitle:String, x:float, y:float, wid
 	_rule(h,Vector2(x,y+51),Vector2(x+width,y+51),a,true)
 
 static func build_wardrobe(h, x:float, y:float, _r:Rect2):
+	if str(h.wardrobe_tab) not in ["bag","expedition"]:CraftSupply.clear(h)
 	# Direct links (for example a waiting route opportunity) also supersede the
 	# chapter detour, even when they do not go through the sidebar callbacks.
 	if h.has_meta("chapter_practice_return") and str(h.wardrobe_tab)!="equipment":
@@ -86,7 +89,7 @@ static func build_wardrobe(h, x:float, y:float, _r:Rect2):
 	for i in range(TABS.size()):
 		var category:String = TABS[i]
 		_hit(h,"wardrobe_"+category,TAB_NAMES[i],Rect2(x+621,y+65+i*33,29,30),func():
-				h.wardrobe_tab=category;h.remove_meta("chapter_practice_return");h.set_meta("combat_insight_open",false);h.set_meta("equipment_comparison_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
+				CraftSupply.clear(h);h.wardrobe_tab=category;h.remove_meta("chapter_practice_return");h.set_meta("combat_insight_open",false);h.set_meta("equipment_comparison_open",false);_touch(h);h._refresh_drawer(),"翻至"+TAB_NAMES[i])
 	match str(h.wardrobe_tab):
 		"equipment":
 			if EquipmentComparison.is_open(h): EquipmentComparison.build(h,x,y)
@@ -452,6 +455,7 @@ static func _manual_is_slotted(row:Dictionary, slot:String) -> bool:
 	return slot in row.get("equipped_slots",[])
 
 static func _manual_inspect(h,id:String):
+	ActiveReplacement.clear(h)
 	h.set_meta("ink_technique_id",id);h.set_meta("preview_technique",id);h.set_meta("ink_heart_quote",{})
 	if is_instance_valid(h.character_preview):h.character_preview.cancel_technique()
 	_touch(h);h._refresh_drawer()
@@ -480,13 +484,13 @@ static func _build_technique(h, x:float, y:float):
 	for i in range(MANUAL_FILTERS.size()):
 		var filter:String=MANUAL_FILTERS[i]
 		h._qbutton(h.drawer,"tech_category_"+filter,str(MANUAL_FILTER_NAMES[filter]),Rect2(x+i*76,y+59,72,24),func():
-			h.set_meta("ink_manual_filter",filter);h.set_meta("ink_manual_page",0);h.set_meta("ink_heart_quote",{});h._refresh_drawer(),"按标签翻阅；标签不限制装配栏位。",false,_manual_filter(h)==filter)
+			ActiveReplacement.clear(h);h.set_meta("ink_manual_filter",filter);h.set_meta("ink_manual_page",0);h.set_meta("ink_heart_quote",{});h._refresh_drawer(),"按标签翻阅；标签不限制装配栏位。",false,_manual_filter(h)==filter)
 	var rows:Array=_manual_rows(h)
 	var page:int=_manual_page(h,rows)
 	var pages:int=maxi(1,ceili(rows.size()/float(MANUALS_PER_PAGE)))
 	_hit(h,"manual_loadout_summary",_manual_loadout_text(h),Rect2(x+227,y+86,378,25),func():h._notice(_manual_loadout_text(h)),_manual_loadout_text(h))
-	h._qbutton(h.drawer,"tech_prev","‹",Rect2(x,y+88,28,23),func():h.set_meta("ink_manual_page",maxi(0,page-1));h.set_meta("ink_heart_quote",{});h._refresh_drawer(),"前页").disabled=page<=0
-	h._qbutton(h.drawer,"tech_next","›",Rect2(x+177,y+88,28,23),func():h.set_meta("ink_manual_page",mini(pages-1,page+1));h.set_meta("ink_heart_quote",{});h._refresh_drawer(),"后页").disabled=page>=pages-1
+	h._qbutton(h.drawer,"tech_prev","‹",Rect2(x,y+88,28,23),func():ActiveReplacement.clear(h);h.set_meta("ink_manual_page",maxi(0,page-1));h.set_meta("ink_heart_quote",{});h._refresh_drawer(),"前页").disabled=page<=0
+	h._qbutton(h.drawer,"tech_next","›",Rect2(x+177,y+88,28,23),func():ActiveReplacement.clear(h);h.set_meta("ink_manual_page",mini(pages-1,page+1));h.set_meta("ink_heart_quote",{});h._refresh_drawer(),"后页").disabled=page>=pages-1
 	for i in range(MANUALS_PER_PAGE):
 		var index:int=page*MANUALS_PER_PAGE+i
 		if index>=rows.size():break
@@ -497,17 +501,20 @@ static func _build_technique(h, x:float, y:float):
 	if selected.is_empty():return
 	var id:String=str(selected.id)
 	h.set_meta("preview_technique",id)
+	var choosing:bool=ActiveReplacement.is_open(h,id)
 	var training:bool=bool(selected.get("training",false))
 	var full:bool=int(selected.get("level",0))>=int(selected.get("max_level",1))
 	var train:Button=h._qbutton(h.drawer,"train_technique","参悟中" if training else ("功行圆满" if full else ("初悟此法" if int(selected.get("level",0))==0 else "参悟一重")),Rect2(x,y+240,112,28),func():
 		if _guard_live_loadout(h):return
 		var result:Dictionary=h.state.upgrade_technique(id)
 		_manual_outcome(h,result,str(selected.name)+" · 已开始参悟，完成后保留已选装配。"),_manual_hint(h,selected),true)
-	train.disabled=_live_loadout_locked(h) or not bool(selected.get("can_upgrade",false))
+	train.disabled=choosing or _live_loadout_locked(h) or not bool(selected.get("can_upgrade",false))
 	if _live_loadout_locked(h):train.tooltip_text=LIVE_LOADOUT_HINT
 	h._qbutton(h.drawer,"practice_preview","展卷试演",Rect2(x+120,y+240,85,28),func():
 		h.set_meta("preview_technique",id)
 		if is_instance_valid(h.character_preview):h.character_preview.play_technique(),"只演示书旁人物；不耗资源、不替换装配。兵器不合时只观气劲；心法、炼体只显被动灵息。")
+	if choosing:
+		ActiveReplacement.build(h,x,y);return
 	var quote:Dictionary=h.get_meta("ink_heart_quote",{})
 	if not quote.is_empty() and str(quote.get("id",quote.get("new_id","")))==id:
 		_build_heart_confirmation(h,x,y,quote);return
@@ -533,11 +540,13 @@ static func _build_technique(h, x:float, y:float):
 					result["id"]=id;h.set_meta("ink_heart_quote",result);h._refresh_drawer()
 				else:_manual_outcome(h,result,"")
 				return
+			if slot=="active" and not worn and h.state.equipped_actives.size()>=h.state.active_capacity():
+				ActiveReplacement.open(h,id);return
 			var result:Variant=h.state.unequip_technique(id,slot) if worn else h.state.equip_technique(id,slot)
 			_manual_outcome(h,result,str(selected.name)+(" · 已从" if worn else " · 已装入")+str(MANUAL_SLOT_NAMES.get(slot,slot))+"栏。"),_manual_hint(h,selected)+"\n"+_manual_slot_hint(h,slot),true,worn)
 		control.disabled=_live_loadout_locked(h) or (slot=="heart" and worn) or (not worn and (int(selected.get("level",0))<1 or not attuned or not bool(selected.get("unlocked",false))))
 		if not worn and slot=="active" and h.state.equipped_actives.size()>=h.state.active_capacity():
-			control.disabled=true;control.text="主动已满";control.tooltip_text+="\n主动栏已满；请先从已装配功法页卸下一法。"
+			control.text="替换主动…";control.tooltip_text+="\n主动栏已满；先选择要替下的一法，不会自动卸下。"
 		if not worn and slot=="passive" and h.state.equipped_passives.size()>=h.state.passive_capacity():
 			control.disabled=true;control.text="筑基启辅修" if h.state.passive_capacity()<=0 else "辅修已满";control.tooltip_text+="\n"+_manual_slot_hint(h,slot)
 		if slot=="heart" and not h.state.pending_heart_switch.is_empty():
@@ -617,6 +626,8 @@ static func _draw_technique(h, x:float, y:float, a:float):
 		_txt(h,sub,Vector2(x+5,yy+31),10,a,JADE if bool(row.get("active",false)) or bool(row.get("movement_active",false)) else FADED)
 		_rule(h,Vector2(x+5,yy+37),Vector2(x+200,yy+37),a*.65)
 	if selected.is_empty():return
+	if ActiveReplacement.is_open(h,str(selected.id)):
+		ActiveReplacement.draw(h,x,y,a);return
 	var quote:Dictionary=h.get_meta("ink_heart_quote",{})
 	if not quote.is_empty() and str(quote.get("id",quote.get("new_id","")))==str(selected.id):
 		_draw_heart_confirmation(h,x,y,a,quote);return
@@ -670,7 +681,9 @@ static func _craft_page(h,rows:Array)->int:
 	if not rows.is_empty():h.set_meta("craft_recipe",str(rows[0].id))
 	return 0
 
-static func inspect_craft(h,id:String):
+static func inspect_craft(h,id:String,preserve_supply:bool=false):
+	if not preserve_supply:CraftSupply.clear(h)
+	h.set_meta("craft_supply_open",false)
 	var rows:Array=h.state.crafting_rows()
 	for i in range(rows.size()):
 		if str(rows[i].id)!=id:continue
@@ -732,11 +745,17 @@ static func _perform_craft(h,id:String,material:String):
 
 static func _build_bag(h,x:float,y:float):
 	var view:String=str(h.get_meta("bag_view","materials"))
+	if view!="craft":CraftSupply.clear(h)
 	var choices:Array=["materials","craft","supplies"]
 	for i in range(3):
 		var choice:String=choices[i]
 		_hit(h,"bag_view_"+choice,["山材","百工","药囊"][i],Rect2(x+i*74,y+60,68,25),func():h.set_meta("bag_view",choice);h._refresh_drawer(),["材料数量、出处与用途","合成灵材，制作真实装备","草露与丹药库存"][i])
 	if view=="craft":
+		if CraftSupply.is_open(h):CraftSupply.build(h,x,y);return
+		var supply_drawer=h.drawer
+		h._qbutton(h.drawer,"craft_supply_open","缺材去向 ↗",Rect2(x+430,y+60,174,25),func():
+			if CraftSupply._valid(h,supply_drawer):CraftSupply.open(h),"查看本配方用料缺口与出处；只翻页，不自动出发或制作。")
+		if CraftSupply.has_return(h):CraftSupply.build_return(h,Rect2(x+232,y+60,180,25))
 		var rows:Array=h.state.crafting_rows()
 		var page:int=_craft_page(h,rows)
 		for i in range(CRAFTS_PER_PAGE):
@@ -802,6 +821,7 @@ static func _draw_bag(h,x:float,y:float,a:float):
 		var active:bool=view==["materials","craft","supplies"][i]
 		_center(h,["山 材","百 工","药 囊"][i],Rect2(x+i*74,y+60,68,25),12,a,RED if active else FADED,true)
 		if active:h.draw_line(Vector2(x+i*74+10,y+86),Vector2(x+i*74+58,y+86),Color(RED,a*.7),1.4,true)
+	if view=="craft" and CraftSupply.is_open(h):CraftSupply.draw(h,x,y,a);return
 	if view=="supplies":_draw_supplies(h,x,y,a);return
 	if view=="materials":
 		var rows:Array=h.state.material_rows()

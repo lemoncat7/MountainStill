@@ -14,14 +14,14 @@ import native_package_smoke as smoke
 
 class DriverSafety(unittest.TestCase):
     def test_exact_candidate_pins(self):
-        self.assertEqual(smoke.TAG, 'v1.3.29-test.1')
-        self.assertEqual(smoke.VERSION, '1.3.29-test.1')
-        self.assertEqual(smoke.PACKAGES['win32'], ('MountainStill-v1.3.29-test.1-Windows-x86_64.zip',
-            '00e9ed6436d450cd60788f7bc15d11b4b79a81ec3993c2ffac784174e15418b6',
-            'MountainStill/MountainStill.exe', 114565395))
-        self.assertEqual(smoke.PACKAGES['darwin'], ('MountainStill-v1.3.29-test.1-macOS-Universal.zip',
-            'faf004c2700812ff8f3081daf77c6d220c2be360662804ea7213952290aed9d8',
-            smoke.APP+'.app/Contents/MacOS/'+smoke.APP, 141296431))
+        self.assertEqual(smoke.TAG, 'v1.3.36-test.1')
+        self.assertEqual(smoke.VERSION, '1.3.36-test.1')
+        self.assertEqual(smoke.PACKAGES['win32'], ('MountainStill-v1.3.36-test.1-Windows-x86_64.zip',
+            '3283c886d13e119f998b189466eb2f6bfd9d392c0a050446885024a89af3a791',
+            'MountainStill/MountainStill.exe', 114619846))
+        self.assertEqual(smoke.PACKAGES['darwin'], ('MountainStill-v1.3.36-test.1-macOS-Universal.zip',
+            '6bbfa52817466b5e5a0a7f2546d54532ec890c62f20ad818a9836d5a8c9d08f5',
+            smoke.APP+'.app/Contents/MacOS/'+smoke.APP, 141351904))
 
     def archive(self, name, mode=0):
         stream = io.BytesIO()

@@ -48,6 +48,7 @@ static func start(h, enemy_id: String) -> bool:
 	var style: String = h._attack_style()
 	var loadout: Dictionary = Loadout.capture(h.state, hero, enemy, str(h.state.technique), style, 17)
 	if not bool(session.start(hero, enemy, str(h.state.technique), style, 17, loadout).get("ok", false)): return false
+	clear_decision(h)
 	h.set_meta("practice_show_loadout", false)
 	h.set_meta("practice_loadout_page", 0)
 	h._close_drawer()
@@ -75,11 +76,57 @@ static func start(h, enemy_id: String) -> bool:
 	controls(h)
 	return true
 
+static func clear_decision(h):
+	h.remove_meta("practice_decision_session")
+	h.remove_meta("practice_decision_snapshot")
+	h.remove_meta("practice_decision_presentation")
+	h.set_meta("practice_decision_generation", int(h.get_meta("practice_decision_generation", 0)) + 1)
+
+static func decision_open(h) -> bool:
+	return h.practice_session != null and int(h.get_meta("practice_decision_session", 0)) == h.practice_session.get_instance_id() and bool(h.practice_session.status().get("paused", false)) and bool(h.practice_session.status().get("active", false))
+
+static func open_decision(h, session_id: int) -> bool:
+	if h.practice_session == null or h.practice_session.get_instance_id() != session_id or not h.drawer_name.is_empty(): return false
+	var status: Dictionary = h.practice_session.status()
+	if not bool(status.get("active", false)) or not bool(status.get("paused", false)): return false
+	clear_decision(h)
+	h.set_meta("practice_decision_session", session_id)
+	h.set_meta("practice_decision_snapshot", h.duel.skill_decision_snapshot())
+	h.drawer_name = "wardrobe"; h.drawn_page = "wardrobe"; h.wardrobe_tab = "equipment"
+	h.set_meta("combat_insight_open", true); h.set_meta("combat_insight_view", "enemies")
+	h._refresh_drawer(true)
+	h.practice_controls.visible = false
+	return true
+
+static func end_decision(h, session_id: int, generation: int) -> bool:
+	if not decision_open(h) or h.practice_session.get_instance_id() != session_id or int(h.get_meta("practice_decision_generation", 0)) != generation: return false
+	finish(h)
+	return true
+
+static func leave_decision(h, session_id: int, generation: int, resume: bool = false) -> bool:
+	if not decision_open(h) or h.practice_session.get_instance_id() != session_id or int(h.get_meta("practice_decision_generation", 0)) != generation: return false
+	clear_decision(h)
+	# _close_drawer intentionally ends a trial. This dedicated return keeps the
+	# same trial and pause, unless the player explicitly requested resume.
+	if h.drawer_tween: h.drawer_tween.kill()
+	if h.content_tween: h.content_tween.kill()
+	h.drawer_name = ""; h.drawn_page = ""; h.drawer_alpha = 0.0; h.content_alpha = 0.0; h.paper_reveal = 0.0
+	if is_instance_valid(h.drawer):
+		for key in h.buttons.keys():
+			if is_instance_valid(h.buttons[key]) and h.buttons[key].get_parent() == h.drawer: h.buttons.erase(key)
+		h.remove_child(h.drawer); h.drawer.queue_free(); h.drawer = null
+	if resume: h.practice_session.resume()
+	controls(h)
+	h.queue_redraw()
+	return true
+
 static func controls(h):
 	if is_instance_valid(h.practice_controls): h.practice_controls.queue_free()
 	h.practice_controls = Control.new(); h.practice_controls.mouse_filter = Control.MOUSE_FILTER_IGNORE; h.add_child(h.practice_controls)
 	h._qbutton(h.practice_controls, "practice_live_pause", "继续试招" if bool(h.practice_session.status().get("paused", false)) else "暂停试招", Rect2(24, 18, 112, 30), h.toggle_practice_pause, "仅暂停镜中战斗，正式山居始终冻结")
 	h._qbutton(h.practice_controls, "practice_live_end", "结束试招", Rect2(146, 18, 112, 30), h.end_practice, "退出无奖励试招；Esc 也可结束")
+	var session_id: int = h.practice_session.get_instance_id()
+	h._qbutton(h.practice_controls, "practice_live_decision", "出招缘由", Rect2(268, 18, 112, 30), func():open_decision(h, session_id), "先暂停试招，再查看此刻的战气、冷却、条件与出招次序；不改搭配，不预报下一招。").disabled = not bool(h.practice_session.status().get("paused", false))
 	h.practice_controls.visible = h.drawer_name.is_empty()
 	lock_controls(h)
 
@@ -122,6 +169,7 @@ static func advance(h, delta: float):
 	h.queue_redraw()
 
 static func finish(h):
+	clear_decision(h)
 	if h.practice_session == null: return
 	if bool(h.practice_session.status().get("finished", false)) and str(h.practice_session.status().get("outcome", "")) in ["victory", "defeat", "timeout"]:
 		h.practice_previous_reports[str(h.get_meta("practice_enemy_id", ""))] = h.practice_session.report()

@@ -19,13 +19,13 @@ def state(life=30):
 
 class StabilityContracts(unittest.TestCase):
     def test_exact_candidate_pins(self):
-        self.assertEqual(gate.TAG, 'v1.3.29-test.1')
-        self.assertEqual(gate.PACKAGES['win32'][0], 'MountainStill-v1.3.29-test.1-Windows-x86_64.zip')
-        self.assertEqual(gate.PACKAGES['win32'][1], '00e9ed6436d450cd60788f7bc15d11b4b79a81ec3993c2ffac784174e15418b6')
-        self.assertEqual(gate.PACKAGES['win32'][3], 114565395)
-        self.assertEqual(gate.PACKAGES['darwin'][0], 'MountainStill-v1.3.29-test.1-macOS-Universal.zip')
-        self.assertEqual(gate.PACKAGES['darwin'][1], 'faf004c2700812ff8f3081daf77c6d220c2be360662804ea7213952290aed9d8')
-        self.assertEqual(gate.PACKAGES['darwin'][3], 141296431)
+        self.assertEqual(gate.TAG, 'v1.3.36-test.1')
+        self.assertEqual(gate.PACKAGES['win32'][0], 'MountainStill-v1.3.36-test.1-Windows-x86_64.zip')
+        self.assertEqual(gate.PACKAGES['win32'][1], '3283c886d13e119f998b189466eb2f6bfd9d392c0a050446885024a89af3a791')
+        self.assertEqual(gate.PACKAGES['win32'][3], 114619846)
+        self.assertEqual(gate.PACKAGES['darwin'][0], 'MountainStill-v1.3.36-test.1-macOS-Universal.zip')
+        self.assertEqual(gate.PACKAGES['darwin'][1], '6bbfa52817466b5e5a0a7f2546d54532ec890c62f20ad818a9836d5a8c9d08f5')
+        self.assertEqual(gate.PACKAGES['darwin'][3], 141351904)
 
     def test_fps_diagnostic_not_rendered_or_exact_frames(self):
         value=gate.fps_summary('Project FPS: 44 (22.73 mspf)\nProject FPS: 45 (22.22 mspf)\n')
@@ -69,11 +69,11 @@ class StabilityContracts(unittest.TestCase):
             self.assertEqual(gate.userdata_path(),Path('/test/home/Library/Application Support/Godot/app_userdata')/gate.APP)
 
     def test_readiness_requires_fixed_version_and_both_loads(self):
-        text='UPDATE BOOT: 1.3.29-test.1\n'+''.join('Loading resource: res://assets/cultivation/beasts/'+x+'\n' for x in gate.ASSETS)
+        text='UPDATE BOOT: 1.3.36-test.1\n'+''.join('Loading resource: res://assets/cultivation/beasts/'+x+'\n' for x in gate.ASSETS)
         self.assertTrue(gate.boot_ready(text))
-        self.assertFalse(gate.boot_ready(text.replace('1.3.29-test.1','1.3.25')))
+        self.assertFalse(gate.boot_ready(text.replace('1.3.36-test.1','1.3.25')))
         for suffix in ('-test.1', '0', 'junk'):
-            self.assertFalse(gate.boot_ready(text.replace('1.3.29-test.1', '1.3.29-test.1'+suffix)))
+            self.assertFalse(gate.boot_ready(text.replace('1.3.36-test.1', '1.3.36-test.1'+suffix)))
         for asset in gate.ASSETS:self.assertFalse(gate.boot_ready(text.replace(asset,'absent.png')))
 
     def test_readiness_tracks_escaped_exact_release_tag(self):
@@ -81,9 +81,9 @@ class StabilityContracts(unittest.TestCase):
         # One source of truth prevents stale escaped version literals after a bump.
         with patch.object(gate, 'TAG', 'v9.8.7-test.6'):
             self.assertTrue(gate.boot_ready('UPDATE BOOT: 9.8.7-test.6\n'+loads))
-            for version in ('1.3.29-test.1', '9x8x7-testx6', '9.8.7-test.60', '9.8.7-test.6junk'):
+            for version in ('1.3.36-test.1', '9x8x7-testx6', '9.8.7-test.60', '9.8.7-test.6junk'):
                 self.assertFalse(gate.boot_ready('UPDATE BOOT: '+version+'\n'+loads))
-        self.assertFalse(gate.boot_ready('prefix UPDATE BOOT: 1.3.29-test.1\n'+loads))
+        self.assertFalse(gate.boot_ready('prefix UPDATE BOOT: 1.3.36-test.1\n'+loads))
 
     def test_fixture_uses_actual_save_and_no_mutation(self):
         seed=state();original=copy.deepcopy(seed);fixture=gate.fixture_from(seed)

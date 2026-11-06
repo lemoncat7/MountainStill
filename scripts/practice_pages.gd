@@ -69,6 +69,9 @@ static func control_notes() -> String:
 	return "霜滞：实际影响后续新起手，非施法次数。\n中断：确实中断敌动作，含收势；不等于破势次数、避免命中或节省秒数。\n同一霜滞起手可能随后中断，两项可重叠。\n只记本次固定种子试招，不代表普遍强弱。"
 
 static func build(h, x: float, y: float):
+	if h.PracticeHost.decision_open(h):
+		_build_decision(h, x, y)
+		return
 	var rows := _rows(h)
 	var page := _page(h, rows)
 	var active := _active(h)
@@ -110,6 +113,9 @@ static func build(h, x: float, y: float):
 		button.disabled = not unlocked or not reason.is_empty()
 
 static func draw(h, x: float, y: float, a: float):
+	if h.PracticeHost.decision_open(h):
+		_draw_decision(h, x, y, a)
+		return
 	var rows := _rows(h)
 	if rows.is_empty():
 		h.InkPages._txt(h, "暂无敌情", Vector2(x, y + 122), BODY, a)
@@ -179,3 +185,58 @@ static func _draw_loadout(h, x: float, y: float, a: float, report: Dictionary):
 		var value: String = str(rows[page].value) if column == 0 and not rows.is_empty() else (str(old_rows[page].value) if page < old_rows.size() else "尚无记录\n完成一次试招后可对照")
 		h.InkPages._wrap(h, value, Vector2(x + column * 310, y + 155), 294, BODY, a, h.InkPages.INK, 4)
 	h.InkPages._center(h, "搭配%d/%d" % [page + 1, maxi(1, rows.size())], Rect2(x + 304, y + 235, 58, 18), NOTE, a, h.InkPages.FADED)
+
+static func decision_reason(row: Dictionary, snapshot: Dictionary) -> String:
+	match str(row.get("reason", "unavailable")):
+		"selected": return "此刻可选 · 仍须等到实际起手"
+		"weapon_mismatch": return "兵器不合 · 需" + str({"weapon_sword": "持剑", "sword": "持剑", "weapon_fan": "持扇", "fan": "持扇"}.get(str(row.get("required_weapon", "")), "相配兵器"))
+		"capacity": return "战气上限不足 · 需%.1f / 上限%.1f" % [float(row.qi_cost), float(snapshot.max_qi)]
+		"cooldown": return "冷却中 · 还需%.1f秒" % (ceilf(float(row.remaining) * 10.0) / 10.0)
+		"health_gate": return "待疗伤 · 缺血不足12%，且未受霜滞"
+		"shield": return "护体仍在 · 尚余%d护盾" % int(snapshot.shield)
+		"qi": return "战气不足 · 还需%.1f气" % (ceilf(maxf(0.0, float(row.qi_cost) - float(snapshot.qi)) * 10.0) / 10.0)
+		"basic_interleave": return "穿插普攻 · 当前择招须先普攻"
+		"reserve": return "节气留气 · 够施放，尚未满足预留"
+		"priority_wait": return "依战术先等其他招式的战气"
+		"rotation": return "依战术与轮转 · 此刻先选" + str(snapshot.get("selected_name", "其他招式"))
+	return "当前不可用"
+
+static func decision_hint(row: Dictionary, snapshot: Dictionary) -> String:
+	var result := "%s · %s\n本招实耗%.1f气；当前%.1f / %.1f气。\n" % [str(row.get("name", "招式")), decision_reason(row, snapshot), float(row.get("qi_cost", 0.0)), float(snapshot.get("qi", 0.0)), float(snapshot.get("max_qi", 0.0))]
+	var tactics := {"balanced": "均衡：保留轮转中首个合条件招式，气不足时先普攻，不跳过它。", "assault": "强攻：气血不高于65%时优先合法疗伤，其后攻击，再支援。", "guarded": "守势：优先合法疗伤，其后护盾等支援，再攻击。", "frugal": "节气：轮转中跳过未满足留气条件的招式；危急疗伤可免预留。"}
+	return result + str(tactics.get(str(snapshot.get("tactic", "balanced")), "")) + "\n此刻按真实冷却、条件和战术只读核验，不重选已起手动作。\n疗伤须缺血至少12%或仍受霜滞；已有护盾时不补护体。\n技能间穿插普攻；节气通常预留25%上限，昂贵招式与危急疗伤沿用原例外。\n就绪只表示基本条件允许，不保证立即施放；下一次起手会重新核验。"
+
+static func _build_decision(h, x: float, y: float):
+	var session_id: int = h.practice_session.get_instance_id()
+	var generation: int = int(h.get_meta("practice_decision_generation", 0))
+	var snapshot: Dictionary = h.get_meta("practice_decision_snapshot", {})
+	var rows: Array = snapshot.get("rows", [])
+	var names := {"balanced": "均衡", "assault": "强攻", "guarded": "守势", "frugal": "节气"}
+	var action := "正在%s · 已起手的动作不重选" % str(snapshot.get("current_action", "")) if bool(snapshot.get("current_action_active", false)) else "正在衔接 · 到实际起手时重新择招"
+	var presentation := {"summary": "%s · 战气%.1f / %.1f" % [str(names.get(str(snapshot.get("tactic", "balanced")), "均衡")), float(snapshot.get("qi", 0.0)), float(snapshot.get("max_qi", 0.0))], "action": h.InkPages._ellipsis(action, 600, BODY), "rows": []}
+	for i in range(mini(3, rows.size())):
+		var row: Dictionary = rows[i]
+		presentation.rows.append({"name": h.InkPages._ellipsis(str(row.get("name", "招式")), 100, BODY), "cost": "耗%.1f气" % float(row.get("qi_cost", 0.0)), "reason": h.InkPages._ellipsis(decision_reason(row, snapshot), 405, BODY)})
+		h.InkPages._hit(h, "practice_decision_row_%d" % i, str(row.get("name", "招式")), Rect2(x, y + 143 + i * 23, 605, 22), func():pass, decision_hint(row, snapshot))
+	h.set_meta("practice_decision_presentation", presentation)
+	h._qbutton(h.drawer, "practice_decision_back", "返回交锋", Rect2(x, y + 228, 116, 30), func():
+		h.PracticeHost.leave_decision(h, session_id, generation), "返回同一场试招，保持暂停，不推进时间。")
+	h._qbutton(h.drawer, "practice_decision_resume", "继续试招", Rect2(x + 124, y + 228, 116, 30), func():
+		h.PracticeHost.leave_decision(h, session_id, generation, true), "合上缘由页并继续当前试招；不是重新开始。")
+	h._qbutton(h.drawer, "practice_decision_end", "结束试招", Rect2(x + 248, y + 228, 116, 30), func():
+		h.PracticeHost.end_decision(h, session_id, generation), "取消试招并返回山居；不覆盖同敌上次完成记录。")
+
+static func _draw_decision(h, x: float, y: float, a: float):
+	# Only manual opening/building makes the snapshot and formats explanations.
+	# A paused redraw does not run the decision probe or allocate its strings.
+	var presentation: Dictionary = h.get_meta("practice_decision_presentation", {})
+	h.InkPages._txt(h, "出招缘由 · 已暂停", Vector2(x, y + 111), 16, a)
+	h.InkPages._txt(h, str(presentation.get("summary", "")), Vector2(x + 310, y + 111), BODY, a, h.InkPages.JADE)
+	h.InkPages._txt(h, str(presentation.get("action", "")), Vector2(x, y + 135), BODY, a, h.InkPages.FADED)
+	var rows: Array = presentation.get("rows", [])
+	for i in range(rows.size()):
+		h.InkPages._txt(h, str(rows[i].name), Vector2(x + 4, y + 160 + i * 23), BODY, a)
+		h.InkPages._txt(h, str(rows[i].cost), Vector2(x + 110, y + 160 + i * 23), BODY, a, h.InkPages.FADED)
+		h.InkPages._txt(h, str(rows[i].reason), Vector2(x + 194, y + 160 + i * 23), BODY, a, h.InkPages.JADE)
+	if rows.is_empty(): h.InkPages._txt(h, "未装配主动招式或兵器技；当前使用普攻。", Vector2(x + 4, y + 162), BODY, a)
+	h.InkPages._txt(h, "此刻说明，不预报下一招；就绪不等于立即施放。悬停查看条件。", Vector2(x, y + 223), NOTE, a, h.InkPages.FADED)

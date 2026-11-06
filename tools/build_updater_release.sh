@@ -2,6 +2,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GODOT_BIN="${GODOT_BIN:-godot}"
+python3 "$ROOT/tools/verify_export_dependencies.py" --prebuild
 OUT="$ROOT/builds/updater-release"
 mkdir -p "$OUT" "$ROOT/builds/logs"
 run() {

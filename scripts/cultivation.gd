@@ -1102,10 +1102,15 @@ func _resized():
 	if drawer_name!="":_refresh_drawer()
 func _input(event):
 	if practice_session != null:
-		if event is InputEventKey and event.pressed and not event.echo:
-			if event.keycode in [KEY_ESCAPE, KEY_F8]: end_practice()
-			elif event.keycode == KEY_SPACE: toggle_practice_pause()
-			get_viewport().set_input_as_handled()
+		if event is InputEventKey:
+			# Keep keyboard navigation/activation available to enabled trial
+			# controls. World shortcuts and every phase of trial shortcuts
+			# stay out of GUI input, especially Space's ui_accept release.
+			if event.keycode not in [KEY_ENTER, KEY_KP_ENTER, KEY_TAB, KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN]:
+				get_viewport().set_input_as_handled()
+				if event.pressed and not event.echo:
+					if event.keycode in [KEY_ESCAPE, KEY_F8]: end_practice()
+					elif event.keycode == KEY_SPACE: toggle_practice_pause()
 		return
 	if event is InputEventKey and event.keycode in [KEY_ESCAPE,KEY_F8,KEY_F2,KEY_SPACE,KEY_I,KEY_TAB,KEY_A,KEY_R,KEY_M,KEY_G,KEY_F9]:
 		# A global shortcut must not also activate the focused paper button.

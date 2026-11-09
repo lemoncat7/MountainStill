@@ -31,31 +31,31 @@ class CompatibilityContracts(unittest.TestCase):
     def test_exact_old_and_new_pins_both_platforms(self):
         expected = {
             'win32': ('windows', 114552389, '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873',
-                      114619846, '3283c886d13e119f998b189466eb2f6bfd9d392c0a050446885024a89af3a791'),
+                      114624156, '8ce3f51ad88d705ef37d3e14ac95582a3d68a6329f5b35a4be55c92ebfaa88b2'),
             'darwin': ('macos', 141283216, '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d',
-                       141351904, '6bbfa52817466b5e5a0a7f2546d54532ec890c62f20ad818a9836d5a8c9d08f5'),
+                       141356213, 'fa10eef14aae7465ea09478e591f7f23e82018521169eadf63d5533fdec59997'),
         }
         try:
             for platform_name, (package_platform, old_size, old_sha, new_size, new_sha) in expected.items():
                 with patch.object(sys, 'platform', platform_name):
                     importlib.reload(compat)
                     self.assertEqual(compat.OLD_TAG, 'v1.3.26')
-                    self.assertEqual(compat.NEW_TAG, 'v1.3.36-test.1')
+                    self.assertEqual(compat.NEW_TAG, 'v1.3.37-test.1')
                     self.assertEqual(compat.PINS['old_zip'][2:], (old_size, old_sha))
                     self.assertEqual(compat.PINS['new_zip'][2:], (new_size, new_sha))
                     suffix = 'Windows-x86_64.zip' if package_platform == 'windows' else 'macOS-Universal.zip'
                     self.assertEqual(compat.PINS['old_zip'][1], 'MountainStill-v1.3.26-'+suffix)
-                    self.assertEqual(compat.PINS['new_zip'][1], 'MountainStill-v1.3.36-test.1-'+suffix)
-                    self.assertEqual(compat.PINS['pck'], ('v1.3.36-test.1', 'MountainStill-'+package_platform+'.pck',
-                        78533300, '62404b3516b114656ac29d3c832945638ab9c181a660289317c38b55a78df3a7'))
+                    self.assertEqual(compat.PINS['new_zip'][1], 'MountainStill-v1.3.37-test.1-'+suffix)
+                    self.assertEqual(compat.PINS['pck'], ('v1.3.37-test.1', 'MountainStill-'+package_platform+'.pck',
+                        78533620, '4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806'))
                     self.assertEqual(compat.PINS['manifest'][2:], (579,
-                        '9893c3d487ba0b375a4d5ac84b8c60276d06f9b4f3412ac33edbb49afd5cb04a'))
+                        'bd37bccd185d32133a9d70e5006176917411bbd5de0037af8e97759c5b66902d'))
         finally:
             importlib.reload(compat)
 
     def test_hard_pins_and_manifest_fields(self):
         self.assertEqual(compat.PINS['old_zip'][2],114552389 if compat.PLATFORM=='windows' else 141283216)
-        self.assertEqual(compat.PINS['pck'][3],'62404b3516b114656ac29d3c832945638ab9c181a660289317c38b55a78df3a7')
+        self.assertEqual(compat.PINS['pck'][3],'4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806')
         value=manifest();record=compat.installed_record(value)
         self.assertEqual(record['path'],'user://updates/'+record['sha256']+'.pck')
         for key,bad in [('version','1.3.26'),('engine','4.5'),('save_schema',3),('bootstrap',2),('schema',True)]:

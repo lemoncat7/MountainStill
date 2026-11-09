@@ -17,23 +17,23 @@ import native_package_stability as gate
 from native_compat_session import session, native_json
 
 OLD_TAG='v1.3.26'
-NEW_TAG='v1.3.36-test.1'
+NEW_TAG='v1.3.37-test.1'
 OLD_VERSION='1.3.26'
-NEW_VERSION='1.3.36-test.1'
+NEW_VERSION='1.3.37-test.1'
 DRIVER_SECONDS=12*60
 PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
  'old_zip':(OLD_TAG,'MountainStill-v1.3.26-macOS-Universal.zip',141283216,'78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d'),
- 'new_zip':(NEW_TAG,'MountainStill-v1.3.36-test.1-macOS-Universal.zip',141351904,'6bbfa52817466b5e5a0a7f2546d54532ec890c62f20ad818a9836d5a8c9d08f5'),
- 'pck':(NEW_TAG,'MountainStill-macos.pck',78533300,'62404b3516b114656ac29d3c832945638ab9c181a660289317c38b55a78df3a7'),
- 'manifest':(NEW_TAG,'MountainStill-update.json',579,'9893c3d487ba0b375a4d5ac84b8c60276d06f9b4f3412ac33edbb49afd5cb04a'),
+ 'new_zip':(NEW_TAG,'MountainStill-v1.3.37-test.1-macOS-Universal.zip',141356213,'fa10eef14aae7465ea09478e591f7f23e82018521169eadf63d5533fdec59997'),
+ 'pck':(NEW_TAG,'MountainStill-macos.pck',78533620,'4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806'),
+ 'manifest':(NEW_TAG,'MountainStill-update.json',579,'bd37bccd185d32133a9d70e5006176917411bbd5de0037af8e97759c5b66902d'),
 }
 
 if PLATFORM == 'windows':
     PINS.update({
       'old_zip':(OLD_TAG,'MountainStill-v1.3.26-Windows-x86_64.zip',114552389,'020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873'),
-      'new_zip':(NEW_TAG,'MountainStill-v1.3.36-test.1-Windows-x86_64.zip',114619846,'3283c886d13e119f998b189466eb2f6bfd9d392c0a050446885024a89af3a791'),
-      'pck':(NEW_TAG,'MountainStill-windows.pck',78533300,'62404b3516b114656ac29d3c832945638ab9c181a660289317c38b55a78df3a7'),
+      'new_zip':(NEW_TAG,'MountainStill-v1.3.37-test.1-Windows-x86_64.zip',114624156,'8ce3f51ad88d705ef37d3e14ac95582a3d68a6329f5b35a4be55c92ebfaa88b2'),
+      'pck':(NEW_TAG,'MountainStill-windows.pck',78533620,'4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806'),
     })
 
 

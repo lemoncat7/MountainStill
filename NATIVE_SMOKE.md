@@ -1,3 +1,12 @@
+# v1.3.37-test.1 · Keyboard dispatch source check
+
+The existing 27 source cases are retained; `test_practice_keyboard_ui.gd` is added as case 28. It uses real viewport key input and real controls, and must emit exactly one `Practice keyboard UI: 127 checks, 0 failures` line. Missing, wrong, duplicate or error-bearing output is rejected. The 60-second default and sole existing 180-second batched-contact exception are unchanged. No workflow or permission changes are part of this iteration.
+
+Linux headless source/payload checks are not Windows/macOS native keyboard-layout, window-focus, graphics or package acceptance. The native workflow has not been run for this candidate at the time of source preparation.
+
+---
+Historical instructions and recorded results follow.
+
 # Native headless source smoke
 
 The manually dispatched `Native headless source smoke` workflow tests the exact

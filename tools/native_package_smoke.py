@@ -19,16 +19,16 @@ import zipfile
 
 from native_platform_smoke import configure_output, run, unexpected_errors
 
-TAG = 'v1.3.36-test.1'
-VERSION = '1.3.36-test.1'
+TAG = 'v1.3.37-test.1'
+VERSION = '1.3.37-test.1'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.36-test.1-Windows-x86_64.zip',
-              '3283c886d13e119f998b189466eb2f6bfd9d392c0a050446885024a89af3a791',
-              'MountainStill/MountainStill.exe', 114619846),
-    'darwin': ('MountainStill-v1.3.36-test.1-macOS-Universal.zip',
-               '6bbfa52817466b5e5a0a7f2546d54532ec890c62f20ad818a9836d5a8c9d08f5',
-               APP + '.app/Contents/MacOS/' + APP, 141351904),
+    'win32': ('MountainStill-v1.3.37-test.1-Windows-x86_64.zip',
+              '8ce3f51ad88d705ef37d3e14ac95582a3d68a6329f5b35a4be55c92ebfaa88b2',
+              'MountainStill/MountainStill.exe', 114624156),
+    'darwin': ('MountainStill-v1.3.37-test.1-macOS-Universal.zip',
+               'fa10eef14aae7465ea09478e591f7f23e82018521169eadf63d5533fdec59997',
+               APP + '.app/Contents/MacOS/' + APP, 141356213),
 }
 ASSETS = (
     'res://assets/cultivation/beasts/creek_bridge_boss_settle.png',

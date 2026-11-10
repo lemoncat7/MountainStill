@@ -1,3 +1,10 @@
+# v1.3.38-test.1 · Keyboard focus source check
+
+The existing 28 source cases are retained. `test_practice_focus_ui.gd` is case 29 and requires exactly one `Practice focus UI: 50 checks, 0 failures` marker. It tests natural focus navigation and continuous real Viewport input. The 60-second default and sole 180-second contact-case exception are unchanged. Driver regression: 27 tests passed. No workflow or permission changes. Linux/headless coverage is not Windows/macOS native GUI acceptance.
+
+---
+Historical instructions follow.
+
 # v1.3.37-test.1 · Keyboard dispatch source check
 
 The existing 27 source cases are retained; `test_practice_keyboard_ui.gd` is added as case 28. It uses real viewport key input and real controls, and must emit exactly one `Practice keyboard UI: 127 checks, 0 failures` line. Missing, wrong, duplicate or error-bearing output is rejected. The 60-second default and sole existing 180-second batched-contact exception are unchanged. No workflow or permission changes are part of this iteration.

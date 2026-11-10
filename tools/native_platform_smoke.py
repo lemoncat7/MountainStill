@@ -43,6 +43,7 @@ TESTS = {
     'test_practice_decision.gd': r'Practice decision state: 3114 checks, 0 failures',
     'test_practice_decision_ui.gd': r'Practice decision UI: 3150 checks, 0 failures; lifecycle cycles=5',
     'test_practice_keyboard_ui.gd': r'Practice keyboard UI: 127 checks, 0 failures',
+    'test_practice_focus_ui.gd': r'Practice focus UI: 50 checks, 0 failures',
 }
 FEATURE_MARKER_PREFIXES = {
     'test_craft_supply_ui.gd': 'Craft supply UI:',
@@ -53,6 +54,7 @@ FEATURE_MARKER_PREFIXES = {
     'test_practice_decision.gd': 'Practice decision state:',
     'test_practice_decision_ui.gd': 'Practice decision UI:',
     'test_practice_keyboard_ui.gd': 'Practice keyboard UI:',
+    'test_practice_focus_ui.gd': 'Practice focus UI:',
 }
 # The exact-trace contact case is longer on Intel CI; all other cases retain 60s.
 DEFAULT_TEST_TIMEOUT = 60

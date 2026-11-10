@@ -31,22 +31,22 @@ class CompatibilityContracts(unittest.TestCase):
     def test_exact_old_and_new_pins_both_platforms(self):
         expected = {
             'win32': ('windows', 114552389, '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873',
-                      114624156, '8ce3f51ad88d705ef37d3e14ac95582a3d68a6329f5b35a4be55c92ebfaa88b2'),
+                      114628984, '8dbb59bdb6f350b2f89122c39bbbb0f32777c963ab0eb63f221c9f3039b57a1b'),
             'darwin': ('macos', 141283216, '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d',
-                       141356213, 'fa10eef14aae7465ea09478e591f7f23e82018521169eadf63d5533fdec59997'),
+                       141360801, '0126c1732716cad953f2d1d888801912e1cd186800b06f4020729b3d28aad2d9'),
         }
         try:
             for platform_name, (package_platform, old_size, old_sha, new_size, new_sha) in expected.items():
                 with patch.object(sys, 'platform', platform_name):
                     importlib.reload(compat)
                     self.assertEqual(compat.OLD_TAG, 'v1.3.26')
-                    self.assertEqual(compat.NEW_TAG, 'v1.3.37-test.1')
+                    self.assertEqual(compat.NEW_TAG, 'v1.3.38-test.1')
                     self.assertEqual(compat.PINS['old_zip'][2:], (old_size, old_sha))
                     self.assertEqual(compat.PINS['new_zip'][2:], (new_size, new_sha))
                     suffix = 'Windows-x86_64.zip' if package_platform == 'windows' else 'macOS-Universal.zip'
                     self.assertEqual(compat.PINS['old_zip'][1], 'MountainStill-v1.3.26-'+suffix)
-                    self.assertEqual(compat.PINS['new_zip'][1], 'MountainStill-v1.3.37-test.1-'+suffix)
-                    self.assertEqual(compat.PINS['pck'], ('v1.3.37-test.1', 'MountainStill-'+package_platform+'.pck',
+                    self.assertEqual(compat.PINS['new_zip'][1], 'MountainStill-v1.3.38-test.1-'+suffix)
+                    self.assertEqual(compat.PINS['pck'], ('v1.3.38-test.1', 'MountainStill-'+package_platform+'.pck',
                         78533620, '4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806'))
                     self.assertEqual(compat.PINS['manifest'][2:], (579,
                         'bd37bccd185d32133a9d70e5006176917411bbd5de0037af8e97759c5b66902d'))

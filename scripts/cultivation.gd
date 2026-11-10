@@ -446,6 +446,8 @@ func _sync_drawer_visuals():
 				if not control.has_meta("ready_focus_mode"):control.set_meta("ready_focus_mode",control.focus_mode)
 				control.focus_mode=int(control.get_meta("ready_focus_mode")) if interactive else Control.FOCUS_NONE
 
+	PracticeHost.apply_focus(self)
+
 func _animate_content(turning:bool):
 	if content_tween:content_tween.kill()
 	# Ink soaks into the next leaf; paper and hit regions stay anchored together.
@@ -552,6 +554,7 @@ func _refresh_drawer(animated=false):
 	var focus_owner=get_viewport().gui_get_focus_owner()
 	for key in buttons:
 		if is_instance_valid(buttons[key]) and buttons[key]==focus_owner:focus_key=key;break
+	if focus_key.is_empty(): focus_key=PracticeHost.focused_key(self)
 	if animated:
 		drawer_generation+=1
 		if drawer_tween:drawer_tween.kill()
@@ -622,7 +625,14 @@ func _refresh_drawer(animated=false):
 		content_tween.tween_property(self,"content_offset",0.0,.24).set_delay(.54).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_sync_drawer_visuals()
 	if practice_session != null: PracticeHost.lock_controls(self)
-	if not focus_key.is_empty() and is_instance_valid(buttons.get(focus_key)) and buttons[focus_key].focus_mode!=Control.FOCUS_NONE:
+	if focus_key.begins_with("practice_"):
+		# A replaced/disabled page action must not strand keyboard navigation.
+		var fallback = [focus_key]
+		if focus_key == "practice_loadout_next": fallback.append("practice_loadout_prev")
+		elif focus_key == "practice_loadout_prev": fallback.append("practice_loadout_next")
+		fallback.append_array(["practice_decision_back", "practice_loadout", "practice_start", "practice_enemy_next", "practice_enemy_prev"])
+		PracticeHost.request_focus(self, fallback)
+	elif not focus_key.is_empty() and is_instance_valid(buttons.get(focus_key)) and buttons[focus_key].focus_mode!=Control.FOCUS_NONE:
 		buttons[focus_key].grab_focus()
 
 func _check(label:String,p:Vector2,v:bool,fn:Callable):

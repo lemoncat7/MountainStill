@@ -17,14 +17,14 @@ import native_package_stability as gate
 from native_compat_session import session, native_json
 
 OLD_TAG='v1.3.26'
-NEW_TAG='v1.3.37-test.1'
+NEW_TAG='v1.3.38-test.1'
 OLD_VERSION='1.3.26'
-NEW_VERSION='1.3.37-test.1'
+NEW_VERSION='1.3.38-test.1'
 DRIVER_SECONDS=12*60
 PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
  'old_zip':(OLD_TAG,'MountainStill-v1.3.26-macOS-Universal.zip',141283216,'78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d'),
- 'new_zip':(NEW_TAG,'MountainStill-v1.3.37-test.1-macOS-Universal.zip',141356213,'fa10eef14aae7465ea09478e591f7f23e82018521169eadf63d5533fdec59997'),
+ 'new_zip':(NEW_TAG,'MountainStill-v1.3.38-test.1-macOS-Universal.zip',141360801,'0126c1732716cad953f2d1d888801912e1cd186800b06f4020729b3d28aad2d9'),
  'pck':(NEW_TAG,'MountainStill-macos.pck',78533620,'4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806'),
  'manifest':(NEW_TAG,'MountainStill-update.json',579,'bd37bccd185d32133a9d70e5006176917411bbd5de0037af8e97759c5b66902d'),
 }
@@ -32,7 +32,7 @@ PINS={
 if PLATFORM == 'windows':
     PINS.update({
       'old_zip':(OLD_TAG,'MountainStill-v1.3.26-Windows-x86_64.zip',114552389,'020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873'),
-      'new_zip':(NEW_TAG,'MountainStill-v1.3.37-test.1-Windows-x86_64.zip',114624156,'8ce3f51ad88d705ef37d3e14ac95582a3d68a6329f5b35a4be55c92ebfaa88b2'),
+      'new_zip':(NEW_TAG,'MountainStill-v1.3.38-test.1-Windows-x86_64.zip',114628984,'8dbb59bdb6f350b2f89122c39bbbb0f32777c963ab0eb63f221c9f3039b57a1b'),
       'pck':(NEW_TAG,'MountainStill-windows.pck',78533620,'4dd0e05f9f7b7c4205371cf357aa53c398ae6f09db94f35419898cd113650806'),
     })
 

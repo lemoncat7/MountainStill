@@ -554,7 +554,7 @@ func _refresh_drawer(animated=false):
 	var focus_owner=get_viewport().gui_get_focus_owner()
 	for key in buttons:
 		if is_instance_valid(buttons[key]) and buttons[key]==focus_owner:focus_key=key;break
-	if focus_key.is_empty(): focus_key=PracticeHost.focused_key(self)
+	if focus_key.is_empty(): focus_key=PracticeHost.focused_key(self, false)
 	if animated:
 		drawer_generation+=1
 		if drawer_tween:drawer_tween.kill()
@@ -632,8 +632,8 @@ func _refresh_drawer(animated=false):
 		elif focus_key == "practice_loadout_prev": fallback.append("practice_loadout_next")
 		fallback.append_array(["practice_decision_back", "practice_loadout", "practice_start", "practice_enemy_next", "practice_enemy_prev"])
 		PracticeHost.request_focus(self, fallback)
-	elif not focus_key.is_empty() and is_instance_valid(buttons.get(focus_key)) and buttons[focus_key].focus_mode!=Control.FOCUS_NONE:
-		buttons[focus_key].grab_focus()
+	elif not focus_key.is_empty():
+		PracticeHost.request_focus(self, [focus_key])
 
 func _check(label:String,p:Vector2,v:bool,fn:Callable):
 	var b=QuietButton.new();b.text=label+(" · 开" if v else " · 关");b.position=p;b.size=Vector2(185,31);b.selected=v

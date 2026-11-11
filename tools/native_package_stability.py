@@ -21,15 +21,15 @@ from native_platform_smoke import unexpected_errors
 from native_process_metrics import sample, cpu_percent
 
 # Independent pin: ordinary package-smoke updates must not silently retarget this observation.
-TAG = 'v1.3.38-test.1'
+TAG = 'v1.3.39-test.1'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.38-test.1-Windows-x86_64.zip',
-              '8dbb59bdb6f350b2f89122c39bbbb0f32777c963ab0eb63f221c9f3039b57a1b',
-              'MountainStill/MountainStill.exe', 114628984),
-    'darwin': ('MountainStill-v1.3.38-test.1-macOS-Universal.zip',
-               '0126c1732716cad953f2d1d888801912e1cd186800b06f4020729b3d28aad2d9',
-               APP + '.app/Contents/MacOS/' + APP, 141360801),
+    'win32': ('MountainStill-v1.3.39-test.1-Windows-x86_64.zip',
+              '256c8a6cc502854264016d62c0a3e3c901869fa37e755b525067594df9705398',
+              'MountainStill/MountainStill.exe', 114633775),
+    'darwin': ('MountainStill-v1.3.39-test.1-macOS-Universal.zip',
+               '7ea5c23c3e93b111b59e6ca8b3f0102e4ca80c8086024fe09286e5b9825b71ad',
+               APP + '.app/Contents/MacOS/' + APP, 141365534),
 }
 ASSETS = ('creek_bridge_boss_settle.png', 'creek_bridge_boss_retract.png')
 LONG_FRAMES = 78000

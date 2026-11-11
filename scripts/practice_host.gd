@@ -7,12 +7,12 @@ const FIELDS := ["duel", "paused", "encounter_active", "encounter_phase", "encou
 
 # Preserve keyboard intent only when a practice control already owned focus.
 # Pending targets are actual instances, so a later rebuild cannot revive a stale key.
-static func focused_key(h) -> String:
+static func focused_key(h, practice_only: bool = true) -> String:
 	var owner = h.get_viewport().gui_get_focus_owner()
 	if owner == null and h.has_meta("practice_focus_target"):
 		owner = h.get_meta("practice_focus_target").get_ref()
 	for key in h.buttons:
-		if str(key).begins_with("practice_") and is_instance_valid(h.buttons[key]) and h.buttons[key] == owner: return str(key)
+		if (not practice_only or str(key).begins_with("practice_")) and is_instance_valid(h.buttons[key]) and h.buttons[key] == owner: return str(key)
 	return ""
 
 static func request_focus(h, keys: Array):

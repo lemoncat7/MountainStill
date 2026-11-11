@@ -158,11 +158,14 @@ static func _build_loadout(h, x: float, y: float):
 	var page: int = clampi(int(h.get_meta("practice_loadout_page", 0)), 0, maxi(0, pages.size() - 1))
 	h._qbutton(h.drawer, "practice_adjust", "回山调整", Rect2(x, y + 228, 116, 30), func():
 		if not _active(h) or not bool(_status(h).get("finished", false)): return
+		var had_focus: bool = not h.PracticeHost.focused_key(h).is_empty()
 		h.end_practice()
 		h.set_meta("combat_insight_open", false)
 		h.set_meta("equipment_comparison_open", false)
 		h.remove_meta("chapter_practice_return")
-		h.wardrobe_tab = "equipment"; h._refresh_drawer(true), "结束试招，保留本次记录并打开现有衣冠页。自行调整后，从属性详解→敌情再次手动试招；不会自动换装或出发。")
+		h.wardrobe_tab = "equipment"; h._refresh_drawer(true)
+		# Inspect the selected slot first; never land on equip/unequip or a purchase.
+		if had_focus: h.PracticeHost.request_focus(h, ["slot_" + h.selected_slot, "slot_chest"]), "结束试招，保留本次记录并打开现有衣冠页。自行调整后，从属性详解→敌情再次手动试招；不会自动换装或出发。")
 	h._qbutton(h.drawer, "practice_end", "结束试招", Rect2(x + 124, y + 228, 116, 30), func():h.end_practice(); h._refresh_drawer(), "返回敌情，不改正式资源。")
 	h._qbutton(h.drawer, "practice_loadout_prev", "‹", Rect2(x + 264, y + 228, 36, 30), func():
 		if not _active(h) or not bool(_status(h).get("finished", false)): return

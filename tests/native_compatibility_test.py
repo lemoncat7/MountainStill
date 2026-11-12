@@ -31,9 +31,9 @@ class CompatibilityContracts(unittest.TestCase):
     def test_exact_old_and_new_pins_both_platforms(self):
         expected = {
             'win32': ('windows', 114552389, '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873',
-                      114636955, 'b3bc20168ec0119492d0eac6648731b27ed5b4ac5b94c50dea93b5b5f05b447e'),
+                      114638758, 'd3d71121cf199966cde3261a4a74e7bb108ad6f596a4ddf94aff06cbf5fa2aa1'),
             'darwin': ('macos', 141283216, '78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d',
-                       141368657, 'b8949e20e229d6a9a19034545bbf8997a219c8e1e2738de2231c5288af32edd3'),
+                       141370460, '99fe9f4f2c7810351096e9ce5ffc224aa0e6d10651b07e9708020042e9a76f7c'),
         }
         try:
             for platform_name, (package_platform, old_size, old_sha, new_size, new_sha) in expected.items():

@@ -24,11 +24,11 @@ VERSION = '1.3.40-test.1'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
     'win32': ('MountainStill-v1.3.40-test.1-Windows-x86_64.zip',
-              'b3bc20168ec0119492d0eac6648731b27ed5b4ac5b94c50dea93b5b5f05b447e',
-              'MountainStill/MountainStill.exe', 114636955),
+              'd3d71121cf199966cde3261a4a74e7bb108ad6f596a4ddf94aff06cbf5fa2aa1',
+              'MountainStill/MountainStill.exe', 114638758),
     'darwin': ('MountainStill-v1.3.40-test.1-macOS-Universal.zip',
-               'b8949e20e229d6a9a19034545bbf8997a219c8e1e2738de2231c5288af32edd3',
-               APP + '.app/Contents/MacOS/' + APP, 141368657),
+               '99fe9f4f2c7810351096e9ce5ffc224aa0e6d10651b07e9708020042e9a76f7c',
+               APP + '.app/Contents/MacOS/' + APP, 141370460),
 }
 ASSETS = (
     'res://assets/cultivation/beasts/creek_bridge_boss_settle.png',

@@ -38,7 +38,7 @@ class CaseTimeoutTests(unittest.TestCase):
         self.assertEqual(smoke.DEFAULT_TEST_TIMEOUT, 60)
         self.assertEqual(smoke.TEST_TIMEOUTS, {'test_batched_enemy_contact.gd': 180})
         self.assertEqual(smoke.test_timeout('test_batched_enemy_contact.gd'), 180)
-        self.assertEqual(len(smoke.TESTS), 30)
+        self.assertEqual(len(smoke.TESTS), 31)
         for case in set(smoke.TESTS) - {'test_batched_enemy_contact.gd'}:
             self.assertEqual(smoke.test_timeout(case), 60, case)
         self.assertEqual(smoke.test_timeout('unknown.gd'), 60)
@@ -47,8 +47,9 @@ class CaseTimeoutTests(unittest.TestCase):
 
 
 class ChapterPracticeMarkerTests(unittest.TestCase):
-    def test_thirty_tests_preserve_previous_coverage(self):
+    def test_thirty_one_tests_preserve_previous_coverage(self):
         self.assertEqual(set(smoke.TESTS), {
+            'test_equipment_comparison_focus_ui.gd',
             'test_display_diagnostic_copy.gd',
             'test_batched_enemy_contact.gd',
             'test_display_diagnostic_pages.gd', 'test_display_diagnostics.gd', 'test_cultivation.gd', 'test_scene_art_layout.gd',
@@ -62,6 +63,14 @@ class ChapterPracticeMarkerTests(unittest.TestCase):
             'test_active_replacement.gd',
             'test_practice_decision.gd', 'test_practice_decision_ui.gd', 'test_practice_keyboard_ui.gd', 'test_practice_focus_ui.gd', 'test_practice_adjust_focus_ui.gd',
         })
+
+    def test_equipment_comparison_focus_marker_requires_exact_coverage(self):
+        test = 'test_equipment_comparison_focus_ui.gd'
+        marker = 'Equipment comparison focus UI: 19 checks, 0 failures'
+        self.assertTrue(smoke.test_passed(0, marker, test))
+        for text in ('', marker.replace('19', '18'), marker.replace('19', '20'), marker.replace('0 failures', '1 failures'), marker + ' EXTRA', marker + '\n' + marker, 'prefix ' + marker, marker + '\nParse Error: failed', marker + '\nSCRIPT ERROR: failed', marker + '\nERROR: failed', marker + '\nObjectDB instances leaked'):
+            self.assertFalse(smoke.test_passed(0, text, test))
+        self.assertFalse(smoke.test_passed(1, marker, test))
 
     def test_practice_adjust_focus_marker_requires_exact_coverage(self):
         test = 'test_practice_adjust_focus_ui.gd'
@@ -234,7 +243,7 @@ class UnpublishedFeatureMarkerTests(unittest.TestCase):
     }
 
     def test_exact_single_markers_reject_missing_wrong_and_duplicate_results(self):
-        self.assertEqual(set(smoke.FEATURE_MARKER_PREFIXES), set(self.CASES) | {'test_practice_decision.gd', 'test_practice_decision_ui.gd', 'test_practice_keyboard_ui.gd', 'test_practice_focus_ui.gd', 'test_practice_adjust_focus_ui.gd'})
+        self.assertEqual(set(smoke.FEATURE_MARKER_PREFIXES), set(self.CASES) | {'test_equipment_comparison_focus_ui.gd', 'test_practice_decision.gd', 'test_practice_decision_ui.gd', 'test_practice_keyboard_ui.gd', 'test_practice_focus_ui.gd', 'test_practice_adjust_focus_ui.gd'})
         for test, good in self.CASES.items():
             with self.subTest(test=test):
                 self.assertEqual(smoke.TESTS[test], good)

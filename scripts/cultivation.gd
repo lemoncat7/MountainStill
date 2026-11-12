@@ -632,6 +632,14 @@ func _refresh_drawer(animated=false):
 		elif focus_key == "practice_loadout_prev": fallback.append("practice_loadout_next")
 		fallback.append_array(["practice_decision_back", "practice_loadout", "practice_start", "practice_enemy_next", "practice_enemy_prev"])
 		PracticeHost.request_focus(self, fallback)
+	elif focus_key == "compare_selected" or focus_key.begins_with("comparison_"):
+		# Keep existing keyboard intent across the read-only comparison journey.
+		# Never select an equip action as a fallback when a page action disappears.
+		var fallback = [focus_key]
+		if focus_key == "comparison_next": fallback.append("comparison_prev")
+		elif focus_key == "comparison_prev": fallback.append("comparison_next")
+		fallback.append_array(["comparison_back", "compare_selected", "slot_" + selected_slot])
+		PracticeHost.request_focus(self, fallback)
 	elif not focus_key.is_empty():
 		PracticeHost.request_focus(self, [focus_key])
 

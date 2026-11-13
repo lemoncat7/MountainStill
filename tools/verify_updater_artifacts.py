@@ -17,9 +17,9 @@ with zipfile.ZipFile(root/'MountainStill-macOS.zip') as z:
  assert (z.getinfo(path).external_attr>>16)&0o111
  assert any(n.endswith('/_CodeSignature/CodeResources') for n in z.namelist())
 manifest=json.loads((root/'MountainStill-update.json').read_text())
-assert manifest['version']=='1.3.40-test.1'
+assert manifest['version']=='1.3.40'
 for platform in ['windows','macos']:
  record=manifest['packages'][platform]; data=(root/record['asset']).read_bytes()
  assert len(data)==record['size'] and hashlib.sha256(data).hexdigest()==record['sha256']
-print('NATIVE STRUCTURE: Windows AMD64; macOS Universal x86_64/arm64, version1.3.40 / candidate1.3.40-test.1, executable mode, ad-hoc resources PASS')
+print('NATIVE STRUCTURE: Windows AMD64; macOS Universal x86_64/arm64, version1.3.40 / candidate1.3.40, executable mode, ad-hoc resources PASS')
 print('MANIFEST ACTUAL SIZE/SHA: both platforms PASS')

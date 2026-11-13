@@ -4,7 +4,7 @@ const Guard = preload("res://scripts/update_pack_guard.gd")
 func _init() -> void:
 	var folder = OS.get_cmdline_user_args()[0]
 	var manifest = JSON.parse_string(FileAccess.get_file_as_string(folder.path_join("MountainStill-update.json")))
-	var release = {"tag_name":"v" + manifest.version,"draft":false,"prerelease":true,"assets":[]}
+	var release = {"tag_name":"v" + manifest.version,"draft":false,"prerelease":"-" in manifest.version,"assets":[]}
 	for platform in ["windows", "macos"]:
 		var p = manifest.packages[platform]
 		release.assets.append({"name":p.asset,"state":"uploaded","size":p.size,"digest":"sha256:" + p.sha256,"browser_download_url":Policy.REPO + "/releases/download/" + release.tag_name + "/" + p.asset})

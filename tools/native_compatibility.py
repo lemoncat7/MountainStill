@@ -25,15 +25,15 @@ PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
  'old_zip':(OLD_TAG,'MountainStill-v1.3.26-macOS-Universal.zip',141283216,'78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d'),
  'new_zip':(NEW_TAG,'MountainStill-v1.3.40-test.1-macOS-Universal.zip',141370460,'99fe9f4f2c7810351096e9ce5ffc224aa0e6d10651b07e9708020042e9a76f7c'),
- 'pck':(NEW_TAG,'MountainStill-macos.pck',78536820,'6661dacf66adbed8ed6466a2a1dae3b6631e2165a614e73f79fb9c8dd36ddcd9'),
- 'manifest':(NEW_TAG,'MountainStill-update.json',579,'ea959ec48f69efa0f6629b22d445c467c2efc2142eaf7ecce85495f488b0f1aa'),
+ 'pck':(NEW_TAG,'MountainStill-macos.pck',78537364,'cfaef788f10fcd4f5d7d1f38cf1c56428199f32ca799b302a3df92a6d8f37442'),
+ 'manifest':(NEW_TAG,'MountainStill-update.json',579,'ef2116054b94ed0a088bbeafb5e051bbc4c094e1415bf0030bfa7bdf3e168c37'),
 }
 
 if PLATFORM == 'windows':
     PINS.update({
       'old_zip':(OLD_TAG,'MountainStill-v1.3.26-Windows-x86_64.zip',114552389,'020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873'),
       'new_zip':(NEW_TAG,'MountainStill-v1.3.40-test.1-Windows-x86_64.zip',114638758,'d3d71121cf199966cde3261a4a74e7bb108ad6f596a4ddf94aff06cbf5fa2aa1'),
-      'pck':(NEW_TAG,'MountainStill-windows.pck',78536820,'6661dacf66adbed8ed6466a2a1dae3b6631e2165a614e73f79fb9c8dd36ddcd9'),
+      'pck':(NEW_TAG,'MountainStill-windows.pck',78537364,'cfaef788f10fcd4f5d7d1f38cf1c56428199f32ca799b302a3df92a6d8f37442'),
     })
 
 

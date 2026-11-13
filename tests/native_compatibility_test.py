@@ -12,6 +12,7 @@ import unittest
 from unittest.mock import Mock,patch
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
 import native_compatibility as compat
+import verify_native_compatibility_assets as asset_contract
 
 
 def save(life=30):
@@ -28,6 +29,45 @@ def manifest():
 
 
 class CompatibilityContracts(unittest.TestCase):
+    def test_actual_asset_contract_rejects_independent_byte_drift(self):
+        original_pins = copy.deepcopy(compat.PINS)
+        original_platform = compat.PLATFORM
+        try:
+            with tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                payload = b'GDPC-small-independent-contract-fixture'
+                sha = hashlib.sha256(payload).hexdigest()
+                value = dict(schema=1, version=compat.NEW_VERSION, engine='4.6.3', bootstrap=1, save_schema=4,
+                    packages={name: dict(kind='pck', asset='MountainStill-'+name+'.pck', size=len(payload),
+                        sha256=sha, restart_required=True) for name in ('windows', 'macos')})
+                raw = json.dumps(value).encode()
+                (root/'MountainStill-update.json').write_bytes(raw)
+                for name in ('windows', 'macos'):
+                    (root/('MountainStill-'+name+'.pck')).write_bytes(payload)
+                def fixed_fixture(module):
+                    module.PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
+                    module.PINS = dict(manifest=(module.NEW_TAG, 'MountainStill-update.json', len(raw), hashlib.sha256(raw).hexdigest()),
+                        pck=(module.NEW_TAG, 'MountainStill-'+module.PLATFORM+'.pck', len(payload), sha))
+                    return module
+                with patch.object(asset_contract.importlib, 'reload', side_effect=fixed_fixture):
+                    self.assertEqual(asset_contract.verify(root), ['windows', 'macos'])
+                    file = root/'MountainStill-macos.pck'
+                    for bad in (payload+b'x', b'X'+payload[1:]):
+                        file.write_bytes(bad)
+                        with self.assertRaisesRegex(ValueError, 'does not match'):
+                            asset_contract.verify(root)
+                    file.write_bytes(payload)
+                    (root/'MountainStill-update.json').write_bytes(raw+b' ')
+                    with self.assertRaisesRegex(ValueError, 'does not match'):
+                        asset_contract.verify(root)
+                    (root/'MountainStill-update.json').write_bytes(raw)
+                    file.unlink()
+                    with self.assertRaisesRegex(ValueError, 'Missing/unsafe'):
+                        asset_contract.verify(root)
+        finally:
+            compat.PINS = original_pins
+            compat.PLATFORM = original_platform
+
     def test_exact_old_and_new_pins_both_platforms(self):
         expected = {
             'win32': ('windows', 114552389, '020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873',
@@ -47,15 +87,15 @@ class CompatibilityContracts(unittest.TestCase):
                     self.assertEqual(compat.PINS['old_zip'][1], 'MountainStill-v1.3.26-'+suffix)
                     self.assertEqual(compat.PINS['new_zip'][1], 'MountainStill-v1.3.40-test.1-'+suffix)
                     self.assertEqual(compat.PINS['pck'], ('v1.3.40-test.1', 'MountainStill-'+package_platform+'.pck',
-                        78536820, '6661dacf66adbed8ed6466a2a1dae3b6631e2165a614e73f79fb9c8dd36ddcd9'))
+                        78537364, 'cfaef788f10fcd4f5d7d1f38cf1c56428199f32ca799b302a3df92a6d8f37442'))
                     self.assertEqual(compat.PINS['manifest'][2:], (579,
-                        'ea959ec48f69efa0f6629b22d445c467c2efc2142eaf7ecce85495f488b0f1aa'))
+                        'ef2116054b94ed0a088bbeafb5e051bbc4c094e1415bf0030bfa7bdf3e168c37'))
         finally:
             importlib.reload(compat)
 
     def test_hard_pins_and_manifest_fields(self):
         self.assertEqual(compat.PINS['old_zip'][2],114552389 if compat.PLATFORM=='windows' else 141283216)
-        self.assertEqual(compat.PINS['pck'][3],'6661dacf66adbed8ed6466a2a1dae3b6631e2165a614e73f79fb9c8dd36ddcd9')
+        self.assertEqual(compat.PINS['pck'][3],'cfaef788f10fcd4f5d7d1f38cf1c56428199f32ca799b302a3df92a6d8f37442')
         value=manifest();record=compat.installed_record(value)
         self.assertEqual(record['path'],'user://updates/'+record['sha256']+'.pck')
         for key,bad in [('version','1.3.26'),('engine','4.5'),('save_schema',3),('bootstrap',2),('schema',True)]:

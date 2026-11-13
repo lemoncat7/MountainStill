@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent fixed-v29-test.1 ARM GUI wall-clock lifecycle observation, not a headless retry."""
+"""Independent fixed-v40-test.1 ARM GUI wall-clock lifecycle observation, not a headless retry."""
 import json
 import math
 import os

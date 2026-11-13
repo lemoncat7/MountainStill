@@ -162,6 +162,12 @@ class CompatibilityContracts(unittest.TestCase):
                 calls=[];previous_bytes=None
                 def fake_session(binary,jobroot,label,version,rows,registry,deadline):
                     nonlocal previous_bytes
+                    # Keep the real downstream profile/readiness guard in this
+                    # scenario test; mocking it hid stale session allowlists.
+                    import native_compat_session as actual_session
+                    resources=''.join('Loading resource: res://assets/cultivation/beasts/'+asset+'\n'
+                        for asset in actual_session.ASSETS)
+                    self.assertTrue(actual_session.boot_ready('UPDATE BOOT: '+version+'\n'+resources, version))
                     calls.append((binary,version));registry.append(Mock(poll=Mock(return_value=0)))
                     path=userdata/'cultivation_save.json'
                     if len(calls)==1:

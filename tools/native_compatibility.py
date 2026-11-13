@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native representative v26-save/full-v30-test.1 and installed-v30-test.1-PCK/old-host checks."""
+"""Native representative v26-save/full-v40-test.1 and installed-v40-test.1-PCK/old-host checks."""
 import hashlib
 import json
 import os
@@ -164,7 +164,7 @@ def recovery(before,after,backup,offline_upper):
     if life<=offline_upper+10 or prior<=offline_upper+5:raise RuntimeError('No live recovery beyond offline credit')
     return dict(lifetime_gain=life,prior_save_lifetime_gain=prior,offline_upper_seconds=offline_upper,
         primary_backup_lifetime_delta=after['lifetime_seconds']-backup['lifetime_seconds'],
-        schema=after['version'],old_schema_migration='NOT_TESTED; v26 and v30-test.1 schema4')
+        schema=after['version'],old_schema_migration='NOT_TESTED; v26 and v40-test.1 schema4')
 
 
 def scenario(kind,old_binary,new_binary,pck,manifest,root,deadline,all_registry):

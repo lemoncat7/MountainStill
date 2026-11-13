@@ -62,13 +62,16 @@ class CompatSessionTests(unittest.TestCase):
         with patch.object(gui.sys,'platform','darwin'):
             gui.require_gui_terminal(0,30,30,True,geometry(),geometry(),123)
 
-    def run_mock_session(self, mode='normal', system='darwin', global_deadline=720, expected_version='1.3.29-test.1', machine=None):
+    def run_mock_session(self, mode='normal', system='darwin', global_deadline=720, expected_version='1.3.40-test.1', machine=None, real_profile=False):
         clock=FakeClock()
         process=Process(clock,early=10 if mode=='early' else None)
         calls=[]; rows=[]; registry=[]; forced=[]
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory); binary=root/'actual-app';binary.touch();(root/'capture').touch();(root/'capture.dll').touch()
             (root/'seed.engine.log').write_text(AUDIO_TRACE if mode=='audio' else 'ready')
+            if real_profile:
+                (root/'seed.engine.log').write_text('UPDATE BOOT: '+expected_version+'\n'+''.join(
+                    'Loading resource: res://assets/cultivation/beasts/'+asset+'\n' for asset in gui.ASSETS))
             def helper(command, timeout):
                 action={'-GeometryOnly':'--geometry-only','-RequestClose':'--request-close'}.get(command[-1],command[-1])
                 calls.append((clock.now,action))
@@ -90,7 +93,8 @@ class CompatSessionTests(unittest.TestCase):
                 stack.enter_context(patch.object(gui.time,'time',clock.time))
                 popen=stack.enter_context(patch.object(gui.subprocess,'Popen',return_value=process))
                 stack.enter_context(patch.object(gui,'native_json',side_effect=helper))
-                stack.enter_context(patch.object(gui,'boot_ready',return_value=mode!='no-boot'))
+                if not real_profile:
+                    stack.enter_context(patch.object(gui,'boot_ready',return_value=mode!='no-boot'))
                 def metric(pid):
                     return dict(pid=123,identity='changed' if mode=='identity' and clock.now>5 else 'fixed',rss_bytes=1000,
                         cpu_seconds=1,nativefieldtype='test')
@@ -99,11 +103,29 @@ class CompatSessionTests(unittest.TestCase):
                 stack.enter_context(patch.object(gui,'stop_failed_process',side_effect=stop))
                 stack.enter_context(patch('builtins.print'))
                 result=None;error=None
-                try:result=gui.session(binary,root,'seed',expected_version,rows,registry,global_deadline)
+                try:
+                    import native_compatibility as caller
+                    result=caller.session(binary,root,'seed',expected_version,rows,registry,global_deadline)
                 except RuntimeError as exc:error=str(exc)
                 command=popen.call_args.args[0] if popen.called else []
                 self.last_audio_emits=[c for c in emitted.call_args_list if c.args[0]=='AUDIO_ENVIRONMENT_FALLBACK']
         return result,error,calls,forced,rows,registry,command
+
+    def test_current_caller_profiles_use_real_session_and_readiness(self):
+        import native_compatibility as caller
+        self.assertIs(caller.session, gui.session)
+        self.assertEqual(gui.ALLOWED_VERSIONS, (caller.OLD_VERSION, caller.NEW_VERSION))
+        self.assertEqual(gui.ALLOWED_VERSIONS, ('1.3.26', '1.3.40-test.1'))
+        for system, machine in [('win32', 'AMD64'), ('darwin', 'arm64'), ('darwin', 'x86_64')]:
+            for version in (caller.OLD_VERSION, caller.NEW_VERSION):
+                with self.subTest(system=system, machine=machine, version=version):
+                    result,error,*_=self.run_mock_session(system=system, machine=machine,
+                        expected_version=version, real_profile=True)
+                    self.assertIsNone(error)
+                    self.assertEqual(result['expected_version'], version)
+        for unsupported in ('1.3.29-test.1', '1.3.40', '1.3.40-test.10', '1.3.41-test.1'):
+            with self.assertRaises(ValueError):
+                gui.boot_ready('', unsupported)
 
     def test_full_mock_normal_quit_once_after_duration(self):
         result,error,calls,forced,rows,registry,command=self.run_mock_session()
@@ -166,11 +188,11 @@ class CompatSessionTests(unittest.TestCase):
             self.assertTrue(gui.boot_ready('UPDATE BOOT: '+version+' / 更新已生效\n'+resources,version))
             for asset in gui.ASSETS:
                 self.assertFalse(gui.boot_ready('UPDATE BOOT: '+version+'\n'+resources.replace(asset,'absent'),version))
-        for text in ('UPDATE BOOT: 1.3.26\n','UPDATE BOOT: 1.3.29-test.10\n',
-                     'UPDATE BOOT: 1.3.29-test.1junk\n',
-                     'UPDATE BOOT: 1.3.29-test.1\nUPDATE BOOT: 1.3.26\n'):
+        for text in ('UPDATE BOOT: 1.3.26\n','UPDATE BOOT: 1.3.40-test.10\n',
+                     'UPDATE BOOT: 1.3.40-test.1junk\n',
+                     'UPDATE BOOT: 1.3.40-test.1\nUPDATE BOOT: 1.3.26\n'):
             with self.subTest(text=text),self.assertRaises(RuntimeError):
-                gui.boot_ready(text+resources,'1.3.29-test.1')
+                gui.boot_ready(text+resources,'1.3.40-test.1')
         with self.assertRaises(ValueError):gui.boot_ready(resources,'1.3.21-test.1')
 
     def test_partial_live_marker_not_misclassified(self):
@@ -204,11 +226,11 @@ class CompatSessionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);path=root/'partial.log';path.write_text(AUDIO_TRACE.splitlines()[0])
             with patch.object(gui.sys,'platform','win32'),patch.object(gui,'boot_ready',return_value=False):
-                self.assertFalse(gui._logs_ok(root,[path],'1.3.29-test.1'))
-                with self.assertRaises(RuntimeError):gui._logs_ok(root,[path],'1.3.29-test.1',terminal=True)
+                self.assertFalse(gui._logs_ok(root,[path],'1.3.40-test.1'))
+                with self.assertRaises(RuntimeError):gui._logs_ok(root,[path],'1.3.40-test.1',terminal=True)
             path.write_text(AUDIO_TRACE)
             with patch.object(gui.sys,'platform','win32'),patch.object(gui,'boot_ready',return_value=True):
-                self.assertTrue(gui._logs_ok(root,[path],'1.3.29-test.1'))
+                self.assertTrue(gui._logs_ok(root,[path],'1.3.40-test.1'))
 
     def test_audio_fallback_reported_once_per_cycle(self):
         result,error,*_=self.run_mock_session('audio',system='win32')
@@ -241,7 +263,7 @@ class CompatSessionTests(unittest.TestCase):
 
     def test_unsupported_platform(self):
         with patch.object(gui.sys,'platform','linux'),self.assertRaises(RuntimeError):
-            gui.session('none',Path('.'),'seed','1.3.29-test.1',[],[],720)
+            gui.session('none',Path('.'),'seed','1.3.40-test.1',[],[],720)
 
 
 if __name__ == '__main__':unittest.main()

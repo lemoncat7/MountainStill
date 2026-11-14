@@ -1,0 +1,57 @@
+{
+  "ordinary": {
+    "entries": 124,
+    "passed": 123,
+    "known_failed_suites": 1,
+    "new_failed_suites": 0,
+    "known_assertions": 2
+  },
+  "sensitivity": {
+    "checks": 17450,
+    "routes_won": 1920,
+    "routes": 1920,
+    "duels_won": 5760,
+    "duels": 5760
+  },
+  "route_transitions": {
+    "checks": 2169,
+    "failures": 0
+  },
+  "python": {
+    "modules": 19,
+    "tests": 273,
+    "failures": 0,
+    "skipped": 0
+  },
+  "payload": {
+    "combinations": 18,
+    "passed": 18,
+    "runtime_hash_files_per_platform": 70
+  },
+  "native_source_run": 43571257227,
+  "mixed": {
+    "checks": 378,
+    "failures": 0,
+    "cycles": 6,
+    "saves": 7,
+    "measured_elapsed": 196.122,
+    "wall_seconds": 237.20941898
+  },
+  "expected_failure": "bootstrap_health_failure_test.gd returns 1 and emits explicit PASS",
+  "resolved_harness_failures": [
+    "default XDG import paths",
+    "native marker set counts",
+    "artifact verifier version",
+    "missing artifact directory argument",
+    "HTTP fixture absent",
+    "shared update directory across platforms and resulting singleton lock",
+    "screenshot temporary resource references"
+  ],
+  "unverified": [
+    "physical GPU/audio/DPI/multimonitor",
+    "target platform same-byte installed packages",
+    "long mixed combat",
+    "public package downloads",
+    "Library retention"
+  ]
+}

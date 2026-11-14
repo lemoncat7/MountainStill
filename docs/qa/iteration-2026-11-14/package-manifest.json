@@ -1,0 +1,37 @@
+[
+  {
+    "name": "MountainStill-macos.pck",
+    "size": 78538004,
+    "sha256": "3bf236dc8e78d5d9f874e917628f8e2314948380a4d182432f68d56843859050"
+  },
+  {
+    "name": "MountainStill-update.json",
+    "size": 572,
+    "sha256": "ebe90fb5faf4b9977bc989a1b3d330dee92426352fc804f61b8634dc868304e7"
+  },
+  {
+    "name": "MountainStill-v1.3.41-Public-Source.zip",
+    "size": 156558232,
+    "sha256": "61357cd74049e015356538cced911e186b8e67c86c0bbdd7df3414b687026932"
+  },
+  {
+    "name": "MountainStill-v1.3.41-Windows-x86_64.zip",
+    "size": 114644018,
+    "sha256": "d364cb9ec8ff1ca865d1d80be7ad3613492fdc941c8ea90d52f08089ee896850"
+  },
+  {
+    "name": "MountainStill-v1.3.41-macOS-Universal.zip",
+    "size": 141375680,
+    "sha256": "1eefba2e37f847b6a2812e7eee61cbe01e33335e4ed8a491b74d82d6d5f69050"
+  },
+  {
+    "name": "MountainStill-windows.pck",
+    "size": 78538004,
+    "sha256": "3bf236dc8e78d5d9f874e917628f8e2314948380a4d182432f68d56843859050"
+  },
+  {
+    "name": "SHA256SUMS.txt",
+    "size": 595,
+    "sha256": "3cc6e085f14670fe0db5e5785e4651bcec67ea0cbb2b8be9c623ed8a87c0ebc9"
+  }
+]

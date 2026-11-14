@@ -19,3 +19,5 @@
 上版 GUI 自动结论为 inconclusive；Windows 使用软件渲染与 Dummy 音频，ARM 20分钟观察仅覆盖采集/旅途而非混战。这些旧证据不能证明本候选或物理 GPU、音频、DPI/多屏、长期混合负载已通过。Windows 黑底仍未证实修复。Windows 未发行商签名，macOS ad-hoc 未公证。历史两条剑式 summit_gate/gate_sentinel 6.8161秒低于7秒阈值继续保留。
 
 本轮原始日志放于独立验收包，结果随完成进度补齐；不复用旧包摘要或丢失日志。
+
+最终执行结果、逐项失败分类与交付阻碍见 [本轮完整验收记录](ITERATION-2026-11-14-ACCEPTANCE.md)。

@@ -1,0 +1,1136 @@
+[
+  {
+    "test": "test_active_replacement.gd",
+    "returncode": 0,
+    "seconds": 15.18,
+    "raw_log_sha256": "bfded3eed6581b5e3766b978c804dc46320cb37c8fb361cdd1e35795cc20bbf1",
+    "summary": [
+      "Active replacement: 655 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_adventure_state.gd",
+    "returncode": 0,
+    "seconds": 7.038,
+    "raw_log_sha256": "3b02ba1a1a3530ed8f755c3d835b25e566b5d6e5f80fb0e9eb5ce0aa45771df8",
+    "summary": [
+      "Adventure state tests: 1624 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_adventure_ui.gd",
+    "returncode": 0,
+    "seconds": 24.623,
+    "raw_log_sha256": "f954955a2ec3c9062cf4dd4703f904615f8b6ae130b33b7a6e128e7a3b0d0512",
+    "summary": [
+      "Adventure UI: 186 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_attack_module_registry.gd",
+    "returncode": 0,
+    "seconds": 0.626,
+    "raw_log_sha256": "3881b430c1b8443212c3f6bc1f8236c6e4ff97c98d06a939da60b4afe7f4511b",
+    "summary": [
+      "Attack module registry: 2525 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_basic_attack_forms.gd",
+    "returncode": 0,
+    "seconds": 3.415,
+    "raw_log_sha256": "8095b2cfa067ad75bf1dd0cc7579af22ca8439dfc2c7190553b6f05d52f93714",
+    "summary": [
+      "Basic attack rig: 971188 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_batched_enemy_contact.gd",
+    "returncode": 0,
+    "seconds": 13.085,
+    "raw_log_sha256": "568f8ccd1db158b9066f1126f65a7056d2db3c5f5aaf6689f1d4ad103134e281",
+    "summary": [
+      "BATCHED_TRACE: moon_marsh boss=false 360 ticks failures=0",
+      "BATCHED_TRACE: moon_marsh boss=true 360 ticks failures=0",
+      "BATCHED_TRACE: summit_gate boss=false 360 ticks failures=0",
+      "BATCHED_TRACE: summit_gate boss=true 360 ticks failures=0",
+      "BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_battle_qi_state.gd",
+    "returncode": 0,
+    "seconds": 0.438,
+    "raw_log_sha256": "5470e4cb25091aa7d649a4412b5e6ca955c9e4e02bb42c8526afe0589e3b196c",
+    "summary": [
+      "Battle qi/manual state: 272 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_battle_qi_timeline.gd",
+    "returncode": 0,
+    "seconds": 5.646,
+    "raw_log_sha256": "7f34a44465a86e61d79effafa0a3465ca82e9e4db5ffd64b4e74d8369f68a81e",
+    "summary": [
+      "Battle qi timeline: 550 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_battle_resource_host.gd",
+    "returncode": 0,
+    "seconds": 5.742,
+    "raw_log_sha256": "4d51582a60dd290f16cacda296c2ad80831938d214a780ee9f5a721e67373a8b",
+    "summary": [
+      "Battle resource host: 376 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_body_clearance_batch.gd",
+    "returncode": 0,
+    "seconds": 1.825,
+    "raw_log_sha256": "85c35ed659578ef816fb228961e85a5e4c74d0da3f5eda6cf674d2c32d1853b2",
+    "summary": [
+      "BODY_CLEARANCE_BATCH 3432 checks 0 failures"
+    ]
+  },
+  {
+    "test": "test_campaign.gd",
+    "returncode": 0,
+    "seconds": 2.198,
+    "raw_log_sha256": "d468983cb4187dabadd0bfb03158340f2881e0d976f3d298cbdf4c7a4e9823a5",
+    "summary": [
+      "Campaign tests: 521 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_campaign_builds.gd",
+    "returncode": 0,
+    "seconds": 18.86,
+    "raw_log_sha256": "8ad36233c149f6c4e83ff2d2bd148aae49dd5372d1fdb18dbec7c58ef0b5b3d1",
+    "summary": [
+      "EARNED BUILD fire rng61: 18 wins, 329.7s battles, lowest route vitality 40, [\"bamboo_pass mist1 A11 D0\", \"creek_bridge mist1 A20 D1\", \"cloud_slope barrier2 A26 D7\", \"ember_ruins mist1 A32 D14\", \"moon_marsh mist1 A40 D24\", \"summit_gate mist1 A46 D33\"]",
+      "EARNED BUILD guard rng61: 18 wins, 357.6s battles, lowest route vitality 48, [\"bamboo_pass mist1 A11 D0\", \"creek_bridge barrier1 A20 D1\", \"cloud_slope mist1 A24 D7\", \"ember_ruins mending2 A30 D14\", \"moon_marsh mending3 A40 D22\", \"summit_gate mending3 A46 D33\"]",
+      "EARNED BUILD control rng61: 18 wins, 318.0s battles, lowest route vitality 40, [\"bamboo_pass mist1 A11 D0\", \"creek_bridge mist1 A20 D1\", \"cloud_slope mist1 A26 D7\", \"ember_ruins mist1 A32 D14\", \"moon_marsh thunder1 A40 D22\", \"summit_gate thunder1 A46 D33\"]",
+      "EARNED BUILD support rng61: 18 wins, 357.1s battles, lowest route vitality 48, [\"bamboo_pass mist1 A11 D0\", \"creek_bridge barrier1 A20 D1\", \"cloud_slope barrier1 A24 D7\", \"ember_ruins barrier2 A30 D14\", \"moon_marsh barrier3 A40 D22\", \"summit_gate barrier3 A46 D33\"]",
+      "Campaign build tests: 505 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_campaign_combat_art.gd",
+    "returncode": 0,
+    "seconds": 19.698,
+    "raw_log_sha256": "140e61a29d8f75b98cb491ac711e47e2993380fdff137d21519699d9e00d8bef",
+    "summary": [
+      "Campaign combat/art: 68008 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_campaign_journey.gd",
+    "returncode": 0,
+    "seconds": 1.109,
+    "raw_log_sha256": "fbbbe0f4005c547570e5359dbef523c6e8c2994129bc78ab3f3f279f065914b5",
+    "summary": [
+      "Independent campaign journey tests: 193 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_campaign_ui.gd",
+    "returncode": 0,
+    "seconds": 5.833,
+    "raw_log_sha256": "de371c9ed7fad27f23073ff2a275cf1227ee3ea5ef4ac11a9a5d1ba1aaaa7ba3",
+    "summary": [
+      "Campaign UI: 411 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_capacity_flow_ui.gd",
+    "returncode": 0,
+    "seconds": 5.552,
+    "raw_log_sha256": "fca7d24b7a02c0e6da469b4f8024c9ab263c7f81ac5b6cdfcd253b6922ae03ea",
+    "summary": [
+      "CAPACITY_FLOW_UI checks=7238 failures=0"
+    ]
+  },
+  {
+    "test": "test_capacity_independent.gd",
+    "returncode": 0,
+    "seconds": 0.351,
+    "raw_log_sha256": "4f6fcaa61bf467398f29a31489dea6ef101e2da01deb4e96517c8cf485b01db0",
+    "summary": [
+      "Independent capacity guard parity: 693 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_chapter_book_ui.gd",
+    "returncode": 0,
+    "seconds": 4.526,
+    "raw_log_sha256": "720c79de787f041a0d4b42049800cabb3eb98eac02395f8718fa4ae33cd324e0",
+    "summary": [
+      "Chapter book UI: 4595 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_chapter_crafting_journey.gd",
+    "returncode": 0,
+    "seconds": 6.668,
+    "raw_log_sha256": "ea8bb7ced1c7ac03d2ad99e292686abbdb9bdc4e36b5078a58a822bb234f230e",
+    "summary": [
+      "EARNED_CRAFTING bamboo_pass/0 11.6900s hp=93 victory=true {\"enemy_damage\":7,\"enemy_turns\":7,\"fan_basic_contacts\":0,\"fan_basic_damage\":0,\"fan_basic_turns\":0,\"fan_weapon_contacts\":0,\"fan_weapon_damage\":0,\"fan_weapon_turns\":0,\"hero_damage\":90,\"hero_melee_geometry_contacts\":10,\"hero_turns\":10,\"petal_contacts\":0,\"petal_damage\":0,\"petal_turns\":0}",
+      "EARNED_CRAFTING bamboo_pass/1 13.8677s hp=79 victory=true {\"enemy_damage\":14,\"enemy_turns\":8,\"fan_basic_contacts\":0,\"fan_basic_damage\":0,\"fan_basic_turns\":0,\"fan_weapon_contacts\":0,\"fan_weapon_damage\":0,\"fan_weapon_turns\":0,\"hero_damage\":105,\"hero_melee_geometry_contacts\":11,\"hero_turns\":12,\"petal_contacts\":0,\"petal_damage\":0,\"petal_turns\":0}",
+      "EARNED_CRAFTING bamboo_pass/2 30.9351s hp=48 victory=true {\"enemy_damage\":31,\"enemy_turns\":15,\"fan_basic_contacts\":0,\"fan_basic_damage\":0,\"fan_basic_turns\":0,\"fan_weapon_contacts\":0,\"fan_weapon_damage\":0,\"fan_weapon_turns\":0,\"hero_damage\":220,\"hero_melee_geometry_contacts\":22,\"hero_turns\":26,\"petal_contacts\":0,\"petal_damage\":0,\"petal_turns\":0}",
+      "Earned chapter crafting journey: 325 checks, 0 failures; report /tmp/chapter-crafting-journey.json"
+    ]
+  },
+  {
+    "test": "test_chapter_crafting_state.gd",
+    "returncode": 0,
+    "seconds": 0.338,
+    "raw_log_sha256": "f9e30c2e935b347582536b0b545da63274b063941a154a6650ef1097463add82",
+    "summary": [
+      "Chapter crafting state: 78 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_chapter_crafting_ui.gd",
+    "returncode": 0,
+    "seconds": 5.275,
+    "raw_log_sha256": "7693b9891f9b848d6c9ac2d9df3b996a6d0d5ed5b900990d3731479c3e08b0f1",
+    "summary": [
+      "Chapter crafting UI: 4005 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_chapter_objective_ui.gd",
+    "returncode": 0,
+    "seconds": 2.199,
+    "raw_log_sha256": "7b33d29c29b94ce2067942fe8a2ec8aa167dc007e10a1e3936db3a2afed45de5",
+    "summary": [
+      "Chapter objective UI: 1844 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_chapter_practice_navigation.gd",
+    "returncode": 0,
+    "seconds": 5.83,
+    "raw_log_sha256": "7d6df82d7b0f75182b64c87b18463f0212dc28f1e082affc4672ec175eb7aa30",
+    "summary": [
+      "Chapter practice navigation: 386 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_character_meditation.gd",
+    "returncode": 0,
+    "seconds": 0.433,
+    "raw_log_sha256": "847a742da07a01fb71b744a68920c10af45c0fc77af47de3de87f467471dab1a",
+    "summary": [
+      "Character meditation: 4392 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_character_sidewalk.gd",
+    "returncode": 0,
+    "seconds": 0.338,
+    "raw_log_sha256": "25ea1b6e3e50655c3bd2c848bd05f6606e22c8238ac1306fadc88764bea11ad0",
+    "summary": [
+      "Sidewalk rig: 852 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_character_walk.gd",
+    "returncode": 0,
+    "seconds": 0.338,
+    "raw_log_sha256": "b1f2418f91d30dabf8164a4b4e3892f9d28dae7e912908d18371fea5aef2666a",
+    "summary": [
+      "Character walk: 102012 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_action_joins.gd",
+    "returncode": 0,
+    "seconds": 4.996,
+    "raw_log_sha256": "ceb0d8e0c0119f0d032056920ae84875d11e042214dafbcd29263fc249951c63",
+    "summary": [
+      "Combat action joins: 3179 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_feedback_host.gd",
+    "returncode": 0,
+    "seconds": 1.852,
+    "raw_log_sha256": "8c008cb76878f03230d89545262846158da6067f35f22e0d2b55b63b63f5ea32",
+    "summary": [
+      "Combat feedback host: 14 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_hud_readability.gd",
+    "returncode": 0,
+    "seconds": 3.24,
+    "raw_log_sha256": "fe37b017fec932fdd05288e28164e691ec776f01777933a552de785228a0404c",
+    "summary": [
+      "Combat HUD readability: 221 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_impact.gd",
+    "returncode": 0,
+    "seconds": 0.524,
+    "raw_log_sha256": "7bb0d2c097e97ec0ddf15404d00b4504c74554068a94af3dd29427394ccfd3f4",
+    "summary": [
+      "Combat impact: 240 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_insight_state.gd",
+    "returncode": 0,
+    "seconds": 0.355,
+    "raw_log_sha256": "c8d7f762df0acd71632537b2e722c4679a9166307af6c67c094b182080c1c34b",
+    "summary": [
+      "Combat insight state: 231 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_insight_ui.gd",
+    "returncode": 0,
+    "seconds": 3.72,
+    "raw_log_sha256": "323c12fdb610a18f1b048c5ad8048abc781a7ce0d8121745a090269a78c95652",
+    "summary": [
+      "Combat insight UI: 5246 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_pose.gd",
+    "returncode": 0,
+    "seconds": 0.35,
+    "raw_log_sha256": "68f83b242f346f3f09c9865a1a02d833cd25f5398384a355ea2f42919282a7c5",
+    "summary": [
+      "Character combat pose: 23856 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_report.gd",
+    "returncode": 0,
+    "seconds": 0.709,
+    "raw_log_sha256": "52013f07ee9e0ef608b4b4877450fcaffcfa55fc3487bc221948c30d8ff8238f",
+    "summary": [
+      "Combat report recovery: 15 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_report_host.gd",
+    "returncode": 0,
+    "seconds": 2.198,
+    "raw_log_sha256": "cf9254ff7ba812a921231be56292f9554532c57505e8786e5b7dcfc60dff846b",
+    "summary": [
+      "Combat report host recovery: 45 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_speed.gd",
+    "returncode": 0,
+    "seconds": 1.877,
+    "raw_log_sha256": "26369cb093239b4ee92189be06933ccc12b17afb653cbbd7104299504bf01baa",
+    "summary": [
+      "Combat speed: 881 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_speed_host.gd",
+    "returncode": 0,
+    "seconds": 2.669,
+    "raw_log_sha256": "9527383f885be1287d4781987c1f533ea90218deb966629002d3d4c6f7af8b89",
+    "summary": [
+      "Combat speed host: 16 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_combat_tactics.gd",
+    "returncode": 0,
+    "seconds": 1.271,
+    "raw_log_sha256": "3bce4e514d625171414a8dbe845d3a6ef074362b0e2fe063e14c78887ae25893",
+    "summary": [
+      "Combat tactics recovery: 164 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_complete_player_journey.gd",
+    "returncode": 0,
+    "seconds": 10.877,
+    "raw_log_sha256": "d09f5c702e90c92c140e21e84cb59590a8a7b37a3e75001e5f60a612f2b3b64c",
+    "summary": [
+      "FRESH_DUEL bamboo_pass/2 24.636s hp=88 victory=true",
+      "FRESH_DUEL bamboo_pass/0 6.999s hp=102 victory=true",
+      "FRESH_DUEL bamboo_pass/1 9.288s hp=98 victory=true",
+      "FRESH_DUEL bamboo_pass/2 24.636s hp=88 victory=true",
+      "Complete fresh player journey: 1613 checks, 0 failures; report /tmp/complete-player-journey.json"
+    ]
+  },
+  {
+    "test": "test_composable_manual_ui.gd",
+    "returncode": 0,
+    "seconds": 7.045,
+    "raw_log_sha256": "6d206a23145d515c000b467753e39223ead7c449c6290e51f2cbd2ffb939804d",
+    "summary": [
+      "Composable manual UI: 1262 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_contact_weight_reactions.gd",
+    "returncode": 0,
+    "seconds": 0.527,
+    "raw_log_sha256": "741437ef38c8a2850af657b93f439eaed0ec0e463abb56221f7c0ad899f8d78d",
+    "summary": [
+      "CONTACT_WEIGHT_REACTIONS: 25008 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_continuous_duel.gd",
+    "returncode": 0,
+    "seconds": 24.341,
+    "raw_log_sha256": "1e35b4c3d591e387ab263d042c2d93088f3c42a5ea15ddd916aba3aa3d2ce420",
+    "summary": [
+      "Continuous duel: 44746 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_corpse_presentation.gd",
+    "returncode": 0,
+    "seconds": 0.251,
+    "raw_log_sha256": "b8cb65aa4b671ccd1857f72f6c6d20fe802630e431ca75d290a30a47f885f7f4",
+    "summary": [
+      "Corpse presentation: 27 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_counter_response_feedback.gd",
+    "returncode": 0,
+    "seconds": 2.214,
+    "raw_log_sha256": "3c1f93715602d27a27bafec8f1488549058b5404d20ac5c25ba3b287e8d515dc",
+    "summary": [
+      "Counter / barrier feedback: 242 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_craft_supply_ui.gd",
+    "returncode": 0,
+    "seconds": 8.006,
+    "raw_log_sha256": "2d6c648c2bfcde0e6dbed2b83b7b251e4246068d743e49f7b2f44cc0ef50821f",
+    "summary": [
+      "Craft supply UI: 3032 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_crane_encounter_budget.gd",
+    "returncode": 0,
+    "seconds": 0.256,
+    "raw_log_sha256": "56954a041ec8952f3efb4e3187aa550ea4ef668d1c27e55f0f87041ab152986d",
+    "summary": [
+      "Crane encounter budget: 31 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_cultivation.gd",
+    "returncode": 0,
+    "seconds": 1.081,
+    "raw_log_sha256": "a01e6eac3a7a08c3a971bf40e69b49d5e2ad77eaa26a135312c9a1b36c21c50a",
+    "summary": [
+      "Cultivation tests: 189 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_cultivation_ui.gd",
+    "returncode": 0,
+    "seconds": 11.422,
+    "raw_log_sha256": "a81f7665a334a7000b3e238f6f2bc5b86b338823f437b484aa15de292942e627",
+    "summary": [
+      "Cultivation UI: 335 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_deformed_clearance_batch.gd",
+    "returncode": 0,
+    "seconds": 1.003,
+    "raw_log_sha256": "66ed60dba944cbf6ea458d41d410c520477e8e57cda2dec2a5c7bee998c04b83",
+    "summary": [
+      "DEFORMED_CLEARANCE_BATCH 4076 checks 0 failures"
+    ]
+  },
+  {
+    "test": "test_desktop_mode.gd",
+    "returncode": 0,
+    "seconds": 0.266,
+    "raw_log_sha256": "e8b284f8c7ba85b8486d481a8ee3805368dc10453efa543f4f766936196cff49",
+    "summary": [
+      "Desktop helper: 340 checks, 0 failures; geometry, API, headless guards, and safe recovery"
+    ]
+  },
+  {
+    "test": "test_display_diagnostic_copy.gd",
+    "returncode": 0,
+    "seconds": 3.72,
+    "raw_log_sha256": "92f29c594e1f72345cd6d37545697f73baf145fffa07e183fa0a88fdcda13c63",
+    "summary": [
+      "DISPLAY DIAGNOSTIC COPY: 141 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_display_diagnostic_pages.gd",
+    "returncode": 0,
+    "seconds": 3.97,
+    "raw_log_sha256": "ee7ff6891098e36b332375f587cae9924d5038c65053ccf254c9d86a8af3c48d",
+    "summary": [
+      "DISPLAY DIAGNOSTIC PAGES: 160 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_display_diagnostics.gd",
+    "returncode": 0,
+    "seconds": 0.152,
+    "raw_log_sha256": "4affd7fa395827689b5d41b6988ff767e5ccacba7a4917eb177b097c57b7eac8",
+    "summary": [
+      "Display diagnostics: 73 checks, 0 failures; Windows preference, actual backend, deduplication, and recovery"
+    ]
+  },
+  {
+    "test": "test_duel_timeline.gd",
+    "returncode": 0,
+    "seconds": 18.294,
+    "raw_log_sha256": "1b80e3b8750052e435af9e5c6d0a22ab8ec5691d1984f2ce9f11d6231542a9ab",
+    "summary": [
+      "Duel timeline tests: 1108 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_encounter_balance.gd",
+    "returncode": 1,
+    "seconds": 20.828,
+    "raw_log_sha256": "cebcc660a8e1448f9c8f11a8961489ebacf6999cf7a4594c359ea22173c4364b",
+    "summary": [
+      "ERROR: FAIL: authored pacing sword summit_gate gate_sentinel 6.82s in [7.0, 18.0]",
+      "ERROR: FAIL: authored pacing sword summit_gate gate_sentinel 6.82s in [7.0, 18.0]",
+      "Encounter balance tests: 4474 checks, 2 failures"
+    ]
+  },
+  {
+    "test": "test_enemy_attack_modules.gd",
+    "returncode": 0,
+    "seconds": 0.341,
+    "raw_log_sha256": "4bc730cdfeae7986680aa8e661fd9195bc66de3f9557c3c91ae5b0f5b788a05b",
+    "summary": [
+      "Registered enemy attack modules: 1157 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_equipment.gd",
+    "returncode": 0,
+    "seconds": 0.438,
+    "raw_log_sha256": "01b1903efcee07797e8c17cdab062495f79d2629d0b79a75381d4f07e2bd5cd0",
+    "summary": [
+      "Equipment tests: 290 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_equipment_comparison_cache.gd",
+    "returncode": 0,
+    "seconds": 5.199,
+    "raw_log_sha256": "0c39537f7844e50041457650186095d4730d5d7d471d2d20fa17d6d7d657e7c4",
+    "summary": [
+      "Equipment comparison cache: 5 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_equipment_comparison_focus_ui.gd",
+    "returncode": 0,
+    "seconds": 3.327,
+    "raw_log_sha256": "9330f05186779d1ab3bfd3a0a8d211614f98064b7f250fab7ace04ee47e9e2e2",
+    "summary": [
+      "Equipment comparison focus UI: 21 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_equipment_comparison_state.gd",
+    "returncode": 0,
+    "seconds": 0.35,
+    "raw_log_sha256": "deb3c857777e609a4987b00106f5688965d3c288e012bcc46ab4f82efd8e023d",
+    "summary": [
+      "Equipment comparison state: 153 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_equipment_comparison_ui.gd",
+    "returncode": 0,
+    "seconds": 5.746,
+    "raw_log_sha256": "427cd4f7b25cbc5a53b0d5023a818144ee5f80c7415c2fb2147dc01398503b49",
+    "summary": [
+      "Equipment comparison UI: 13592 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_equipment_template.gd",
+    "returncode": 0,
+    "seconds": 0.525,
+    "raw_log_sha256": "6be2b21198816d68149de8de503446c90499bee27b78c37f3880e7339aff6267",
+    "summary": [
+      "Equipment attachment template: 13146 checks; 0 distinct failures"
+    ]
+  },
+  {
+    "test": "test_equipment_upgrade.gd",
+    "returncode": 0,
+    "seconds": 0.153,
+    "raw_log_sha256": "1b69c8a6b0bb87c66e58019361fe2383c1df88b04fb4abd3d12bc3f552b739ed",
+    "summary": [
+      "Equipment enhancement tests: 3019 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_evasion_stat.gd",
+    "returncode": 0,
+    "seconds": 3.701,
+    "raw_log_sha256": "c56a6469ee8c8a915113bf54647d5f8c77fb3c5a02406c13bd8a8009de4b16bd",
+    "summary": [
+      "Evasion stat: 673 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_evasion_ui.gd",
+    "returncode": 0,
+    "seconds": 2.211,
+    "raw_log_sha256": "0776fb401870ff608a35660afa30f3a6679f20ccbc56aa1b03945a3ba2bf6ece",
+    "summary": [
+      "Evasion UI: 119 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_exact_planner_guard.gd",
+    "returncode": 0,
+    "seconds": 0.435,
+    "raw_log_sha256": "254d9b4a436fc12ec757514c382654aeac9d9c74d8b80e48179339ce39c4854b",
+    "summary": [
+      "Exact planner guard: 217 checks, 0 failures; neutral early returns=32, exact ties=2"
+    ]
+  },
+  {
+    "test": "test_first_campaign.gd",
+    "returncode": 0,
+    "seconds": 2.682,
+    "raw_log_sha256": "418a539afd1ce4f03ceedf62717fa3a770e617ff79346bf5d9558f8a46004121",
+    "summary": [
+      "First campaign tests: 205 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_geometry_source_cache.gd",
+    "returncode": 0,
+    "seconds": 2.16,
+    "raw_log_sha256": "335c4428b5fadd525f014a404a212ea4ce480917605812a8c5ef4f6b8895fcee",
+    "summary": [
+      "GEOMETRY_SOURCE_CACHE: 36111 checks, 0 failures; 70 source records"
+    ]
+  },
+  {
+    "test": "test_guard_evasion_visual.gd",
+    "returncode": 0,
+    "seconds": 2.293,
+    "raw_log_sha256": "46290bc51c2010115d3cb6266e04c62a6e363a4fe6de07607ef08127865a91ed",
+    "summary": [
+      "Guard/evasion visuals: 8945 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_guided_player_journey.gd",
+    "returncode": 0,
+    "seconds": 16.443,
+    "raw_log_sha256": "02d041afb9ed9a231c2ae61b833ca68975ca46c882b51ce76023bab8ea2a0fe1",
+    "summary": [
+      "FRESH_DUEL bamboo_pass/0 6.999s hp=102 victory=true",
+      "FRESH_DUEL bamboo_pass/1 9.288s hp=98 victory=true",
+      "FRESH_DUEL bamboo_pass/2 24.636s hp=88 victory=true",
+      "Default guided player journey: 956 checks, 0 failures; report /tmp/guided-player-journey.json"
+    ]
+  },
+  {
+    "test": "test_incoming_guard_catch.gd",
+    "returncode": 0,
+    "seconds": 9.451,
+    "raw_log_sha256": "948e7dcd32fb906376541830ab69db534b0258b7f5345c43d88dbde60c2e86ed",
+    "summary": [
+      "Incoming guard catch: 151805 checks, 0 distinct failures; elapsed 8.00s"
+    ]
+  },
+  {
+    "test": "test_live_loadout_guard.gd",
+    "returncode": 0,
+    "seconds": 141.443,
+    "raw_log_sha256": "21d3cb43bd723ffdbf9b2e56943a847a34401fff1e6816c2b1a886c488012c1b",
+    "summary": [
+      "Live loadout guard: 119 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_looting_crafting_host.gd",
+    "returncode": 0,
+    "seconds": 19.699,
+    "raw_log_sha256": "a2f559fd6b68b4f89dd3e3e6a7fecb3b305ef47acee01465a007b942a1b71670",
+    "summary": [
+      "Loot host/UI: 113 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_looting_crafting_state.gd",
+    "returncode": 0,
+    "seconds": 1.55,
+    "raw_log_sha256": "51750df5045777ad017207088839f86799c32d570fe3053755416cd5e22fc055",
+    "summary": [
+      "Looting/crafting state tests: 179 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_manual_portrait_grip.gd",
+    "returncode": 0,
+    "seconds": 12.013,
+    "raw_log_sha256": "6f543fc43050f15b34f2c69586b203afd9424bcfef04f440c901f0819b3317b3",
+    "summary": [
+      "Inventory weapon display: 1007 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_melee_contact_geometry.gd",
+    "returncode": 0,
+    "seconds": 61.964,
+    "raw_log_sha256": "3ba9eb868f1e4a9c015d53a5b0c0be0fd4fb7cb3064bc77189fd48669514f42f",
+    "summary": [
+      "Melee geometry: 127845 checks, 0 failures; real hits=497 whiffs=19 minimum body clearance=3.000 max 60Hz approach step=2.318"
+    ]
+  },
+  {
+    "test": "test_meridian_branches.gd",
+    "returncode": 0,
+    "seconds": 0.353,
+    "raw_log_sha256": "055ec987d638b6529197cdd8de3766fdf4030150968eca8ca3aa8dc7d9ad65f2",
+    "summary": [
+      "Meridian branches: 202 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_meridian_combat.gd",
+    "returncode": 0,
+    "seconds": 15.04,
+    "raw_log_sha256": "083ccf91c06a2ce9830800e03505d58d5d2562d51707c65d1f56304ca25503c9",
+    "summary": [
+      "Meridian combat: 185 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_meridian_guidance.gd",
+    "returncode": 0,
+    "seconds": 6.227,
+    "raw_log_sha256": "471da81d54397fbad1ffd78073d60ff13acd99910967bbb035278692900a1091",
+    "summary": [
+      "Meridian guidance: 8661 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_meridian_ui.gd",
+    "returncode": 0,
+    "seconds": 2.856,
+    "raw_log_sha256": "dbe2cbd2b0df62286f9464ee2892fea86c652a1c0c7df9465a63795b077b445f",
+    "summary": [
+      "Meridian UI: 2717 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_monster_moves.gd",
+    "returncode": 0,
+    "seconds": 5.552,
+    "raw_log_sha256": "597eaebf43aea3cff95f3c0076b518943d896416d6ae174483ef638f646c7c7b",
+    "summary": [
+      "Monster choreography: 3821 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_monster_pose_renderer.gd",
+    "returncode": 0,
+    "seconds": 0.255,
+    "raw_log_sha256": "674a4d296b1c9439bf9344894582df1c3ce40001fbafcf70c4005211ae9d81d9",
+    "summary": [
+      "MONSTER_POSE_RENDERER_PASS 12667 checks;3,960 point samples;stable authored neutral;fixed feet;rigid painted anatomy;profile reactions"
+    ]
+  },
+  {
+    "test": "test_monster_root_continuity.gd",
+    "returncode": 0,
+    "seconds": 8.813,
+    "raw_log_sha256": "61d75fc1d6840de50bdc992ac3151f0bc5e970b0c917ebfd9a4b0e1b8b221997",
+    "summary": [
+      "Monster root continuity:4 scenarios,0 failures"
+    ]
+  },
+  {
+    "test": "test_motion_transitions.gd",
+    "returncode": 0,
+    "seconds": 14.039,
+    "raw_log_sha256": "61975e0b2ca2e3324ea8d23695b770946b411cea4de8faf2c9379a58ea2b184a",
+    "summary": [
+      "Motion transitions: 85 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_paused_retreat.gd",
+    "returncode": 0,
+    "seconds": 16.91,
+    "raw_log_sha256": "92b7c4bb04239e4e740274425764e7ce2d998fca3e29847a6c752d8ed82cbb67",
+    "summary": [
+      "Paused safe retreat: 376 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_planning_cache.gd",
+    "returncode": 0,
+    "seconds": 2.018,
+    "raw_log_sha256": "49ec2849130968237fd2dc329a396345815e773cb2d1c56a2e2bb7db9b3df5fa",
+    "summary": [
+      "PLANNING_CACHE_REGRESSION 46320 checks 0 failures"
+    ]
+  },
+  {
+    "test": "test_planning_pixel_cache.gd",
+    "returncode": 0,
+    "seconds": 0.9,
+    "raw_log_sha256": "c2fa59b1f69507c03ff662a95a0cac6f7b5d97015baae10e730434fc9c8b8bad",
+    "summary": [
+      "PLANNING_PIXEL_CACHE 149680 checks 0 failures"
+    ]
+  },
+  {
+    "test": "test_player_journey_pointer_audit.gd",
+    "returncode": 0,
+    "seconds": 55.313,
+    "raw_log_sha256": "878cb612531dcb2c163f67efac722ddf7c8d15ee224a656e10bb5aae63a25560",
+    "summary": [
+      "Player journey pointer audit: 2475 checks, 0 failures; 39 actual pointer targets"
+    ]
+  },
+  {
+    "test": "test_portal_color_contract.gd",
+    "returncode": 0,
+    "seconds": 0.156,
+    "raw_log_sha256": "bbdc8162bd055c37f543ea5f7098eb12741ae0944be67e91f6e25ceeb0bf2696",
+    "summary": [
+      "Portal color source/CPU contract: 30 checks, 0 failures (not GPU validation)"
+    ]
+  },
+  {
+    "test": "test_portal_transitions.gd",
+    "returncode": 0,
+    "seconds": 8.347,
+    "raw_log_sha256": "6364ba34a386bd4c788e636c53235a4c60ba4fdc53ebe8d5cfb01cd0667d9fcc",
+    "summary": [
+      "Portal transitions: 27 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_adjust_focus_ui.gd",
+    "returncode": 0,
+    "seconds": 4.534,
+    "raw_log_sha256": "85a6b308af82c9d24f462049f89117bebe44236dd6a1d437f326c6af5d326b73",
+    "summary": [
+      "Practice adjust focus UI: 51 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_control_contribution.gd",
+    "returncode": 0,
+    "seconds": 1.832,
+    "raw_log_sha256": "19403baad6447f99f2d3f53c8ffdf4e386b7f1889616e277049c7aae73b43ff6",
+    "summary": [
+      "Practice control contribution: 4973 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_controls_ui.gd",
+    "returncode": 0,
+    "seconds": 3.518,
+    "raw_log_sha256": "4fc871ad62ee9891e7a0d8f315de911239605e89ab6d1bb0ea19917b6c6f7e81",
+    "summary": [
+      "Practice controls UI: 4307 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_decision.gd",
+    "returncode": 0,
+    "seconds": 3.88,
+    "raw_log_sha256": "0779d6cd94c5cce59e2dc6ab6a283dbabd15d7f3eaba83b7cf920706300275dd",
+    "summary": [
+      "Practice decision state: 3114 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_decision_ui.gd",
+    "returncode": 0,
+    "seconds": 5.009,
+    "raw_log_sha256": "6b0b0d4058da17938379fe8ff7a0d634f366624b161c7e5910a9f4ed6ad6bdd4",
+    "summary": [
+      "Practice decision UI: 3150 checks, 0 failures; lifecycle cycles=5"
+    ]
+  },
+  {
+    "test": "test_practice_focus_ui.gd",
+    "returncode": 0,
+    "seconds": 5.193,
+    "raw_log_sha256": "381cf2b90faf68a6d9932a153d49992c1bfc379eeaa2d062da20f5637477ba20",
+    "summary": [
+      "Practice focus UI: 50 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_host.gd",
+    "returncode": 0,
+    "seconds": 5.006,
+    "raw_log_sha256": "efcc059210a7ee91b84be5329ac5de0795c582f5d7b9d1f30a157e64f6a6addb",
+    "summary": [
+      "Practice host: 40 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_keyboard_ui.gd",
+    "returncode": 0,
+    "seconds": 4.93,
+    "raw_log_sha256": "8c74180c8d095bc92b4dd2a76aeb70f6e1ef30704eba7194269d0caa6702413d",
+    "summary": [
+      "Practice keyboard UI: 127 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_lifecycle.gd",
+    "returncode": 0,
+    "seconds": 4.177,
+    "raw_log_sha256": "a75a3866e8e25d831d12eec7710b4765f6baf5ee1072dffd4c97730a5a0feca0",
+    "summary": [
+      "Practice lifecycle: 23 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_loadout.gd",
+    "returncode": 0,
+    "seconds": 1.109,
+    "raw_log_sha256": "d515e5eb59c69c9546910b4479aba36f3a17f29ff1626f3d654cba39da89c45d",
+    "summary": [
+      "Practice loadout: 69 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_loadout_ui.gd",
+    "returncode": 0,
+    "seconds": 3.326,
+    "raw_log_sha256": "ef7f70480d882544c1aab6b8882ddedc272a922abe7b1446ca1ccfa1ef61bd4f",
+    "summary": [
+      "Practice loadout UI: 3626 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_object_lifetimes.gd",
+    "returncode": 0,
+    "seconds": 8.651,
+    "raw_log_sha256": "bf6146d7bd77212f6d2b20e5306642950614eced62c377e6d0ebe1504c1bb290",
+    "summary": [
+      "PRACTICE_LIFETIME_RESULT cycles=12 checks=237 failures=0"
+    ]
+  },
+  {
+    "test": "test_practice_pages.gd",
+    "returncode": 0,
+    "seconds": 0.529,
+    "raw_log_sha256": "8c6d0a34c73497611e5331790ba647f6e21d963b089d85d9332311c710c354a1",
+    "summary": [
+      "Practice pages: 151 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_session.gd",
+    "returncode": 0,
+    "seconds": 1.386,
+    "raw_log_sha256": "291a870a12b2ea8a50fa6fbeb0baddb638b4307b0303b6c03e51689af11006e5",
+    "summary": [
+      "Practice session: 232 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_practice_weapon_requirement.gd",
+    "returncode": 0,
+    "seconds": 3.041,
+    "raw_log_sha256": "6a3a70d0587e241fbb8ac7d41ab442b81fad8231e6b67e5de3e1b146f0961912",
+    "summary": [
+      "Practice weapon requirement: 131 checks, 0 failures; real loadouts=3; heights=2"
+    ]
+  },
+  {
+    "test": "test_preview_layout.gd",
+    "returncode": 0,
+    "seconds": 2.019,
+    "raw_log_sha256": "43016eecb0e529eb866456b14061224b692040002c311c1dec0e4ef91818ae63",
+    "summary": [
+      "Preview layout: 61 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_provider_lifecycle_guard.gd",
+    "returncode": 0,
+    "seconds": 0.34,
+    "raw_log_sha256": "2da67ad138e7343678a8728b0adb3523950edebb607a3d3c587493dac1b4f07d",
+    "summary": [
+      "PROVIDER_LIFECYCLE_RESULT {\"cases\":[\"actual_freed_object\",\"builtin_fan\",\"builtin_sword\",\"builtin_unarmed\",\"null_pose_provider\",\"scalar_pose_provider\",\"live_unknown_pose_provider\",\"null_strike_provider\",\"scalar_strike_provider\",\"live_unknown_strike_provider\",\"dead_pose\",\"dead_strike\",\"dead_both\",\"nested_dead_hero\",\"nested_dead_enemy\",\"nested_dead_definition\",\"live_custom\"],\"checks\":62,\"engine\":\"4.6.3-stable (official)\",\"failures\":0,\"schema\":1}"
+    ]
+  },
+  {
+    "test": "test_readability_layout.gd",
+    "returncode": 0,
+    "seconds": 2.289,
+    "raw_log_sha256": "15c68d08715816254bc857d6f7cc0dd071555db110b9dc9b090cbeb93cf75260",
+    "summary": [
+      "Readability layout: 475 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_readable_guard_sockets.gd",
+    "returncode": 0,
+    "seconds": 1.572,
+    "raw_log_sha256": "bcd1d00897d6643e8e9416badcc683cbf9a70a1335061a0d5a811c7e4d667e1d",
+    "summary": [
+      "READABLE_GUARD_SOCKETS 154982 checks, 0 recorded failures"
+    ]
+  },
+  {
+    "test": "test_render_socket_continuity.gd",
+    "returncode": 0,
+    "seconds": 8.454,
+    "raw_log_sha256": "39e1570f1ee1ed8a2ff8e25cd9625ae20cd811e06b3aa0dd6f30a9fcfabec0b4",
+    "summary": [
+      "Render socket continuity: 1307196 checks, 0 distinct failures; elapsed 8.00s"
+    ]
+  },
+  {
+    "test": "test_reward_capacity.gd",
+    "returncode": 0,
+    "seconds": 0.354,
+    "raw_log_sha256": "f49b7dc41fa3c91a60c051a5bd2cd014a816b0ee350d3448ba3eafcd6161a7a3",
+    "summary": [
+      "Reward capacity: 67 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_route_body_continuity.gd",
+    "returncode": 0,
+    "seconds": 3.41,
+    "raw_log_sha256": "eb289cf9f8a74bde369d148bdba6ecfddae2bfe1bfbf38b3c859e257a9bb64bf",
+    "summary": [
+      "Route/body continuity: 3928 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_scene_art_layout.gd",
+    "returncode": 0,
+    "seconds": 0.337,
+    "raw_log_sha256": "f50c7a5bc3ddf0da2451f513a67c643bd76b5113cb768a7e58694ba85253ed83",
+    "summary": [
+      "Scene original-art layout: 351 checks, 0 failures (geometry/resource, not native graphics)"
+    ]
+  },
+  {
+    "test": "test_scene_framing.gd",
+    "returncode": 0,
+    "seconds": 8.732,
+    "raw_log_sha256": "50927b9201e5cfa311043f44a38098e67b3da335e538da76336a3280dba44e33",
+    "summary": [
+      "Scene framing: 961 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_shutdown_audio.gd",
+    "returncode": 0,
+    "seconds": 2.857,
+    "raw_log_sha256": "76f537f23ca3ef03826dbe97539a0c42f4f9ed83980c1f12c932e4a2074e7aa0",
+    "summary": []
+  },
+  {
+    "test": "test_shutdown_lifecycle.gd",
+    "returncode": 0,
+    "seconds": 2.3,
+    "raw_log_sha256": "0a9d7a7b188d983585b6155d9a7bededd5da57b88f2247748eab6e596c69d4b5",
+    "summary": [
+      "Shutdown lifecycle: 11 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_side_proportion_contract.gd",
+    "returncode": 0,
+    "seconds": 2.486,
+    "raw_log_sha256": "79c9732af8c9f0eb41a85bf167ef3128c43867fc1a479add5051eda05d97514f",
+    "summary": [
+      "SIDE_PROPORTION_CONTRACT: 51380 checks, 0 failures, 5674 motion states compared to frozen baseline"
+    ]
+  },
+  {
+    "test": "test_stone_mechanic_view.gd",
+    "returncode": 0,
+    "seconds": 3.414,
+    "raw_log_sha256": "e5cea3d73ce43c3a6bec4025e9e86cdf79030aeea9f66149cd28daeb11ddbc1e",
+    "summary": [
+      "Stone mechanic view: 3239 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_stone_recovery_contract.gd",
+    "returncode": 0,
+    "seconds": 0.716,
+    "raw_log_sha256": "03c10f8b683c333eeaf21654eadcfeb72b527ec903a3a9963a74be7a4fcb093e",
+    "summary": [
+      "Stone recovery contract: 22851 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_sword_guard_render.gd",
+    "returncode": 0,
+    "seconds": 0.738,
+    "raw_log_sha256": "1336139a6e52941293ed3723f55a89ab59218ca52f9dc93a8b0f170e72ce7f83",
+    "summary": [
+      "SWORD_GUARD_RENDER 6686 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_treasure_search_host.gd",
+    "returncode": 0,
+    "seconds": 2.394,
+    "raw_log_sha256": "b5967a4222cadcc92f013476b52085f60c817d95b398f3aefb70704a4d2ab454",
+    "summary": [
+      "Treasure search host: 19 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_treasure_search_state.gd",
+    "returncode": 0,
+    "seconds": 0.339,
+    "raw_log_sha256": "0881c6bc75ecf0bf8c99709f93f2dd6a06fef6b68d9124b7c151e040114116e0",
+    "summary": [
+      "Treasure search state: 228 checks, 0 failures"
+    ]
+  },
+  {
+    "test": "test_weapon_grip_hand.gd",
+    "returncode": 0,
+    "seconds": 24.263,
+    "raw_log_sha256": "fedc90795d38f63040daa816d3820bc428e11126eea07b6fa0caca2a2c3f30cc",
+    "summary": [
+      "WEAPON_GRIP_HAND original painted fist: 2311425 checks, 0 distinct failures"
+    ]
+  },
+  {
+    "test": "test_window_geometry.gd",
+    "returncode": 0,
+    "seconds": 0.347,
+    "raw_log_sha256": "df1c0d4a62af80def7215d487997e4907d9b169f2d6880e66d95c1aa645872f5",
+    "summary": [
+      "Window geometry: 130 checks, 0 failures"
+    ]
+  }
+]

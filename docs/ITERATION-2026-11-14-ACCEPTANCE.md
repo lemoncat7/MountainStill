@@ -46,3 +46,5 @@ Library当前支持的上传助手在首次工具发现阶段因环境网络代�
 | MountainStill-update.json | 572 | ebe90fb5faf4b9977bc989a1b3d330dee92426352fc804f61b8634dc868304e7 |
 
 源码ZIP对应tag121ff25并保留封装时状态；本验收记录是之后的main文档更新。原始QA另封装，不能把本地保存当作Library持久保存或公开交付成功。
+
+已将[机器可读验收索引与独立审查](qa/iteration-2026-11-14/)随main持久保存；完整原始本地日志仅在本轮证据ZIP中，Library未保存成功。Actions各job成功元数据已留存，但原始CI日志下载跳转受网络403限制；原始CI日志仍可在上述运行页查看，不声称已存入本地证据包。

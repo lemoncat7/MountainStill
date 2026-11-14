@@ -123,7 +123,7 @@ class CompatSessionTests(unittest.TestCase):
                         expected_version=version, real_profile=True)
                     self.assertIsNone(error)
                     self.assertEqual(result['expected_version'], version)
-        for unsupported in ('1.3.29-test.1', '1.3.41-test.1', '1.3.410', '1.3.41-test.1'):
+        for unsupported in ('1.3.29-test.1', '1.3.41-test.1', '1.3.410', '1.3.42-test.1'):
             with self.assertRaises(ValueError):
                 gui.boot_ready('', unsupported)
 

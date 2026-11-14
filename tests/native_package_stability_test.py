@@ -21,11 +21,11 @@ class StabilityContracts(unittest.TestCase):
     def test_exact_candidate_pins(self):
         self.assertEqual(gate.TAG, 'v1.3.41')
         self.assertEqual(gate.PACKAGES['win32'][0], 'MountainStill-v1.3.41-Windows-x86_64.zip')
-        self.assertEqual(gate.PACKAGES['win32'][1], '718b1fa82c79b0bc37ae84a33189886dbae4f414d218f0b902724e3f75e3dfc9')
-        self.assertEqual(gate.PACKAGES['win32'][3], 114643702)
+        self.assertEqual(gate.PACKAGES['win32'][1], 'd364cb9ec8ff1ca865d1d80be7ad3613492fdc941c8ea90d52f08089ee896850')
+        self.assertEqual(gate.PACKAGES['win32'][3], 114644018)
         self.assertEqual(gate.PACKAGES['darwin'][0], 'MountainStill-v1.3.41-macOS-Universal.zip')
-        self.assertEqual(gate.PACKAGES['darwin'][1], '015677334e78ff9461f3bcb02f06281cdb39a769719375431bd7a7dc980f4bbf')
-        self.assertEqual(gate.PACKAGES['darwin'][3], 141375364)
+        self.assertEqual(gate.PACKAGES['darwin'][1], '1eefba2e37f847b6a2812e7eee61cbe01e33335e4ed8a491b74d82d6d5f69050')
+        self.assertEqual(gate.PACKAGES['darwin'][3], 141375680)
 
     def test_fps_diagnostic_not_rendered_or_exact_frames(self):
         value=gate.fps_summary('Project FPS: 44 (22.73 mspf)\nProject FPS: 45 (22.22 mspf)\n')

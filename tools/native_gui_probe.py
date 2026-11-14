@@ -24,11 +24,11 @@ from native_package_smoke import (APP, claim_userdata, configure_output,
 TAG = 'v1.3.41'
 PACKAGES = {
     'win32': ('MountainStill-v1.3.41-Windows-x86_64.zip',
-              '718b1fa82c79b0bc37ae84a33189886dbae4f414d218f0b902724e3f75e3dfc9',
-              'MountainStill/MountainStill.exe', 114643702),
+              'd364cb9ec8ff1ca865d1d80be7ad3613492fdc941c8ea90d52f08089ee896850',
+              'MountainStill/MountainStill.exe', 114644018),
     'darwin': ('MountainStill-v1.3.41-macOS-Universal.zip',
-               '015677334e78ff9461f3bcb02f06281cdb39a769719375431bd7a7dc980f4bbf',
-               APP + '.app/Contents/MacOS/' + APP, 141375364),
+               '1eefba2e37f847b6a2812e7eee61cbe01e33335e4ed8a491b74d82d6d5f69050',
+               APP + '.app/Contents/MacOS/' + APP, 141375680),
 }
 PNG_BUDGET = 6 * 1024 * 1024
 ARGS = ['--verbose', '--max-fps', '60']

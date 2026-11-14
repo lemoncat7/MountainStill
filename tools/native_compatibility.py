@@ -24,7 +24,7 @@ DRIVER_SECONDS=12*60
 PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
  'old_zip':(OLD_TAG,'MountainStill-v1.3.26-macOS-Universal.zip',141283216,'78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d'),
- 'new_zip':(NEW_TAG,'MountainStill-v1.3.41-macOS-Universal.zip',141375364,'015677334e78ff9461f3bcb02f06281cdb39a769719375431bd7a7dc980f4bbf'),
+ 'new_zip':(NEW_TAG,'MountainStill-v1.3.41-macOS-Universal.zip',141375680,'1eefba2e37f847b6a2812e7eee61cbe01e33335e4ed8a491b74d82d6d5f69050'),
  'pck':(NEW_TAG,'MountainStill-macos.pck',78538004,'3bf236dc8e78d5d9f874e917628f8e2314948380a4d182432f68d56843859050'),
  'manifest':(NEW_TAG,'MountainStill-update.json',572,'ebe90fb5faf4b9977bc989a1b3d330dee92426352fc804f61b8634dc868304e7'),
 }
@@ -32,7 +32,7 @@ PINS={
 if PLATFORM == 'windows':
     PINS.update({
       'old_zip':(OLD_TAG,'MountainStill-v1.3.26-Windows-x86_64.zip',114552389,'020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873'),
-      'new_zip':(NEW_TAG,'MountainStill-v1.3.41-Windows-x86_64.zip',114643702,'718b1fa82c79b0bc37ae84a33189886dbae4f414d218f0b902724e3f75e3dfc9'),
+      'new_zip':(NEW_TAG,'MountainStill-v1.3.41-Windows-x86_64.zip',114644018,'d364cb9ec8ff1ca865d1d80be7ad3613492fdc941c8ea90d52f08089ee896850'),
       'pck':(NEW_TAG,'MountainStill-windows.pck',78538004,'3bf236dc8e78d5d9f874e917628f8e2314948380a4d182432f68d56843859050'),
     })
 

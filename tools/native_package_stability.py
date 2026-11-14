@@ -21,15 +21,15 @@ from native_platform_smoke import unexpected_errors
 from native_process_metrics import sample, cpu_percent
 
 # Independent pin: ordinary package-smoke updates must not silently retarget this observation.
-TAG = 'v1.3.40'
+TAG = 'v1.3.41'
 APP = '山隐 · Mountain Still'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.40-Windows-x86_64.zip',
-              'e91e6f941ff06b54053053765af675619e9afb53961f1bc33a5006d9bcd44dc1',
-              'MountainStill/MountainStill.exe', 114641665),
-    'darwin': ('MountainStill-v1.3.40-macOS-Universal.zip',
-               '8bb6cf17dcb013c445e9dab36eacd34b356e0848a6422bd103100e6d07b8ea53',
-               APP + '.app/Contents/MacOS/' + APP, 141373386),
+    'win32': ('MountainStill-v1.3.41-Windows-x86_64.zip',
+              '718b1fa82c79b0bc37ae84a33189886dbae4f414d218f0b902724e3f75e3dfc9',
+              'MountainStill/MountainStill.exe', 114643702),
+    'darwin': ('MountainStill-v1.3.41-macOS-Universal.zip',
+               '015677334e78ff9461f3bcb02f06281cdb39a769719375431bd7a7dc980f4bbf',
+               APP + '.app/Contents/MacOS/' + APP, 141375364),
 }
 ASSETS = ('creek_bridge_boss_settle.png', 'creek_bridge_boss_retract.png')
 LONG_FRAMES = 78000
@@ -419,7 +419,7 @@ def main():
             except Exception as error:
                 emit('CLEANUP_FAILURE',dict(message=str(error)))
                 results.append('FAIL owned user-data cleanup')
-        summary = '## v1.3.40 actual-package 20-minute headless lifecycle precheck\n\n'+'\n'.join('- '+r for r in results)
+        summary = '## v1.3.41 actual-package 20-minute headless lifecycle precheck\n\n'+'\n'.join('- '+r for r in results)
         summary += '\n\nNo 60-minute mixed GUI, continuous chapter combat, FPS/GPU, internal static-memory/object count, or formal-release certification. RSS budget is a historical proposal; CPU utilization has no pass threshold.\n'
         print(summary,flush=True)
         if os.environ.get('GITHUB_STEP_SUMMARY'):

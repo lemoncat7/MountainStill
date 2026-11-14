@@ -48,6 +48,8 @@ static func rows(quote: Dictionary) -> Array:
 		{"section": "属性", "label": "平常架势闪避", "value": "%.1f%% → %.1f%%（%s）" % [float(b.evasion_chance)*100, float(n.evasion_chance)*100, _delta((float(n.evasion_chance)-float(b.evasion_chance))*100, 1, "个百分点")], "source": "装备 %.1f → %.1f 个百分点；总值封顶72%%，出招/接触仅留15%%，失衡为0。" % [float(bg.evasion_bonus)*100, float(ng.evasion_bonus)*100]},
 		{"section": "属性", "label": "吐纳修为 / 秒", "value": "%.2f → %.2f（%s）" % [b.qi_rate, n.qi_rate, _delta(float(n.qi_rate)-float(b.qi_rate), 2)], "source": "装备吐纳 %.1f%% → %.1f%%（封顶35%%）；含当前境界、功法、经脉与清心，不是战斗真气。" % [float(bg.qi_bonus)*100, float(ng.qi_bonus)*100]},
 	]
+	result.append({"section": "战气", "label": "战斗真气上限", "value": "%.2f → %.2f（%s）" % [b.combat_qi_max, n.combat_qi_max, _delta(float(n.combat_qi_max)-float(b.combat_qi_max), 2)], "source": "采用当前境界、功法与经脉的实际战气上限；不是吐纳修为，比较不会补满真气。"})
+	result.append({"section": "战气", "label": "战斗回气 / 秒", "value": "%.2f → %.2f（%s）" % [b.combat_qi_regen, n.combat_qi_regen, _delta(float(n.combat_qi_regen)-float(b.combat_qi_regen), 2)], "source": "实际战斗回气速率；不等于吐纳修为增速。施招仍需足够真气并等待冷却结束。"})
 	var styles := {"weapon.sword": "剑", "weapon.fan": "扇", "weapon.unarmed": "空手"}
 	result.append({"section": "招式", "label": "普攻形制", "value": str(styles.get(str(b.attack_module_id), b.attack_module_id)) + " → " + str(styles.get(str(n.attack_module_id), n.attack_module_id)), "source": "兵器改变实际普攻动作与接触范围；攻击数值较高也不保证更快取胜。"})
 	result.append({"section": "招式", "label": "兵器自带招", "value": str(b.weapon_skill.get("name", "无")) + " → " + str(n.weapon_skill.get("name", "无")), "source": "由真实兵器形制提供；须足够真气与冷却就绪，不额外占主动功法栏。"})

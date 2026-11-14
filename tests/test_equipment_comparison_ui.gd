@@ -137,6 +137,14 @@ func run():
 func readable_rows(label: String) -> Array:
 	var rows: Array=scene.get_meta("equipment_comparison_rows")
 	check(not rows.is_empty(),label+" has rows")
+	var quote: Dictionary=scene.get_meta("equipment_comparison_quote")
+	for field in ["combat_qi_max", "combat_qi_regen"]:
+		var title: String = "战斗真气上限" if field == "combat_qi_max" else "战斗回气 / 秒"
+		var row: Dictionary = row_starting(rows, title)
+		var expected := "%.2f → %.2f（%s）" % [quote.before[field], quote.after[field], Pages._delta(float(quote.after[field])-float(quote.before[field]), 2)]
+		check(str(row.get("value", "")) == expected, label+" real combat resource preview "+field)
+		var meaning: String = "不是吐纳修为，比较不会补满真气" if field == "combat_qi_max" else "不等于吐纳修为增速。施招仍需足够真气并等待冷却结束"
+		check(str(row.get("source", "")).contains(meaning), label+" combat resource limits explained "+field)
 	for row in rows:
 		var wrapped: Array=Ink._wrapped_lines(str(row.source),597,Pages.BODY_FONT_SIZE,2)
 		check(not wrapped.is_empty() and not str(wrapped[-1]).ends_with("…"),label+" complete source "+str(row.label))

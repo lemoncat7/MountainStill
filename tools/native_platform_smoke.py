@@ -15,7 +15,8 @@ import uuid
 from qa_verify_provider_lifecycle import validate as validate_provider_lifecycle
 
 TESTS = {
-    'test_equipment_comparison_focus_ui.gd': r'Equipment comparison focus UI: 19 checks, 0 failures',
+    'test_equipment_comparison_ui.gd': r'Equipment comparison UI: 13592 checks, 0 failures',
+    'test_equipment_comparison_focus_ui.gd': r'Equipment comparison focus UI: 21 checks, 0 failures',
     'test_display_diagnostic_copy.gd': r'DISPLAY DIAGNOSTIC COPY: 141 checks, 0 failures',
     'test_batched_enemy_contact.gd': r'BATCHED_ENEMY_CONTACT: 184187 checks, 0 failures',
     'test_display_diagnostic_pages.gd': r'DISPLAY DIAGNOSTIC PAGES: 160 checks, 0 failures',
@@ -48,6 +49,7 @@ TESTS = {
     'test_practice_adjust_focus_ui.gd': r'Practice adjust focus UI: 51 checks, 0 failures',
 }
 FEATURE_MARKER_PREFIXES = {
+    'test_equipment_comparison_ui.gd': 'Equipment comparison UI:',
     'test_equipment_comparison_focus_ui.gd': 'Equipment comparison focus UI:',
     'test_craft_supply_ui.gd': 'Craft supply UI:',
     'test_body_clearance_batch.gd': 'BODY_CLEARANCE_BATCH ',

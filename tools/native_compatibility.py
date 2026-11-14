@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native representative v26-save/full-v1.3.40 and installed-v1.3.40-PCK/old-host checks."""
+"""Native representative v26-save/full-v1.3.41 and installed-v1.3.41-PCK/old-host checks."""
 import hashlib
 import json
 import os
@@ -17,23 +17,23 @@ import native_package_stability as gate
 from native_compat_session import session, native_json
 
 OLD_TAG='v1.3.26'
-NEW_TAG='v1.3.40'
+NEW_TAG='v1.3.41'
 OLD_VERSION='1.3.26'
-NEW_VERSION='1.3.40'
+NEW_VERSION='1.3.41'
 DRIVER_SECONDS=12*60
 PLATFORM = 'windows' if sys.platform == 'win32' else 'macos'
 PINS={
  'old_zip':(OLD_TAG,'MountainStill-v1.3.26-macOS-Universal.zip',141283216,'78a28978026349aee4c806fd553bfa989f2a841b3fa7755b22adebf23811457d'),
- 'new_zip':(NEW_TAG,'MountainStill-v1.3.40-macOS-Universal.zip',141373386,'8bb6cf17dcb013c445e9dab36eacd34b356e0848a6422bd103100e6d07b8ea53'),
- 'pck':(NEW_TAG,'MountainStill-macos.pck',78537364,'6d423fcbfc44883546db6c99c605c63bc69061cb8bdbaf13091139a5f6f8658a'),
- 'manifest':(NEW_TAG,'MountainStill-update.json',572,'df508322bc7b46b62dd8d1609b54ab6ae8121688ff2a6d67b437b660c4c78c66'),
+ 'new_zip':(NEW_TAG,'MountainStill-v1.3.41-macOS-Universal.zip',141375364,'015677334e78ff9461f3bcb02f06281cdb39a769719375431bd7a7dc980f4bbf'),
+ 'pck':(NEW_TAG,'MountainStill-macos.pck',78538004,'3bf236dc8e78d5d9f874e917628f8e2314948380a4d182432f68d56843859050'),
+ 'manifest':(NEW_TAG,'MountainStill-update.json',572,'ebe90fb5faf4b9977bc989a1b3d330dee92426352fc804f61b8634dc868304e7'),
 }
 
 if PLATFORM == 'windows':
     PINS.update({
       'old_zip':(OLD_TAG,'MountainStill-v1.3.26-Windows-x86_64.zip',114552389,'020576fdaeb14b8c901a2c5f28df5a6ba0de35e121ddb1be80e50dfa2b137873'),
-      'new_zip':(NEW_TAG,'MountainStill-v1.3.40-Windows-x86_64.zip',114641665,'e91e6f941ff06b54053053765af675619e9afb53961f1bc33a5006d9bcd44dc1'),
-      'pck':(NEW_TAG,'MountainStill-windows.pck',78537364,'6d423fcbfc44883546db6c99c605c63bc69061cb8bdbaf13091139a5f6f8658a'),
+      'new_zip':(NEW_TAG,'MountainStill-v1.3.41-Windows-x86_64.zip',114643702,'718b1fa82c79b0bc37ae84a33189886dbae4f414d218f0b902724e3f75e3dfc9'),
+      'pck':(NEW_TAG,'MountainStill-windows.pck',78538004,'3bf236dc8e78d5d9f874e917628f8e2314948380a4d182432f68d56843859050'),
     })
 
 
@@ -164,7 +164,7 @@ def recovery(before,after,backup,offline_upper):
     if life<=offline_upper+10 or prior<=offline_upper+5:raise RuntimeError('No live recovery beyond offline credit')
     return dict(lifetime_gain=life,prior_save_lifetime_gain=prior,offline_upper_seconds=offline_upper,
         primary_backup_lifetime_delta=after['lifetime_seconds']-backup['lifetime_seconds'],
-        schema=after['version'],old_schema_migration='NOT_TESTED; v26 and v1.3.40 schema4')
+        schema=after['version'],old_schema_migration='NOT_TESTED; v26 and v1.3.41 schema4')
 
 
 def scenario(kind,old_binary,new_binary,pck,manifest,root,deadline,all_registry):

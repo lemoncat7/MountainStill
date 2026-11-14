@@ -21,14 +21,14 @@ from native_package_smoke import (APP, claim_userdata, configure_output,
                                   download, extract, userdata_path, read_save)
 
 # Independent immutable pin: later package-smoke upgrades MUST NOT retarget this probe.
-TAG = 'v1.3.40'
+TAG = 'v1.3.41'
 PACKAGES = {
-    'win32': ('MountainStill-v1.3.40-Windows-x86_64.zip',
-              'e91e6f941ff06b54053053765af675619e9afb53961f1bc33a5006d9bcd44dc1',
-              'MountainStill/MountainStill.exe', 114641665),
-    'darwin': ('MountainStill-v1.3.40-macOS-Universal.zip',
-               '8bb6cf17dcb013c445e9dab36eacd34b356e0848a6422bd103100e6d07b8ea53',
-               APP + '.app/Contents/MacOS/' + APP, 141373386),
+    'win32': ('MountainStill-v1.3.41-Windows-x86_64.zip',
+              '718b1fa82c79b0bc37ae84a33189886dbae4f414d218f0b902724e3f75e3dfc9',
+              'MountainStill/MountainStill.exe', 114643702),
+    'darwin': ('MountainStill-v1.3.41-macOS-Universal.zip',
+               '015677334e78ff9461f3bcb02f06281cdb39a769719375431bd7a7dc980f4bbf',
+               APP + '.app/Contents/MacOS/' + APP, 141375364),
 }
 PNG_BUDGET = 6 * 1024 * 1024
 ARGS = ['--verbose', '--max-fps', '60']

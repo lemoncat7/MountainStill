@@ -1,0 +1,32 @@
+{
+  "MountainStill-v1.3.41-Public-Source.zip": {
+    "frozen_count": 1389,
+    "candidate_count": 1389,
+    "only_frozen": [],
+    "only_candidate": [],
+    "changed_content": [],
+    "changed_metadata_count": 1389
+  },
+  "MountainStill-v1.3.41-Windows-x86_64.zip": {
+    "frozen_count": 218,
+    "candidate_count": 218,
+    "only_frozen": [],
+    "only_candidate": [],
+    "changed_content": [
+      "MountainStill/MountainStill.exe"
+    ],
+    "changed_metadata_count": 218
+  },
+  "MountainStill-v1.3.41-macOS-Universal.zip": {
+    "frozen_count": 223,
+    "candidate_count": 223,
+    "only_frozen": [],
+    "only_candidate": [],
+    "changed_content": [
+      "\u5c71\u9690 \u00b7 Mountain Still.app/Contents/MacOS/\u5c71\u9690 \u00b7 Mountain Still",
+      "\u5c71\u9690 \u00b7 Mountain Still.app/Contents/Resources/\u5c71\u9690 \u00b7 Mountain Still.pck",
+      "\u5c71\u9690 \u00b7 Mountain Still.app/Contents/_CodeSignature/CodeResources"
+    ],
+    "changed_metadata_count": 223
+  }
+}

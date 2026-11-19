@@ -1,0 +1,36 @@
+{
+  "source_sha": "121ff2517188a28d3b89cfa6ce9a5faf3ce3d879",
+  "repetitions": 2,
+  "all_files_match_original": false,
+  "repeat_comparison": [
+    {
+      "name": "MountainStill-macos.pck",
+      "same_sha256": true
+    },
+    {
+      "name": "MountainStill-update.json",
+      "same_sha256": true
+    },
+    {
+      "name": "MountainStill-v1.3.41-Public-Source.zip",
+      "same_sha256": false
+    },
+    {
+      "name": "MountainStill-v1.3.41-Windows-x86_64.zip",
+      "same_sha256": false
+    },
+    {
+      "name": "MountainStill-v1.3.41-macOS-Universal.zip",
+      "same_sha256": false
+    },
+    {
+      "name": "MountainStill-windows.pck",
+      "same_sha256": true
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "same_sha256": false
+    }
+  ],
+  "native_acceptance": "NOT_RUN"
+}

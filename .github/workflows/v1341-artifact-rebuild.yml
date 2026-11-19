@@ -1,0 +1,55 @@
+name: v1.3.41 isolated artifact candidate
+# Preparation branch does not match. Do not create the execution branch until
+# shared storage allowance / budget evidence establishes zero additional cost.
+on:
+  push:
+    branches: [ci/v1.3.41-artifact-execute]
+permissions: {}
+concurrency:
+  group: v1341-artifact-candidate
+  cancel-in-progress: false
+env:
+  ARTIFACT_STORAGE_ZERO_COST_VERIFIED: 'false'
+jobs:
+  rebuild:
+    # Literal false prevents runner allocation until reviewed zero-cost evidence.
+    if: false && github.repository == 'lemoncat7/MountainStill' && github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Require reviewed storage gate
+        shell: bash
+        run: test "$ARTIFACT_STORAGE_ZERO_COST_VERIFIED" = true
+      - name: Read exact workflow commit without repository credentials
+        shell: bash
+        env:
+          PREPARATION_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git init -q preparation
+          git -C preparation -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git "$PREPARATION_SHA"
+          git -C preparation checkout --detach FETCH_HEAD
+          test "$(git -C preparation rev-parse HEAD)" = "$PREPARATION_SHA"
+      - name: Pin Python patch (no dependency cache)
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+          token: ''
+      - name: Build twice with pinned Godot and templates
+        shell: bash
+        run: |
+          python preparation/tools/rebuild_v1341_artifact.py \
+            --workspace "$RUNNER_TEMP/v1341-rebuild" \
+            --cache "$RUNNER_TEMP/v1341-tool-cache" --repetitions 2
+      - name: Retain candidate bytes and digest reports
+        if: success() && env.ARTIFACT_STORAGE_ZERO_COST_VERIFIED == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: MountainStill-v1.3.41-rebuilt-candidate-${{ github.run_id }}
+          path: ${{ runner.temp }}/v1341-rebuild/artifact/
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
+          include-hidden-files: false
+          overwrite: false

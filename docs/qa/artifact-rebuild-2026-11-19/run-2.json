@@ -1,0 +1,58 @@
+{
+  "source_sha": "121ff2517188a28d3b89cfa6ce9a5faf3ce3d879",
+  "source_date_epoch": 1794641418,
+  "godot_version": "4.6.3.stable.official.7d41c59c4",
+  "godot_archive_sha256": "d0bc2113065e481c9c2c2b2c37daa4e8be3fe9e27f0ab9ab0b6096e9a37907f3",
+  "templates_archive_sha256": "3fbe2c0e2dec9d537ab9ec97bcf8da91dcf23357fc51f67092dd068d839290a8",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "zlib": "1.3.2",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "tracked_source_unchanged": true,
+  "files": [
+    {
+      "name": "MountainStill-macos.pck",
+      "size": 78538004,
+      "sha256": "f5f3897f569b637081002e4c563c3276cbebc26b0a4c992a551d4e811419602e",
+      "matches_frozen": false
+    },
+    {
+      "name": "MountainStill-update.json",
+      "size": 572,
+      "sha256": "a0d7ebcd698a9508fddc62b71a410cfbfe2d5f5c265f30f4eabccc4746087ece",
+      "matches_frozen": false
+    },
+    {
+      "name": "MountainStill-v1.3.41-Public-Source.zip",
+      "size": 156558232,
+      "sha256": "d9e15e4b89bda2ddd406305c9e9f48c534c4f41eaec56606a77ba961460b3615",
+      "matches_frozen": false
+    },
+    {
+      "name": "MountainStill-v1.3.41-Windows-x86_64.zip",
+      "size": 114644086,
+      "sha256": "42e1ab7693da07096f01022af7f31452050b4b23c36e2480cf3bc07f586fb8eb",
+      "matches_frozen": false
+    },
+    {
+      "name": "MountainStill-v1.3.41-macOS-Universal.zip",
+      "size": 141375750,
+      "sha256": "30e746c6a5ade127de8aa4edab12a31a2fb5c9bdd2c79f45e3fab6de09367101",
+      "matches_frozen": false
+    },
+    {
+      "name": "MountainStill-windows.pck",
+      "size": 78538004,
+      "sha256": "f5f3897f569b637081002e4c563c3276cbebc26b0a4c992a551d4e811419602e",
+      "matches_frozen": false
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 595,
+      "sha256": "d0b6d392b18cb4c69386fbca59e76ccd190fdfb668abded2bb7108276e0dcc3b",
+      "matches_frozen": false
+    }
+  ],
+  "status": "REBUILT_CANDIDATE_NOT_RELEASED",
+  "scope": "Linux export/structure/CRC only; not native Windows/macOS execution",
+  "requires": "Every differing SHA is a new candidate requiring renewed acceptance; native driver pins still refer to the frozen original ZIPs."
+}

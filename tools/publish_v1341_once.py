@@ -15,7 +15,7 @@ SLUG = "lemoncat7/MountainStill"
 RELEASE_ID = 445113228
 PREVIOUS_LATEST = "v1.3.40"
 EXPECTED_MAIN = "8d5cd78fcca920996ed4323467fcf62402f7f30b"
-EXECUTION_REF = "refs/heads/ci/v1.3.41-publish-retry"
+EXECUTION_REF = "refs/heads/ci/v1.3.41-publish-draft"
 BASE = f"https://api.github.com/repos/{SLUG}"
 ONE = f"/releases/{RELEASE_ID}"
 NOTES = """本版改进换装比较：第 3 页显示战斗真气上限和每秒回气，并与吐纳修为区分。
@@ -136,13 +136,27 @@ def anonymous_pages(expected_status):
         require(code == expected_status, f"Anonymous official page {path}: expected {expected_status}, got {code}")
         print(f"ANONYMOUS_WEB: {path} HTTP {code}", flush=True)
 
-def draft_invisible():
-    anonymous_pages(404)
+def private_asset_unavailable(name, token, staged):
+    # The public tag remains visible. Probe only the actual uploaded binary URL.
+    url = f"https://github.com/{SLUG}/releases/download/{TAG}/{name}"
+    try:
+        with OPENER.open(Request(url, headers=headers()), timeout=45) as response:
+            response.read(1)
+        raise ValueError("Draft asset URL returned a successful response; stop before manifest")
+    except HTTPError as error:
+        require(error.code in (401, 403, 404), f"Unexpected anonymous asset response: {error.code}")
+        kind = "unavailable"
+        if error.code == 403:
+            body = error.read(4096).decode("utf-8", errors="replace").lower()
+            limited = error.headers.get("X-RateLimit-Remaining") == "0" or "rate limit" in body
+            kind = "rate-limited (not visibility proof)" if limited else "denied/ambiguous (not visibility proof)"
+        state(token, draft=True, prerelease=True, names=staged)
+        print(f"ANONYMOUS_ASSET: {name} HTTP {error.code}; {kind}; authenticated draft confirmed", flush=True)
 
 def preflight(token):
     reference(token)
     previous_latest(token)
-    state(token, draft=False, prerelease=True, names=())
+    state(token, draft=True, prerelease=True, names=())
     print("Authenticated read-only preflight passed; no mutation", flush=True)
 
 def publish(root, report, token):
@@ -152,18 +166,12 @@ def publish(root, report, token):
     require(ASSETS[-1] == MANIFEST, "Manifest must upload last")
     reference(token)
     previous_latest(token)
-    state(token, draft=False, prerelease=True, names=())
-    print("STAGE: convert exact empty prerelease to private draft", flush=True)
-    changed = api(ONE, token, {"draft": True})
-    require(changed["draft"] is True and changed["prerelease"] is True, "Published prerelease could not be converted to draft")
     state(token, draft=True, prerelease=True, names=())
-    draft_invisible()
-    previous_latest(token)
+    print("STAGE: resume exact empty draft; no conversion", flush=True)
     staged = []
     for name in ASSETS:
         if name == MANIFEST:
             reference(token)
-            draft_invisible()
             current = state(token, draft=True, prerelease=True, names=staged)
             for n in staged:
                 metadata(current[n], n, expected[n])
@@ -171,11 +179,12 @@ def publish(root, report, token):
         asset = upload(root / name, token, expected[name])
         readback(asset, name, expected[name], token)
         staged.append(name)
+        if len(staged) == 1:
+            private_asset_unavailable(name, token, staged)
         print(f"Private draft asset verified: {name} {expected[name]['sha256']}", flush=True)
     assets = state(token, draft=True, prerelease=True, names=ASSETS)
     for name in ASSETS:
         metadata(assets[name], name, expected[name])
-    draft_invisible()
     reference(token)
     previous_latest(token)
     run_url = f"https://github.com/{SLUG}/actions/runs/{os.environ["GITHUB_RUN_ID"]}"

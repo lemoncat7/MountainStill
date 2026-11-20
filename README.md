@@ -1,10 +1,10 @@
-# v1.3.41 · 战气比较验收候选（2026-11-14）
+# 山隐 v1.3.41 正式版（2026-11-20）
 
-本轮增量已合入主线：换装比较增加「战斗真气上限 / 战斗回气」一页，明确区别于吐纳修为。普通回归无新增失败；两条旧剑节奏失败保留。完整敏感性、实际包载荷、旧载荷升级、有界稳定性与三平台源码CI通过，详见[完整验收记录](docs/ITERATION-2026-11-14-ACCEPTANCE.md)。
+**[下载 v1.3.41](https://github.com/lemoncat7/MountainStill/releases/tag/v1.3.41)**。本版已是 GitHub 最新正式版，提供 Windows x86_64、macOS Universal 安装包、完整源码、两个平台的更新 PCK、更新清单和校验文件。
 
-**正式交付未完成。** [v1.3.41预发布页](https://github.com/lemoncat7/MountainStill/releases/tag/v1.3.41)资产上传401，复查资产为0；Library保存受网络403阻断，尚无本轮ID。Windows/macOS包已在本地构建校验，但不能公开下载安装，目标平台同字节安装包验收尚未执行。Latest仍为v1.3.40，不将本轮虚标正式。
+换装比较第 3 页新增「战斗真气上限」与「战斗回气 / 秒」，与吐纳修为分开显示。打开比较或翻页不会自动换装，也不会消耗资源。
 
-保留已接受美术、比例、字体、透明桌面、战斗规则、存档及更新兼容。源码headless与软件图形不等于物理GPU、真实音频、全部DPI/多屏及长期混战通过；Windows黑底仍未证实修复。
+公开附件由 [GitHub Actions](https://github.com/lemoncat7/MountainStill/actions/runs/44690260322) 从固定标签提交 `121ff2517188a28d3b89cfa6ce9a5faf3ce3d879` 重新构建，七件附件均通过公开下载 SHA-256 复核。Windows/macOS 实际安装、启动及界面验收尚待补做，Windows 物理 GPU 上的黑底也未证实修复。Windows 未发行商签名，macOS 未经 Apple 公证。此前[验收记录](docs/ITERATION-2026-11-14-ACCEPTANCE.md)是源码与早期候选包的历史记录，不能作为本次公开包的原生验收结论。
 
 以下为上版与历史记录。
 

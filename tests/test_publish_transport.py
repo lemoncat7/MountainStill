@@ -17,19 +17,28 @@ class Transport(unittest.TestCase):
     def test_missing_remote_digest_refused(self):
         with self.assertRaises(ValueError):p.metadata({'name':'x','size':2,'state':'uploaded'},'x',{'size':2,'sha256':'a'*64})
     def test_visible_draft_stops(self):
-        with patch.object(p,'api',return_value={'id':p.RELEASE_ID}),self.assertRaisesRegex(ValueError,'publicly accessible'):p.draft_invisible()
+        from unittest.mock import MagicMock
+        response=MagicMock();response.__enter__.return_value=response;response.status=200
+        response.geturl.return_value=f'https://github.com/{p.SLUG}/releases/tag/{p.TAG}'
+        with patch.object(p.OPENER,'open',return_value=response),self.assertRaisesRegex(ValueError,'expected 404'):
+            p.draft_invisible()
     def test_two_anonymous_404_required(self):
-        with patch.object(p,'api',side_effect=HTTPError('url',404,'',{},None)) as api:
-            p.draft_invisible();self.assertEqual(api.call_count,2)
-            self.assertTrue(all(len(c.args)==1 for c in api.call_args_list))
+        requests=[]
+        def missing(req,**kwargs):
+            requests.append(req)
+            raise HTTPError(req.full_url,404,'',{},None)
+        with patch.object(p.OPENER,'open',side_effect=missing):p.draft_invisible()
+        self.assertEqual(len(requests),2)
+        self.assertTrue(all('Authorization' not in dict(r.header_items()) for r in requests))
     def test_auth_error_not_treated_as_private(self):
-        with patch.object(p,'api',side_effect=HTTPError('url',403,'',{},None)),self.assertRaises(HTTPError):p.draft_invisible()
+        def forbidden(req,**kwargs):raise HTTPError(req.full_url,403,'',{},None)
+        with patch.object(p.OPENER,'open',side_effect=forbidden),self.assertRaisesRegex(ValueError,'got 403'):p.draft_invisible()
     def test_local_failure_before_any_network(self):
         with patch.object(p,'verify',side_effect=ValueError('invalid')),patch.object(p,'api') as api:
             with self.assertRaises(ValueError):p.publish(Path('/none'),Path('/none/report'),'dummy')
             api.assert_not_called()
     def test_wrong_main_refused(self):
-        with patch.object(p,'api',return_value={'object':{'sha':'0'*40}}),self.assertRaisesRegex(ValueError,'Main'):p.reference()
+        with patch.object(p,'api',return_value={'object':{'sha':'0'*40}}),self.assertRaisesRegex(ValueError,'Main'):p.reference("dummy")
     def test_extra_asset_refused(self):
         with self.assertRaises(ValueError):p.uploaded_assets({'assets':[{'name':'foreign.zip'}]})
     def test_upload_error_stops_without_retry_or_promotion(self):
@@ -49,6 +58,7 @@ class PublishFlow(unittest.TestCase):
         release={'id':p.RELEASE_ID,'tag_name':p.TAG,'draft':False,'prerelease':True,'assets':[]}
         events=[]
         def api(path,token='',payload=None):
+            self.assertEqual(token,'dummy', 'REST metadata must be authenticated')
             if path=='/git/ref/heads/main':return {'object':{'sha':p.EXPECTED_MAIN}}
             if path==f'/git/ref/tags/{p.TAG}':return {'object':{'type':'commit','sha':p.SOURCE}}
             if path=='/releases/latest':return {'id':p.RELEASE_ID if not release['prerelease'] else 444007588,'tag_name':p.TAG if not release['prerelease'] else p.PREVIOUS_LATEST,'draft':False,'prerelease':False}
@@ -64,10 +74,12 @@ class PublishFlow(unittest.TestCase):
         def readback(asset,name,wanted,token=''):
             events.append(('read',name,bool(token)))
             if readback_fails:raise ValueError('readback mismatch')
-        with patch.object(p,'verify',return_value=expected),patch.object(p,'api',side_effect=api),patch.object(p,'upload',side_effect=upload),patch.object(p,'readback',side_effect=readback),patch.dict(p.os.environ,{'GITHUB_RUN_ID':'123'}):
+        with patch.object(p,'verify',return_value=expected),patch.object(p,'api',side_effect=api),patch.object(p,'upload',side_effect=upload),patch.object(p,'readback',side_effect=readback),patch.object(p,'anonymous_pages') as pages,patch.dict(p.os.environ,{'GITHUB_RUN_ID':'123'}):
             if readback_fails:
                 with self.assertRaisesRegex(ValueError,'readback mismatch'):p.publish(Path('/none'),Path('/none/report'),'dummy')
             else:p.publish(Path('/none'),Path('/none/report'),'dummy')
+        if not readback_fails:
+            self.assertEqual(pages.call_args_list[-1].args,(200,))
         return events,release
     def test_full_order_and_public_verification(self):
         events,release=self.exercise()
@@ -87,3 +99,11 @@ class PublishFlow(unittest.TestCase):
         asset={'name':'x','size':1,'state':'uploaded','digest':'sha256:'+'a'*64,'id':1}
         with patch.object(p.OPENER,'open',return_value=io.BytesIO(b'b')),self.assertRaisesRegex(ValueError,'digest mismatch'):
             p.readback(asset,'x',{'size':1,'sha256':'a'*64},'dummy')
+
+class Preflight(unittest.TestCase):
+    def test_preflight_only_read_auth(self):
+        with patch.object(p,'reference') as refs,patch.object(p,'previous_latest') as latest,patch.object(p,'state') as state,patch.object(p,'upload') as upload,patch.object(p,'api') as api:
+            p.preflight('dummy')
+            refs.assert_called_once_with('dummy');latest.assert_called_once_with('dummy')
+            state.assert_called_once_with('dummy',draft=False,prerelease=True,names=())
+            upload.assert_not_called();api.assert_not_called()

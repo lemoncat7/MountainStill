@@ -15,7 +15,7 @@ SLUG = "lemoncat7/MountainStill"
 RELEASE_ID = 445113228
 PREVIOUS_LATEST = "v1.3.40"
 EXPECTED_MAIN = "8d5cd78fcca920996ed4323467fcf62402f7f30b"
-EXECUTION_REF = "refs/heads/ci/v1.3.41-publish-once"
+EXECUTION_REF = "refs/heads/ci/v1.3.41-publish-retry"
 BASE = f"https://api.github.com/repos/{SLUG}"
 ONE = f"/releases/{RELEASE_ID}"
 NOTES = """本版改进换装比较：第 3 页显示战斗真气上限和每秒回气，并与吐纳修为区分。
@@ -64,11 +64,11 @@ def uploaded_assets(release):
     require(len(entries) == len(raw) and all(n in ASSETS for n in entries), "Foreign or duplicate release assets")
     return entries
 
-def reference():
-    require(api("/git/ref/heads/main")["object"]["sha"] == EXPECTED_MAIN, "Main reference changed")
-    ref = api(f"/git/ref/tags/{TAG}")["object"]
+def reference(token):
+    require(api("/git/ref/heads/main", token)["object"]["sha"] == EXPECTED_MAIN, "Main reference changed")
+    ref = api(f"/git/ref/tags/{TAG}", token)["object"]
     if ref["type"] == "tag":
-        ref = api("/git/tags/" + ref["sha"])["object"]
+        ref = api("/git/tags/" + ref["sha"], token)["object"]
     require(ref["type"] == "commit" and ref["sha"] == SOURCE, "Release tag moved")
 
 def state(token, *, draft, prerelease, names):
@@ -119,38 +119,50 @@ def readback(asset, name, expected, token=""):
     require(size == expected["size"] and sha.hexdigest() == expected["sha256"],
             f"Readback digest mismatch: {name}")
 
-def previous_latest():
-    require(api("/releases/latest")["tag_name"] == PREVIOUS_LATEST, "Latest changed from v1.3.40")
+def previous_latest(token):
+    require(api("/releases/latest", token)["tag_name"] == PREVIOUS_LATEST, "Latest changed from v1.3.40")
+
+def anonymous_pages(expected_status):
+    # Official web endpoints, explicitly unauthenticated; never REST token evidence.
+    for path in (f"/releases/tag/{TAG}", f"/releases/expanded_assets/{TAG}"):
+        url = f"https://github.com/{SLUG}" + path
+        try:
+            with OPENER.open(Request(url, headers=headers()), timeout=45) as response:
+                require(response.geturl() == url, "Anonymous page redirected unexpectedly")
+                code = response.status
+        except HTTPError as error:
+            require(error.url == url, "Anonymous error came from another destination")
+            code = error.code
+        require(code == expected_status, f"Anonymous official page {path}: expected {expected_status}, got {code}")
+        print(f"ANONYMOUS_WEB: {path} HTTP {code}", flush=True)
 
 def draft_invisible():
-    # Query without auth; a public asset-bearing prerelease is unacceptable.
-    for path in (f"/releases/tags/{TAG}", ONE):
-        try:
-            api(path)
-        except HTTPError as e:
-            if e.code == 404:
-                continue
-            raise
-        raise ValueError("Draft still publicly accessible; refusing asset writes")
+    anonymous_pages(404)
+
+def preflight(token):
+    reference(token)
+    previous_latest(token)
+    state(token, draft=False, prerelease=True, names=())
+    print("Authenticated read-only preflight passed; no mutation", flush=True)
 
 def publish(root, report, token):
     print("STAGE: offline candidate verification", flush=True)
     expected = verify(root, report)
     print(json.dumps(expected, sort_keys=True), flush=True)
     require(ASSETS[-1] == MANIFEST, "Manifest must upload last")
-    reference()
-    previous_latest()
+    reference(token)
+    previous_latest(token)
     state(token, draft=False, prerelease=True, names=())
     print("STAGE: convert exact empty prerelease to private draft", flush=True)
     changed = api(ONE, token, {"draft": True})
     require(changed["draft"] is True and changed["prerelease"] is True, "Published prerelease could not be converted to draft")
     state(token, draft=True, prerelease=True, names=())
     draft_invisible()
-    previous_latest()
+    previous_latest(token)
     staged = []
     for name in ASSETS:
         if name == MANIFEST:
-            reference()
+            reference(token)
             draft_invisible()
             current = state(token, draft=True, prerelease=True, names=staged)
             for n in staged:
@@ -164,8 +176,8 @@ def publish(root, report, token):
     for name in ASSETS:
         metadata(assets[name], name, expected[name])
     draft_invisible()
-    reference()
-    previous_latest()
+    reference(token)
+    previous_latest(token)
     run_url = f"https://github.com/{SLUG}/actions/runs/{os.environ["GITHUB_RUN_ID"]}"
     body = NOTES + "\n本次构建与公开下载核验：" + run_url + "\n\n```text\n" + "".join(expected[n]["sha256"] + "  " + n + "\n" for n in ASSETS) + "```\n"
     print("STAGE: promote seven verified draft assets to public Latest", flush=True)
@@ -173,24 +185,26 @@ def publish(root, report, token):
                              "name": "山隐 v1.3.41 · 正式版", "body": body})
     require(result["id"] == RELEASE_ID and result["draft"] is False and result["prerelease"] is False,
             "Promotion was not confirmed; check actual remote state, do not retry blindly")
-    latest = api("/releases/latest")
+    latest = api("/releases/latest", token)
     require(latest["id"] == RELEASE_ID and latest["tag_name"] == TAG
             and not latest["draft"] and not latest["prerelease"], "Public Latest does not confirm promotion")
-    public = api(f"/releases/tags/{TAG}")
+    public = api(f"/releases/tags/{TAG}", token)
     assets = uploaded_assets(public)
     require(public["id"] == RELEASE_ID and not public["draft"] and not public["prerelease"]
             and set(assets) == set(ASSETS), "Public release metadata does not match the final release")
+    anonymous_pages(200)
     for name in ASSETS:
         readback(assets[name], name, expected[name])
         print(f"Anonymous public download verified: {name} {expected[name]['sha256']}", flush=True)
-    reference()
-    require(api("/releases/latest")["id"] == RELEASE_ID, "Latest changed during public verification")
+    reference(token)
+    require(api("/releases/latest", token)["id"] == RELEASE_ID, "Latest changed during public verification")
     print("Verified public Latest v1.3.41, exact source and all seven published assets.")
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("directory", type=Path)
-    ap.add_argument("build_report", type=Path)
+    ap.add_argument("directory", type=Path, nargs="?")
+    ap.add_argument("build_report", type=Path, nargs="?")
+    ap.add_argument("--preflight", action="store_true")
     args = ap.parse_args()
     require(os.getenv("GITHUB_ACTIONS") == "true" and os.getenv("RUNNER_ENVIRONMENT") == "github-hosted"
             and os.getenv("GITHUB_REPOSITORY") == SLUG and os.getenv("GITHUB_EVENT_NAME") == "push"
@@ -201,4 +215,8 @@ if __name__ == "__main__":
             and event.get("repository", {}).get("private") is False, "Only first execution-branch creation")
     token = os.environ["GH_TOKEN"]
     require(token, "Missing built-in token")
-    publish(args.directory, args.build_report, token)
+    if args.preflight:
+        preflight(token)
+    else:
+        require(args.directory is not None and args.build_report is not None, "Candidate paths required")
+        publish(args.directory, args.build_report, token)

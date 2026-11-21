@@ -50,8 +50,9 @@ func test_contact_envelopes()->void:
 		var first:Dictionary=Impact.reaction(profile,0.0)
 		var transfer:Dictionary=Impact.reaction(profile,duration*.30)
 		var settle:Dictionary=Impact.reaction(profile,duration*.55)
-		expect(first.impulse>0.0 and first.recoil==0.0 and first.followthrough==0.0,"compression starts at real contact without advance recoil")
-		expect(transfer.recoil>first.recoil and transfer.impulse<first.impulse,"load transfers after the catch")
+		expect(first.impulse==0.0 and first.recoil==0.0 and first.followthrough==0.0,"contact begins without an instantaneous joint jump")
+		var loaded:Dictionary=Impact.reaction(profile,minf(.020,duration*.10))
+		expect(transfer.recoil>first.recoil and transfer.impulse<loaded.impulse,"load transfers after the catch")
 		expect(settle.impulse==0.0 and settle.followthrough>0.0,"loose limbs settle after compression")
 		for invalid_age in [-.1,duration,duration+1.0,NAN]:
 			var empty:Dictionary=Impact.reaction(profile,invalid_age)

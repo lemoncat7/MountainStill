@@ -1,3 +1,11 @@
+# 山隐 v1.3.42 · 接触受力渐入
+
+本轮源码修复命中／格挡时头肩局部反应的瞬时跳变，增加最多20ms的平滑受力过渡，保留原有战斗节奏与人物比例。版本包由固定main标签在CI构建，完整校验后公开；最终状态见[最新发行页](https://github.com/lemoncat7/MountainStill/releases/latest)，验收范围见[本轮说明](docs/CONTACT-ONSET-v1.3.42.md)。Windows/macOS原生验收尚待补做。
+
+以下为上一版发布记录。
+
+---
+
 # 山隐 v1.3.41 正式版（2026-11-20）
 
 **[下载 v1.3.41](https://github.com/lemoncat7/MountainStill/releases/tag/v1.3.41)**。本版已是 GitHub 最新正式版，提供 Windows x86_64、macOS Universal 安装包、完整源码、两个平台的更新 PCK、更新清单和校验文件。

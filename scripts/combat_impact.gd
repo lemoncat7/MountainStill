@@ -263,7 +263,11 @@ static func reaction(profile: Dictionary, age: float) -> Dictionary:
 		return empty
 	var magnitude := float(profile.get("reaction_magnitude", 0.0))
 	var amount := 1.0 - smoothstep(duration * 0.15, duration, age)
-	var impulse := 1.0 - smoothstep(duration * 0.10, duration * 0.55, age)
+	# Build local compression over the first ~one frame instead of snapping
+	# head/shoulder joints at age zero. Contact, hitstop and recovery clocks
+	# remain unchanged; this envelope is consumed only by render articulation.
+	var onset := smoothstep(0.0, minf(0.020, duration * 0.10), age)
+	var impulse := onset * (1.0 - smoothstep(duration * 0.10, duration * 0.55, age))
 	var recoil := smoothstep(0.0, minf(0.055, duration * 0.18), age) * amount
 	var followthrough := smoothstep(duration * 0.12, duration * 0.40, age) * (1.0 - smoothstep(duration * 0.48, duration, age))
 	var kind := str(profile.get("kind", "light"))

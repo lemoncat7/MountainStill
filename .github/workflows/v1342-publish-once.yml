@@ -1,0 +1,66 @@
+name: v1.3.42 build and publish once
+on:
+  push:
+    branches: [ci/v1.3.42-publish-once]
+permissions: {}
+concurrency:
+  group: v1342-publish-once
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.repository == 'lemoncat7/MountainStill' && github.event.repository.private == false && github.event.created == true && github.run_attempt == 1 && github.ref == 'refs/heads/ci/v1.3.42-publish-once'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 42
+    permissions:
+      contents: write
+    steps:
+      - name: Fetch exact public triggering commit anonymously
+        shell: bash
+        env:
+          TRIGGER_SHA: ${{ github.sha }}
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          set -euo pipefail
+          [[ "$TRIGGER_SHA" =~ ^[0-9a-f]{40}$ ]]
+          git init -q preparation
+          git -C preparation -c credential.helper= fetch --depth=1 https://github.com/lemoncat7/MountainStill.git "$TRIGGER_SHA"
+          git -C preparation checkout --detach FETCH_HEAD
+          test "$(git -C preparation rev-parse HEAD)" = "$TRIGGER_SHA"
+      - name: Offline safety tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3.12 --version
+          PYTHONPATH=preparation/tools python3.12 -m unittest discover -s preparation/tests -p 'test_publish_*.py' -v
+      - name: Authenticated read-only release preflight
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3.12 preparation/tools/publish_v1342_once.py --preflight
+      - name: Build exact tagged source once with verified toolchain
+        shell: bash
+        run: |
+          python3.12 preparation/tools/rebuild_v1342_artifact.py \
+            --workspace "$RUNNER_TEMP/v1342-publish-build" \
+            --cache "$RUNNER_TEMP/v1342-download-cache" --repetitions 1
+      - name: Validate local seven-file candidate before network writes
+        shell: bash
+        run: |
+          python3.12 preparation/tools/verify_candidate.py \
+            "$RUNNER_TEMP/v1342-publish-build/artifact" \
+            "$RUNNER_TEMP/v1342-publish-build/artifact/REBUILD-STATUS.json"
+      - name: Verify actual previous-client payload upgrades on Linux
+        shell: bash
+        run: |
+          python3.12 preparation/tools/qa_v1342_compat.py \
+            "$RUNNER_TEMP/v1342-publish-build/artifact" \
+            "$RUNNER_TEMP/v1342-previous-client" \
+            --godot "$RUNNER_TEMP/v1342-publish-build/run-1/bin/godot"
+      - name: Stage privately, verify bytes, publish, and verify anonymous downloads
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3.12 preparation/tools/publish_v1342_once.py \
+            "$RUNNER_TEMP/v1342-publish-build/artifact" \
+            "$RUNNER_TEMP/v1342-publish-build/artifact/REBUILD-STATUS.json"

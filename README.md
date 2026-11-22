@@ -1,3 +1,9 @@
+# 山隐 v1.3.43 · 破势反馈
+
+真实破势现在会在双方伤害浮字中明确标注；护盾完全吸收时同时保留护盾提示。数字沿用原字体，中文结果使用已有中文字体。战斗时序、数值与受击渐入不变。
+
+源码迭代与验收边界见 [本版说明](docs/POISE-FEEDBACK-v1.3.43.md)。安装包和最终发行状态以 [GitHub Latest](https://github.com/lemoncat7/MountainStill/releases/latest) 为准。
+
 # 山隐 v1.3.42 · 接触受力渐入
 
 本轮源码修复命中／格挡时头肩局部反应的瞬时跳变，增加最多20ms的平滑受力过渡，保留原有战斗节奏与人物比例。版本包由固定main标签在CI构建，完整校验后公开；最终状态见[最新发行页](https://github.com/lemoncat7/MountainStill/releases/latest)，验收范围见[本轮说明](docs/CONTACT-ONSET-v1.3.42.md)。Windows/macOS原生验收尚待补做。

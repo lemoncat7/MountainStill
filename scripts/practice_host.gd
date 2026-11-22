@@ -3,7 +3,7 @@ extends RefCounted
 const Session = preload("res://scripts/practice_session.gd")
 const Loadout = preload("res://scripts/practice_loadout.gd")
 const Content = preload("res://scripts/cultivation_content.gd")
-const FIELDS := ["duel", "paused", "encounter_active", "encounter_phase", "encounter_phase_age", "encounter_clock", "world_route", "route_distance", "route_scroll_velocity", "route_frame_velocity", "route_boss", "encounter_index", "encounter_enemy_x", "encounter_enemy_name", "encounter_stage_name", "encounter_enemy_attack", "encounter_enemy_defense", "enemy_hp", "enemy_max_hp", "enemy_flash", "enemy_defeat", "vitality", "vitality_max", "duel_pose", "side_motion", "walk_motion", "character_x", "character_y", "meditation_amount", "meditation_settle", "meditation_phase", "practice_time", "cast_blend", "combat_impacts", "combat_hitstop", "hero_hit", "combat_number_time", "combat_number", "duel_resolution", "hero_resolution", "hero_damage", "hero_support_text", "hero_support_time", "route_enemy_definition"]
+const FIELDS := ["duel", "paused", "encounter_active", "encounter_phase", "encounter_phase_age", "encounter_clock", "world_route", "route_distance", "route_scroll_velocity", "route_frame_velocity", "route_boss", "encounter_index", "encounter_enemy_x", "encounter_enemy_name", "encounter_stage_name", "encounter_enemy_attack", "encounter_enemy_defense", "enemy_hp", "enemy_max_hp", "enemy_flash", "enemy_defeat", "vitality", "vitality_max", "duel_pose", "side_motion", "walk_motion", "character_x", "character_y", "meditation_amount", "meditation_settle", "meditation_phase", "practice_time", "cast_blend", "combat_impacts", "combat_hitstop", "hero_hit", "combat_number_time", "combat_number", "duel_resolution", "hero_resolution", "hero_poise_broken", "hero_damage", "hero_support_text", "hero_support_time", "route_enemy_definition"]
 
 # Preserve keyboard intent only when a practice control already owned focus.
 # Pending targets are actual instances, so a later rebuild cannot revive a stale key.
@@ -102,7 +102,7 @@ static func start(h, enemy_id: String) -> bool:
 	h.enemy_hp = float(enemy.hp); h.enemy_max_hp = float(enemy.hp); h.enemy_flash = 0.0; h.enemy_defeat = 0.0
 	h.vitality_max = float(hero.get("max_hp", 100)); h.vitality = h.vitality_max
 	h.meditation_amount = 0.0; h.meditation_settle = 0.0; h.meditation_phase = "standing"; h.practice_time = 0.0
-	h.cast_blend = 0.0; h.combat_impacts.clear(); h.combat_hitstop = 0.0; h.hero_hit = 0.0; h.combat_number_time = 0.0; h.hero_support_time = 0.0
+	h.cast_blend = 0.0; h.combat_impacts.clear(); h.combat_hitstop = 0.0; h.hero_hit = 0.0; h.hero_poise_broken = false; h.combat_number_time = 0.0; h.hero_support_time = 0.0
 	h.duel_pose = session.pose(); h.side_motion = {"facing": 1.0, "blend": 0.0, "phase": 0.0}; h.side_motion.merge(h.duel_pose.get("hero", {}), true)
 	if is_instance_valid(h.character_preview): h.character_preview.visible = false
 	controls(h)

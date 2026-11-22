@@ -26,8 +26,11 @@ func run():
 	var character_x = scene.character_x
 	for is_paused in [false, true]:
 		scene.paused = is_paused
+		scene.hero_poise_broken = is_paused
+		var formal_text:String = scene._hero_damage_text()
 		before = snapshot()
 		check(scene.start_practice("bamboo_sprite"), "start practice paused=" + str(is_paused))
+		check(not scene.hero_poise_broken, "practice starts without formal break label")
 		check(scene.duel != formal_duel, "independent real engine")
 		check(not scene._save_current(), "save blocked during practice")
 		scene._persist_battle_resources()
@@ -52,7 +55,9 @@ func run():
 		check(snapshot() == before, "full formal save unchanged after trial")
 		check(scene.start_practice("bamboo_sprite"), "repeat finished trial")
 		for i in range(3): scene._process(.1)
+		scene.hero_poise_broken = not is_paused # Exercise restoring both possible presentation states.
 		scene.end_practice()
+		check(scene.hero_poise_broken == is_paused and scene._hero_damage_text() == formal_text, "formal break flag and label restored")
 		check(scene.practice_session == null, "end releases session")
 		check(scene.duel == formal_duel, "formal engine restored")
 		check(scene.character_x == character_x and scene.paused == is_paused, "presentation and pause restored")

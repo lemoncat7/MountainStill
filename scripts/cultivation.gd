@@ -163,6 +163,7 @@ var battle_resources:Dictionary={}
 var duel_resolution=""
 var combat_report_saved := false
 var hero_resolution=""
+var hero_poise_broken=false
 var sidewalker=CharacterSidewalk.new()
 var side_motion:Dictionary={}
 const ROUTE_HERO_X=390.0
@@ -1575,6 +1576,7 @@ func _present_duel_contact(event:Dictionary):
 	if str(event.target)=="enemy":
 		duel_resolution=str(event.resolution);enemy_flash=1.0 if int(event.damage)>0 else 0.0
 		combat_number=("反击 −" if bool(event.get("counter",false)) and str(event.resolution)=="hit" and int(event.damage)>0 else ("闪避 " if event.resolution=="dodge" else ("格挡 " if event.resolution=="guard" else "")))+str(event.damage)
+		if bool(event.get("poise_broken",false)):combat_number="破势 −%d"%int(event.damage)
 		combat_number_time=0.0 if event.resolution=="whiff" else .8
 	elif str(event.get("actor",""))=="hero":
 		if int(event.get("heal",0))>0:
@@ -1582,10 +1584,17 @@ func _present_duel_contact(event:Dictionary):
 		elif int(event.get("shield_added",0))>0:
 			hero_support_text="护身 +%d"%int(event.shield_added);hero_support_time=.9
 	else:
+		hero_poise_broken=bool(event.get("poise_broken",false))
 		hero_resolution="shield" if float(event.get("shield_absorbed",0.0))>0 and int(event.damage)==0 else str(event.resolution)
 		hero_hit=0.0 if str(event.resolution)=="whiff" else 1.0;hero_damage=int(event.damage)
 		if str(event.resolution)=="guard" and bool(event.get("counter_earned",false)) and not bool(event.get("poise_broken",false)):
 			hero_support_text="卸力 · 反击";hero_support_time=.9
+
+# Display only: shield absorption and posture interruption are independent outcomes.
+func _hero_damage_text()->String:
+	if hero_poise_broken:
+		return "破势 · 护盾" if hero_resolution=="shield" else "破势 −%d"%hero_damage
+	return "闪避 0" if hero_resolution=="dodge" else ("护盾" if hero_resolution=="shield" else (("格挡 " if hero_resolution=="guard" else "")+"−%d"%hero_damage))
 
 func _complete_duel():
 	_record_combat_report("victory")
@@ -2201,14 +2210,14 @@ func _draw_encounter(feet:Vector2):
 			_center(("镇关 · " if route_boss else "精怪 · ")+encounter_enemy_name,nameplate,10,Color("775039"))
 			_draw_hud_paper(Rect2(p+Vector2(-20,14),Vector2(44,20)))
 			_text("%d / 3"%(encounter_index+1),p+Vector2(-13,28),10,Color("52634d"),SERIF)
-		if combat_number_time>0:_text(combat_number,p+Vector2(1,-104-(.8-combat_number_time)*18),16,Color(.98,.98,.8,combat_number_time/.8),LATIN)
+		if combat_number_time>0:_text(combat_number,p+Vector2(1,-104-(.8-combat_number_time)*18),16,Color(.98,.98,.8,combat_number_time/.8),LATIN if combat_number.is_valid_int() else SANS)
 		if encounter_phase=="pickup":_draw_search_feedback(feet,p)
 	feet+=Vector2(float(CharacterSidewalk.approach_footwork(side_motion).root),0)
 	if encounter_active:
 		draw_line(feet+Vector2(-24,13),feet+Vector2(24,13),Color(.30,.41,.31,.15),2,true)
 		draw_line(feet+Vector2(-24,13),feet+Vector2(-24+48*vitality/maxf(1.0,vitality_max),13),Color(.52,.64,.47,.65),2,true)
 	if hero_hit>0 and encounter_active:
-		_text("闪避 0" if hero_resolution=="dodge" else ("护盾" if hero_resolution=="shield" else (("格挡 " if hero_resolution=="guard" else "")+"−%d"%hero_damage)),feet+Vector2(-44,-72-(1-hero_hit)*15),12,Color(.82,.55,.39,hero_hit),SANS)
+		_text(_hero_damage_text(),feet+Vector2(-44,-72-(1-hero_hit)*15),12,Color(.82,.55,.39,hero_hit),SANS)
 	if hero_support_time>0 and encounter_active:
 		var support_alpha:float=minf(1.0,hero_support_time/.25)
 		if hero_support_text=="卸力 · 反击":

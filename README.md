@@ -4,6 +4,12 @@
 
 源码迭代与验收边界见 [本版说明](docs/POISE-FEEDBACK-v1.3.43.md)。安装包和最终发行状态以 [GitHub Latest](https://github.com/lemoncat7/MountainStill/releases/latest) 为准。
 
+首次安装：从 [GitHub Latest](https://github.com/lemoncat7/MountainStill/releases/latest) 下载对应 Windows / macOS 完整包。已有安装：打开「山 → 版本更新」，按当前界面选择「正式频道 · 只看稳定版本」或「测试频道 · 含测试版和正式版」，依次检查、下载，再「保存并重启应用」。测试频道可能提供测试包，请按需要选择。
+
+游戏内更新不会替换已安装的更新器；涉及更新器改进等完整安装例外，见[完整包与已有更新记录说明](UPDATE_RATE_LIMIT.md#已有游戏内更新记录时安装完整包)。保留存档和合法更新记录，不要手动删除用户目录。
+
+2026-11-23 的源码维护仅修复连续演示准备器的手动成长与搜寻步骤，并补充明确的无头事件审计入口；不改变游戏版本、不重新打包。当前结果与旧录像边界见[连续交锋验证](docs/CONTINUOUS_COMBAT_DEMO_QA.md)。
+
 # 山隐 v1.3.42 · 接触受力渐入
 
 本轮源码修复命中／格挡时头肩局部反应的瞬时跳变，增加最多20ms的平滑受力过渡，保留原有战斗节奏与人物比例。版本包由固定main标签在CI构建，完整校验后公开；最终状态见[最新发行页](https://github.com/lemoncat7/MountainStill/releases/latest)，验收范围见[本轮说明](docs/CONTACT-ONSET-v1.3.42.md)。Windows/macOS原生验收尚待补做。
@@ -14,7 +20,7 @@
 
 # 山隐 v1.3.41 正式版（2026-11-20）
 
-**[下载 v1.3.41](https://github.com/lemoncat7/MountainStill/releases/tag/v1.3.41)**。本版已是 GitHub 最新正式版，提供 Windows x86_64、macOS Universal 安装包、完整源码、两个平台的更新 PCK、更新清单和校验文件。
+**[下载 v1.3.41](https://github.com/lemoncat7/MountainStill/releases/tag/v1.3.41)**。该版于 2026-11-20 发布并曾设为 Latest；当前版本请以上方 Latest 入口为准。该历史发行提供 Windows x86_64、macOS Universal 安装包、完整源码、两个平台的更新 PCK、更新清单和校验文件。
 
 换装比较第 3 页新增「战斗真气上限」与「战斗回气 / 秒」，与吐纳修为分开显示。打开比较或翻页不会自动换装，也不会消耗资源。
 

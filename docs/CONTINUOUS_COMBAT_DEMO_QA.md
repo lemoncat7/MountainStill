@@ -1,4 +1,33 @@
-# 连续交锋验证：真实所得配装与原生首领
+# 连续交锋验证：当前结果与历史录像边界
+
+## 2026-11-23：修复过时的 QA 准备流程，不发布新包
+
+v1.3.43 游戏代码未改。旧准备器在新档默认手动成长下没有调用突破，赢完青竹关后仍为境界0，因而正确被听泉桥的境界1门槛拦住。正式修行页已有明确的手动突破按钮；首通奖励不会代玩家突破。修复准备器逐阶支付真实灵气/灵草，必要时真实采药或静坐，并记录目标、路线和扣费。奖励使用正式尸体搜寻接口，检查提前搜寻与重复领取均不付款。心法已装备时不重复要求切换报价。
+
+本轮准备两条各9战的路线，18战均胜利，6次突破逐次扣费、两份存档有效。准备过程通过生产 State/Duel API 推进，**不是从新档开始的全程 UI 录像**。现有完整手动旅程经济/存档测试1613项通过；另有39个真实指针目标的2475项检查通过，均为Linux headless，不等于原生GUI。
+
+显式 `--headless-audit` 只记录正式 host 的连续事件和姿态，不等待绘制完成、不写截图。两场原生气血首领均胜利，记录123个事件、2517个姿态采样，源文件运行前后一致且time_scale=1。总模拟片段43.4333秒；各场13.70/28.25秒。伤害/气血守恒、反击因果、三种普攻和敌方动作检查通过，**旧50–90秒录像时长断言仍失败（分析器exit1）**，未放宽以制造全绿。固定60步长不是实时性能成绩。
+
+分析器新增空场次、错误目标顺序、缺事件/姿态与headless标记矛盾的拒绝检查；四项空证据/标记专项通过。历史两条剑节奏断言原文件未改，本轮没有重复跑该未改动的平衡测试。Windows/macOS原生安装、绘制、音频、透明度、GPU和长期混合负载仍未验收。无需为这些工具修复更换v1.3.43正式包。
+
+复现命令（先将三个XDG目录设置为本机可写、隔离目录；输出路径亦由消费方自行选择）：
+
+```sh
+godot --headless --path . --script tests/prepare_continuous_combat_demo.gd -- \
+  --output=/tmp/mountain-current/checkpoints
+godot --headless --fixed-fps 60 --path . --script tests/show_continuous_combat_demo.gd -- \
+  --demo --headless-audit --checkpoints=/tmp/mountain-current/checkpoints \
+  --output=/tmp/mountain-current/events
+python3 tools/qa_analyze_continuous_capture.py \
+  /tmp/mountain-current/events/continuous-combat-events.json \
+  --output=/tmp/mountain-current/analysis.json
+```
+
+下方59.900秒图形片段、56秒采集/22秒切换及旧三条平衡失败均为**此前历史记录**，不得归给本轮源码或现行包。当前准备可能已正常装备止水，故本次切换成本为零；这不等于游戏免除了原有学习或切换成本。
+
+---
+
+# 历史连续交锋记录（不是 2026-11-23 的验收）
 
 本轮 QA 使用两个连续实战片段，不延长首领气血，不强制格挡、闪避、命中、反击或胜利。每场由正式 `cultivation.gd` 主循环、`DuelTimeline` 和正式绘制／声音代码推进。两个片段之间停留 0.75 秒；每场内部不剪辑、不重排事件，不修改 `Engine.time_scale`。
 
@@ -6,7 +35,7 @@
 
 ```sh
 mkdir -p /tmp/mountain-continuous/checkpoints /tmp/mountain-continuous/capture
-# 在受限环境中，将 HOME / XDG_DATA_HOME 指向可写的隔离目录。
+# 在受限环境中，将 XDG_DATA_HOME / XDG_CONFIG_HOME / XDG_CACHE_HOME 指向可写隔离目录。
 godot --headless --path . --script tests/prepare_continuous_combat_demo.gd -- \
   --output=/tmp/mountain-continuous/checkpoints
 # 第二条命令必须从真正有图形显示的桌面终端运行；不要加 --headless。

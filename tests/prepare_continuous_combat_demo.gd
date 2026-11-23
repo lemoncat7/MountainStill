@@ -6,6 +6,7 @@ const Plan = preload("res://tests/campaign_build_plan.gd")
 var output := "/tmp/continuous-combat-checkpoints"
 var provenance: Array = []
 var failed := false
+var growth: Array = []
 
 func _initialize() -> void:
  for arg in OS.get_cmdline_user_args():
@@ -13,8 +14,9 @@ func _initialize() -> void:
  DirAccess.make_dir_recursive_absolute(output)
  for target in ["bamboo_pass", "cloud_slope"]:
   prepare(target)
+  if failed: break
  var file := FileAccess.open(output.path_join("provenance.json"), FileAccess.WRITE)
- file.store_string(JSON.stringify({"failed":failed,"metadata":Plan.measurement_metadata(),"cases":provenance}, "\t"))
+ file.store_string(JSON.stringify({"failed":failed,"metadata":Plan.measurement_metadata(),"cases":provenance,"manual_growth":growth,"method":"Paid manual breakthroughs and real corpse search; checkpoint preparation is not continuous UI play."}, "\t"))
  file.close()
  quit(1 if failed else 0)
 
@@ -22,7 +24,8 @@ func setup_target(s) -> Dictionary:
  var before := {"seconds":s.lifetime_seconds,"herbs":s.herbs,"dew":s.dew,"qi":s.qi,"heart":s.equipped_heart}
  Plan.study(s,"stillness",1)
  var quote: Dictionary = s.quote_heart_switch("stillness")
- if not quote.get("ok",false): fail("heart quote blocked"); return {}
+ var already_equipped:bool=s.equipped_heart=="stillness"
+ if not quote.get("ok",false) and not already_equipped: fail("heart quote blocked: "+str(quote.get("reason",""))); return {}
  var cost: Dictionary = quote.get("cost",{})
  # The canonical guard plan learned stillness but spent down its herbs.
  # Gather the shortfall through the actual 8-second gathering loop, then
@@ -40,9 +43,26 @@ func setup_target(s) -> Dictionary:
  for id in s.equipped_actives.duplicate(): s.unequip_technique(str(id), "active")
  s.equip_technique("barrier", "active")
  for id in s.equipped_passives.duplicate(): s.unequip_technique(str(id), "passive")
- var result := {"before":before,"after":{"seconds":s.lifetime_seconds,"herbs":s.herbs,"dew":s.dew,"qi":s.qi,"heart":s.equipped_heart},"quoted_cost":cost,"switch_seconds":quote.get("duration",0),"total_preparation_seconds":s.lifetime_seconds-float(before.seconds)}
+ var result := {"before":before,"after":{"seconds":s.lifetime_seconds,"herbs":s.herbs,"dew":s.dew,"qi":s.qi,"heart":s.equipped_heart},"already_equipped":already_equipped,"quoted_cost":cost,"switch_seconds":quote.get("duration",0),"total_preparation_seconds":s.lifetime_seconds-float(before.seconds)}
  print("HEART_PREPARATION " + JSON.stringify(result))
  return result
+
+func grow_to(s, target: int, case_target: String, route: String) -> bool:
+ while s.realm < target:
+  var start_seconds:float=s.lifetime_seconds
+  var cost_qi:float=s.Content.QI_COSTS[s.realm]
+  var cost_herbs:int=s.Content.HERB_COSTS[s.realm]
+  for tick in range(450):
+   if s.herbs>=cost_herbs and s.qi>=cost_qi:break
+   s.set_activity("gather" if s.herbs<cost_herbs else "meditate")
+   s.step(8.0)
+  s.set_activity("meditate")
+  var before:Dictionary={"realm":s.realm,"qi":s.qi,"herbs":s.herbs}
+  if not s.breakthrough():fail("manual breakthrough budget unavailable");return false
+  if s.realm!=int(before.realm)+1 or s.herbs!=int(before.herbs)-cost_herbs or absf(s.qi-(float(before.qi)-cost_qi))>.00001:
+   fail("manual breakthrough cost mismatch");return false
+  growth.append({"case_target":case_target,"route":route,"before":before,"after":{"realm":s.realm,"qi":s.qi,"herbs":s.herbs},"qi_cost":cost_qi,"herb_cost":cost_herbs,"gather_or_meditate_seconds":s.lifetime_seconds-start_seconds})
+ return true
 
 func prepare(target: String) -> void:
  var s := State.new()
@@ -54,6 +74,10 @@ func prepare(target: String) -> void:
  for chapter in range(routes.size()):
   var route: String = routes[chapter]
   var is_target := chapter == routes.size() - 1
+  # A fresh player remains manual; rewards never perform this choice for them.
+  # The target stillness build also needs realm three before its paid lessons.
+  if not grow_to(s,maxi(int(s.Content.STAGES[route].unlock_realm),3 if is_target else 0),target,route):return
+  if chapter>0:Plan.configure(s,"guard",chapter);Plan.buy_affordable_meridians(s)
   var target_preparation: Dictionary = {}
   if is_target:
    target_preparation = setup_target(s)
@@ -90,15 +114,22 @@ func prepare(target: String) -> void:
    if not duel.victory: fail("lost " + route + ":" + str(index)); return
    s.update_stage_battle_resources(int(started.run_id), duel.battle_resource_snapshot())
    hp = duel.hero_hp
-   var result := s.defeat_stage_monster(int(started.run_id),index)
+   if not s.begin_stage_corpse(int(started.run_id),index).get("ok",false):fail("corpse blocked");return
+   if s.complete_stage_search(int(started.run_id),index).get("ok",false):fail("premature search reward");return
+   for tick in range(120):
+    s.advance_stage_search(int(started.run_id),index,1.0/60.0)
+    var resting:Dictionary=s.stats()
+    s.update_stage_battle_resources(int(started.run_id),Duel.rest_resource_snapshot(s.stage_battle_resources(),1.0/60.0,float(resting.combat_qi_max),float(resting.combat_qi_regen)))
+    s.step(1.0/60.0)
+   var result := s.complete_stage_search(int(started.run_id),index)
    if not result.get("ok", false): fail("reward blocked"); return
+   if s.complete_stage_search(int(started.run_id),index).get("ok",false):fail("duplicate search reward");return
    if index < 2:
     var stats := s.stats()
     s.update_stage_battle_resources(int(started.run_id),Duel.rest_resource_snapshot(s.stage_battle_resources(),9.0,float(stats.combat_qi_max),float(stats.combat_qi_regen)));s.step(9.0)
    elif result.get("chapter_reward",{}).get("item") is Dictionary:
     s.equip_item(int(result.chapter_reward.item.id))
   s.step(0.1)
-  if not is_target: Plan.configure(s,"guard",chapter+1);Plan.buy_affordable_meridians(s)
  provenance.append({"target":target,"records":records,"earned_victories":s.total_victories,"final_state_valid":s._valid_save(s._snapshot())})
 
 func fail(message: String) -> void:

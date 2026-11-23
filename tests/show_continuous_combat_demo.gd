@@ -27,6 +27,7 @@ var details: Label
 var initial_metadata: Dictionary
 var failed := false
 var caption := ""
+var headless_audit := false
 
 func _initialize() -> void: call_deferred("start")
 func start() -> void:
@@ -34,6 +35,9 @@ func start() -> void:
   if arg.begins_with("--output="): output = arg.trim_prefix("--output=")
   if arg.begins_with("--checkpoints="): checkpoints = arg.trim_prefix("--checkpoints=")
   if arg.begins_with("--caption="): caption = arg.trim_prefix("--caption=")
+  if arg=="--headless-audit":headless_audit=true
+ if (DisplayServer.get_name()=="headless")!=headless_audit:
+  push_error("Use --headless-audit explicitly for event-only headless execution; graphical recording must omit it.");quit(2);return
  DirAccess.make_dir_recursive_absolute(output)
  initial_metadata = Plan.measurement_metadata()
  scene = load("res://main.tscn").instantiate()
@@ -112,8 +116,9 @@ func _process(delta: float) -> bool:
  return false
 
 func complete_bout() -> void:
- await RenderingServer.frame_post_draw
- root.get_texture().get_image().save_png(output.path_join(route+"-victory.png"))
+ if not headless_audit:
+  await RenderingServer.frame_post_draw
+  root.get_texture().get_image().save_png(output.path_join(route+"-victory.png"))
  await create_timer(0.75).timeout
  scene.set_process(true)
  begin_bout()
@@ -124,7 +129,7 @@ func finish() -> void:
  var final_metadata:=Plan.measurement_metadata()
  if final_metadata!=initial_metadata:failed=true;push_error("REVIEW_SOURCE_CHANGED_DURING_RECORDING")
  var file:=FileAccess.open(output.path_join("continuous-combat-events.json"),FileAccess.WRITE)
- file.store_string(JSON.stringify(plain({"failed":failed,"seconds":clock,"bouts":bouts,"events":events,"frames":frames,"metadata":initial_metadata,"source_frozen":final_metadata==initial_metadata,"engine_time_scale":Engine.time_scale,"note":"Both boss arenas use real earned save checkpoints and unchanged native HP; each bout is continuous production-host playback. Preparation is simulated separately at real costs. No claims of human audiovisual audition."}),"\t"));file.close()
+ file.store_string(JSON.stringify(plain({"failed":failed,"seconds":clock,"bouts":bouts,"events":events,"frames":frames,"metadata":initial_metadata,"source_frozen":final_metadata==initial_metadata,"engine_time_scale":Engine.time_scale,"display_server":DisplayServer.get_name(),"headless_audit":headless_audit,"note":"Both boss arenas use real earned save checkpoints and unchanged native HP; each bout is continuous production-host playback. Preparation is simulated separately at real costs. Headless audit has no rendered frames or audio acceptance. No claims of human audiovisual audition."}),"\t"));file.close()
  print("CONTINUOUS_DEMO_DONE seconds=%.4f failed=%s" % [clock,failed])
  scene.queue_free();scene=null
  await process_frame

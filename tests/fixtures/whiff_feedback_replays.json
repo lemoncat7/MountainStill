@@ -1,0 +1,946 @@
+{
+  "provenance": {
+    "source_commit": "9175b882fe7ab0c2b9fff045d31a616e6edd377b",
+    "command": "godot --headless --path . --script tests/test_encounter_balance.gd -- --report=balance.json",
+    "report_sha256": "09072b3499667589ac061297019ca8265a2ad54c244f9c41517e1b6af5250f65",
+    "selection": "rng_seed61: sword/ember_ruins/ember_spark, guard/cloud_slope/ridge_sprite; unchanged earned stats and native enemy definitions"
+  },
+  "encounters": [
+    {
+      "actual_healing": 0.0,
+      "basic_actions": 4.0,
+      "battle_resources_end": {
+        "active_skills": [
+          {
+            "action_kind": "weapon_art",
+            "available": true,
+            "category": "weapon_art",
+            "cooldown": 6.0,
+            "id": "mist",
+            "name": "云岚剑诀",
+            "qi_cost": 12.0,
+            "ready": false,
+            "remaining": 4.566655
+          },
+          {
+            "action_kind": "defense",
+            "available": true,
+            "category": "defense",
+            "cooldown": 12.0,
+            "id": "barrier",
+            "name": "护元诀",
+            "qi_cost": 16.0,
+            "ready": false,
+            "remaining": 6.002541
+          }
+        ],
+        "attack_modules": {
+          "active": {
+            "barrier": "technique.barrier",
+            "mist": "technique.mist",
+            "weapon_sword_pierce": "weapon.sword"
+          },
+          "basic": "weapon.sword",
+          "enemy": "enemy.ember_guardian",
+          "form": "technique.mist"
+        },
+        "cooldowns": {
+          "barrier": 6.002541,
+          "ember": 0.0,
+          "frost": 0.0,
+          "mending": 0.0,
+          "mist": 4.566655,
+          "petal": 0.0,
+          "thunder": 0.0,
+          "weapon_fan_return": 0.0,
+          "weapon_sword_pierce": 5.589255
+        },
+        "heart_method_id": "breath",
+        "max_qi": 60.0,
+        "module_revision": 1.0,
+        "qi": 30.261409,
+        "qi_regen": 2.4,
+        "shield": 0.0,
+        "shield_remaining": 0.0,
+        "spell_available": false,
+        "spell_cd": 0.0,
+        "spell_cost": 0.0,
+        "spell_id": "",
+        "spell_ready": false,
+        "technique_available": false,
+        "technique_cd": 0.0,
+        "technique_cost": 0.0,
+        "technique_id": "barrier",
+        "technique_ready": false,
+        "weapon_art_available": true,
+        "weapon_art_cd": 4.566655,
+        "weapon_art_cost": 12.0,
+        "weapon_art_id": "mist",
+        "weapon_art_ready": false,
+        "weapon_available": true,
+        "weapon_cd": 5.589255,
+        "weapon_cost": 10.0,
+        "weapon_id": "weapon_sword_pierce",
+        "weapon_name": "青锋 · 破风刺",
+        "weapon_ready": false,
+        "weapon_skill": {
+          "action_kind": "weapon",
+          "available": true,
+          "category": "weapon",
+          "cooldown": 9.0,
+          "id": "weapon_sword_pierce",
+          "name": "青锋 · 破风刺",
+          "qi_cost": 10.0,
+          "ready": false,
+          "remaining": 5.589255
+        },
+        "weapon_skill_id": "weapon_sword_pierce"
+      },
+      "boss": false,
+      "build": "sword",
+      "chapter": 4.0,
+      "damage_dealt": 250.0,
+      "damage_received": 5.0,
+      "duel_seed": 5365.0,
+      "enemy_attack": 12.0,
+      "enemy_contacts": 6.0,
+      "enemy_defense": 4.0,
+      "enemy_definition": {
+        "attack": 12.0,
+        "attack_module_id": "enemy.ember_guardian",
+        "boss": false,
+        "defense": 4.0,
+        "enemy_front_extent": 62.4961242675781,
+        "engagement_distance": 101.538461538462,
+        "hp": 250.0,
+        "id": "ember_spark",
+        "name": "余烬炎灵",
+        "route_id": "ember_ruins",
+        "visual_type": "ember_guardian"
+      },
+      "enemy_hp": 250.0,
+      "enemy_id": "ember_spark",
+      "enemy_moves": [
+        "ember_guardian_sweep",
+        "ember_guardian_burst",
+        "ember_guardian_charge"
+      ],
+      "enemy_whiffs": 0.0,
+      "equipment": {
+        "chest": "chest_jade",
+        "feet": "feet_boots",
+        "head": "",
+        "legs": "",
+        "weapon": "weapon_sword"
+      },
+      "hero_attack": 42.0,
+      "hero_contacts": 11.0,
+      "hero_defense": 14.0,
+      "hero_max_hp": 144.0,
+      "hero_stats": {
+        "active_skills": [
+          {
+            "active": true,
+            "attack_module_id": "technique.mist",
+            "attack_scale": 1.0,
+            "basic_moves": [
+              "mist_thrust",
+              "mist_lift"
+            ],
+            "category": "weapon_art",
+            "category_name": "兵器功法",
+            "compatible": true,
+            "cooldown": 6.0,
+            "description": "武式槽持剑时以云岚刺挑普攻；另装主动栏才会穿插云岚三叠。功法槽选用时每重攻击 +3；无剑保留修为加成，剑招暂不生效。",
+            "effect": "剑式普攻 · 三叠耗气12 / 冷却6秒 · 攻击 +3/重",
+            "id": "mist",
+            "inactive_reason": "",
+            "level": 5.0,
+            "max_level": 6.0,
+            "move": "mist_combo",
+            "name": "云岚剑诀",
+            "power_scale": 1.2,
+            "prerequisites": {},
+            "qi_cost": 12.0,
+            "rank_realms": [
+              0.0,
+              0.0,
+              1.0,
+              3.0,
+              6.0,
+              9.0
+            ],
+            "required_weapon": "weapon_sword",
+            "slot": "weapon_art",
+            "slots": [
+              "weapon_art",
+              "active"
+            ],
+            "tags": [
+              "武技"
+            ],
+            "training_seconds": 8.0,
+            "unlock_realm": 0.0
+          },
+          {
+            "active": true,
+            "attack_module_id": "technique.barrier",
+            "category": "defense",
+            "category_name": "护体",
+            "compatible": true,
+            "cooldown": 12.0,
+            "description": "结起护元屏障，吸收之后实际承受的伤害；屏障耗尽或到时消散。与其他主动招式同栏搭配。",
+            "effect": "护盾吸伤 · 耗气16 / 冷却12秒 · 每重效力 +5%",
+            "effect_style": "barrier",
+            "id": "barrier",
+            "inactive_reason": "",
+            "level": 1.0,
+            "max_level": 5.0,
+            "move": "barrier_guard",
+            "name": "护元诀",
+            "power_scale": 1.0,
+            "prerequisites": {
+              "breath": 1.0
+            },
+            "qi_cost": 16.0,
+            "rank_realms": [
+              1.0,
+              3.0,
+              6.0,
+              9.0,
+              12.0
+            ],
+            "shield_amount": 18.0,
+            "shield_seconds": 5.0,
+            "slot": "active",
+            "slots": [
+              "active"
+            ],
+            "tags": [
+              "护体",
+              "术法"
+            ],
+            "training_seconds": 10.0,
+            "unlock_realm": 1.0
+          }
+        ],
+        "activity": "静坐吐纳",
+        "attack": 42.0,
+        "attack_module_id": "weapon.sword",
+        "battle_resources": {
+          "attack_modules": {
+            "active": {
+              "barrier": "technique.barrier",
+              "mist": "technique.mist",
+              "weapon_sword_pierce": "weapon.sword"
+            },
+            "basic": "weapon.sword",
+            "form": "technique.mist"
+          },
+          "cooldowns": {
+            "barrier": 0.0,
+            "ember": 0.0,
+            "frost": 0.0,
+            "mending": 0.0,
+            "mist": 0.0,
+            "petal": 0.0,
+            "thunder": 0.0,
+            "weapon_fan_return": 0.0,
+            "weapon_sword_pierce": 0.0
+          },
+          "module_revision": 1.0,
+          "qi": 60.0,
+          "spell_cd": 0.0,
+          "spell_id": "",
+          "weapon_art_cd": 0.0,
+          "weapon_art_id": "mist",
+          "weapon_cd": 0.0,
+          "weapon_skill_id": "weapon_sword_pierce"
+        },
+        "break_bonus": 0.0,
+        "brew_multiplier": 1.1,
+        "brew_progress": 0.0,
+        "campaign_complete": false,
+        "combat_haste": 0.0,
+        "combat_qi_max": 60.0,
+        "combat_qi_regen": 2.4,
+        "combat_tactic": "balanced",
+        "counter_bonus": 0.0,
+        "defense": 14.0,
+        "dew_progress": 0.0,
+        "dodge_bonus": 0.0,
+        "ending_complete": false,
+        "evasion_chance": 0.09,
+        "evasion_sources": {
+          "base": 0.05,
+          "cap": 0.72,
+          "chance": 0.09,
+          "committed_chance": 0.0135,
+          "equipment": 0.04,
+          "meridian": 0.0,
+          "movement": 0.0,
+          "movement_level": 0.0,
+          "raw": 0.09
+        },
+        "gather_multiplier": 1.04,
+        "guard_bonus": 0.0,
+        "heart_method": {
+          "active": true,
+          "category": "heart",
+          "category_name": "心法",
+          "combat_qi_max": 8.0,
+          "combat_qi_regen": 0.4,
+          "compatible": true,
+          "cooldown": 0.0,
+          "description": "入门行气法，首重增加真气上限 6 点、恢复 0.35/秒；每重再加上限 2 点、恢复 0.05/秒。真气只用于历练技能，与突破用的灵气分开。",
+          "dodge_chance": 0.05,
+          "effect": "被动养气 · 真气上限 +8 · 恢复 +0.40/秒",
+          "effect_style": "breath",
+          "guard_chance": 0.12,
+          "guard_multiplier": 0.55,
+          "id": "breath",
+          "inactive_reason": "",
+          "level": 2.0,
+          "max_level": 4.0,
+          "move": "",
+          "name": "归息心法",
+          "power_scale": 1.05,
+          "prerequisites": {},
+          "qi_cost": 0.0,
+          "rank_realms": [
+            0.0,
+            1.0,
+            3.0,
+            6.0
+          ],
+          "slot": "heart",
+          "slots": [
+            "heart"
+          ],
+          "switch_style": "flow",
+          "switch_tier": 1.0,
+          "tags": [
+            "心法",
+            "辅助功能"
+          ],
+          "training_seconds": 8.0,
+          "unlock_realm": 0.0
+        },
+        "herb_progress": 0.0,
+        "hp": 144.0,
+        "max_hp": 144.0,
+        "max_realm": false,
+        "merit": 0.0,
+        "need_herbs": 40.0,
+        "need_qi": 6480.0,
+        "passive_methods": [
+          {
+            "active": true,
+            "category": "body",
+            "category_name": "炼体",
+            "compatible": true,
+            "cooldown": 0.0,
+            "description": "被动温养筋骨；第一重气血上限 +20、定力 +4，此后每重再加气血 4、定力 1。筑基初期开启一个辅修位。",
+            "effect": "被动强身 · 气血 +20 · 定力 +4",
+            "effect_style": "body",
+            "id": "body",
+            "inactive_reason": "",
+            "level": 1.0,
+            "max_hp": 20.0,
+            "max_level": 7.0,
+            "move": "",
+            "name": "松骨诀",
+            "poise_bonus": 4.0,
+            "power_scale": 1.0,
+            "prerequisites": {
+              "breath": 1.0
+            },
+            "qi_cost": 0.0,
+            "rank_realms": [
+              3.0,
+              3.0,
+              6.0,
+              6.0,
+              9.0,
+              12.0,
+              15.0
+            ],
+            "slot": "passive",
+            "slots": [
+              "passive"
+            ],
+            "tags": [
+              "炼体",
+              "护体"
+            ],
+            "training_seconds": 14.0,
+            "unlock_realm": 3.0
+          }
+        ],
+        "pill_qi": 203.5,
+        "poise_bonus": 4.0,
+        "progress": 0.304164309483027,
+        "qi_rate": 4.8888,
+        "realm_attack": 12.0,
+        "realm_defense": 2.0,
+        "realm_name": "金丹初期",
+        "recovery_bonus": 0.0,
+        "skill_cooldown_reduction": 0.0,
+        "skill_cost_reduction": 0.0,
+        "speed": 100.0,
+        "spell": {},
+        "story_resolved": false,
+        "technique_level": 1.0,
+        "technique_name": "护元诀",
+        "weapon_art": {
+          "active": true,
+          "attack_module_id": "technique.mist",
+          "attack_scale": 1.0,
+          "basic_moves": [
+            "mist_thrust",
+            "mist_lift"
+          ],
+          "category": "weapon_art",
+          "category_name": "兵器功法",
+          "compatible": true,
+          "cooldown": 6.0,
+          "description": "武式槽持剑时以云岚刺挑普攻；另装主动栏才会穿插云岚三叠。功法槽选用时每重攻击 +3；无剑保留修为加成，剑招暂不生效。",
+          "effect": "剑式普攻 · 三叠耗气12 / 冷却6秒 · 攻击 +3/重",
+          "id": "mist",
+          "inactive_reason": "",
+          "level": 5.0,
+          "max_level": 6.0,
+          "move": "mist_combo",
+          "name": "云岚剑诀",
+          "power_scale": 1.2,
+          "prerequisites": {},
+          "qi_cost": 12.0,
+          "rank_realms": [
+            0.0,
+            0.0,
+            1.0,
+            3.0,
+            6.0,
+            9.0
+          ],
+          "required_weapon": "weapon_sword",
+          "slot": "weapon_art",
+          "slots": [
+            "weapon_art",
+            "active"
+          ],
+          "tags": [
+            "武技"
+          ],
+          "training_seconds": 8.0,
+          "unlock_realm": 0.0
+        },
+        "weapon_skill": {
+          "active": true,
+          "attack_module_id": "weapon.sword",
+          "category": "weapon",
+          "cooldown": 9.0,
+          "id": "weapon_sword_pierce",
+          "move": "weapon_sword_pierce",
+          "name": "青锋 · 破风刺",
+          "qi_cost": 10.0,
+          "weapon_template_id": "weapon_sword"
+        }
+      },
+      "hero_whiffs": 2.0,
+      "index": 0.0,
+      "landed_melee_contacts": 8.0,
+      "measured_melee_contacts": 10.0,
+      "meridians": {
+        "guanyuan": true,
+        "laogong": true,
+        "qihai": true,
+        "shenque": true
+      },
+      "poise_breaks": 2.0,
+      "qi_spent": 50.0,
+      "remaining_hp": 139.0,
+      "rng_seed": 61.0,
+      "route": "ember_ruins",
+      "saw_awakened": false,
+      "seconds": 9.5903,
+      "skill_actions": {
+        "barrier": 1.0,
+        "mist": 2.0,
+        "weapon_sword_pierce": 1.0
+      },
+      "start_hp": 144.0,
+      "technique": "barrier",
+      "technique_level": 1.0,
+      "victory": true
+    },
+    {
+      "actual_healing": 0.0,
+      "basic_actions": 8.0,
+      "battle_resources_end": {
+        "active_skills": [
+          {
+            "action_kind": "defense",
+            "available": true,
+            "category": "defense",
+            "cooldown": 12.0,
+            "id": "barrier",
+            "name": "护元诀",
+            "qi_cost": 16.0,
+            "ready": false,
+            "remaining": 9.5708
+          },
+          {
+            "action_kind": "weapon_art",
+            "available": true,
+            "category": "weapon_art",
+            "cooldown": 6.0,
+            "id": "mist",
+            "name": "云岚剑诀",
+            "qi_cost": 12.0,
+            "ready": false,
+            "remaining": 0.751782
+          }
+        ],
+        "attack_modules": {
+          "active": {
+            "barrier": "technique.barrier",
+            "mist": "technique.mist",
+            "weapon_sword_pierce": "weapon.sword"
+          },
+          "basic": "weapon.sword",
+          "enemy": "enemy.cloud_crane",
+          "form": "technique.mist"
+        },
+        "cooldowns": {
+          "barrier": 9.5708,
+          "ember": 0.0,
+          "frost": 0.0,
+          "mending": 0.0,
+          "mist": 0.751782,
+          "petal": 0.0,
+          "thunder": 0.0,
+          "weapon_fan_return": 0.0,
+          "weapon_sword_pierce": 0.0
+        },
+        "heart_method_id": "breath",
+        "max_qi": 54.0,
+        "module_revision": 1.0,
+        "qi": 17.559293,
+        "qi_regen": 2.4,
+        "shield": 19.0,
+        "shield_remaining": 3.3308,
+        "spell_available": false,
+        "spell_cd": 0.0,
+        "spell_cost": 0.0,
+        "spell_id": "",
+        "spell_ready": false,
+        "technique_available": true,
+        "technique_cd": 0.751782,
+        "technique_cost": 12.0,
+        "technique_id": "mist",
+        "technique_ready": false,
+        "weapon_art_available": true,
+        "weapon_art_cd": 0.751782,
+        "weapon_art_cost": 12.0,
+        "weapon_art_id": "mist",
+        "weapon_art_ready": false,
+        "weapon_available": true,
+        "weapon_cd": 0.0,
+        "weapon_cost": 10.0,
+        "weapon_id": "weapon_sword_pierce",
+        "weapon_name": "青锋 · 破风刺",
+        "weapon_ready": true,
+        "weapon_skill": {
+          "action_kind": "weapon",
+          "available": true,
+          "category": "weapon",
+          "cooldown": 9.0,
+          "id": "weapon_sword_pierce",
+          "name": "青锋 · 破风刺",
+          "qi_cost": 10.0,
+          "ready": true,
+          "remaining": 0.0
+        },
+        "weapon_skill_id": "weapon_sword_pierce"
+      },
+      "boss": false,
+      "build": "guard",
+      "chapter": 3.0,
+      "damage_dealt": 245.0,
+      "damage_received": 8.0,
+      "duel_seed": 4107.0,
+      "enemy_attack": 9.0,
+      "enemy_contacts": 11.0,
+      "enemy_defense": 2.0,
+      "enemy_definition": {
+        "attack": 9.0,
+        "attack_module_id": "enemy.cloud_crane",
+        "boss": false,
+        "defense": 2.0,
+        "enemy_front_extent": 57.7433662414551,
+        "engagement_distance": 101.538461538462,
+        "hp": 245.0,
+        "id": "ridge_sprite",
+        "name": "山岚灵鹤",
+        "route_id": "cloud_slope",
+        "visual_type": "cloud_crane"
+      },
+      "enemy_hp": 245.0,
+      "enemy_id": "ridge_sprite",
+      "enemy_moves": [
+        "cloud_crane_burst",
+        "cloud_crane_sweep",
+        "cloud_crane_charge"
+      ],
+      "enemy_whiffs": 4.0,
+      "equipment": {
+        "chest": "chest_jade",
+        "feet": "",
+        "head": "",
+        "legs": "",
+        "weapon": "weapon_sword"
+      },
+      "hero_attack": 24.0,
+      "hero_contacts": 17.0,
+      "hero_defense": 7.0,
+      "hero_max_hp": 132.0,
+      "hero_stats": {
+        "active_skills": [
+          {
+            "active": true,
+            "attack_module_id": "technique.barrier",
+            "category": "defense",
+            "category_name": "护体",
+            "compatible": true,
+            "cooldown": 12.0,
+            "description": "结起护元屏障，吸收之后实际承受的伤害；屏障耗尽或到时消散。与其他主动招式同栏搭配。",
+            "effect": "护盾吸伤 · 耗气16 / 冷却12秒 · 每重效力 +5%",
+            "effect_style": "barrier",
+            "id": "barrier",
+            "inactive_reason": "",
+            "level": 2.0,
+            "max_level": 5.0,
+            "move": "barrier_guard",
+            "name": "护元诀",
+            "power_scale": 1.05,
+            "prerequisites": {
+              "breath": 1.0
+            },
+            "qi_cost": 16.0,
+            "rank_realms": [
+              1.0,
+              3.0,
+              6.0,
+              9.0,
+              12.0
+            ],
+            "shield_amount": 18.0,
+            "shield_seconds": 5.0,
+            "slot": "active",
+            "slots": [
+              "active"
+            ],
+            "tags": [
+              "护体",
+              "术法"
+            ],
+            "training_seconds": 10.0,
+            "unlock_realm": 1.0
+          },
+          {
+            "active": true,
+            "attack_module_id": "technique.mist",
+            "attack_scale": 1.0,
+            "basic_moves": [
+              "mist_thrust",
+              "mist_lift"
+            ],
+            "category": "weapon_art",
+            "category_name": "兵器功法",
+            "compatible": true,
+            "cooldown": 6.0,
+            "description": "武式槽持剑时以云岚刺挑普攻；另装主动栏才会穿插云岚三叠。功法槽选用时每重攻击 +3；无剑保留修为加成，剑招暂不生效。",
+            "effect": "剑式普攻 · 三叠耗气12 / 冷却6秒 · 攻击 +3/重",
+            "id": "mist",
+            "inactive_reason": "",
+            "level": 1.0,
+            "max_level": 6.0,
+            "move": "mist_combo",
+            "name": "云岚剑诀",
+            "power_scale": 1.0,
+            "prerequisites": {},
+            "qi_cost": 12.0,
+            "rank_realms": [
+              0.0,
+              0.0,
+              1.0,
+              3.0,
+              6.0,
+              9.0
+            ],
+            "required_weapon": "weapon_sword",
+            "slot": "weapon_art",
+            "slots": [
+              "weapon_art",
+              "active"
+            ],
+            "tags": [
+              "武技"
+            ],
+            "training_seconds": 8.0,
+            "unlock_realm": 0.0
+          }
+        ],
+        "activity": "静坐吐纳",
+        "attack": 24.0,
+        "attack_module_id": "weapon.sword",
+        "battle_resources": {
+          "attack_modules": {
+            "active": {
+              "barrier": "technique.barrier",
+              "mist": "technique.mist",
+              "weapon_sword_pierce": "weapon.sword"
+            },
+            "basic": "weapon.sword",
+            "form": "technique.mist"
+          },
+          "cooldowns": {
+            "barrier": 0.5708,
+            "ember": 0.0,
+            "frost": 0.0,
+            "mending": 0.0,
+            "mist": 0.0,
+            "petal": 0.0,
+            "thunder": 0.0,
+            "weapon_fan_return": 0.0,
+            "weapon_sword_pierce": 0.0
+          },
+          "module_revision": 1.0,
+          "qi": 45.670515,
+          "spell_cd": 0.0,
+          "spell_id": "",
+          "weapon_art_cd": 0.0,
+          "weapon_art_id": "mist",
+          "weapon_cd": 0.0,
+          "weapon_skill_id": "weapon_sword_pierce"
+        },
+        "break_bonus": 0.08,
+        "brew_multiplier": 1.0,
+        "brew_progress": 0.0,
+        "campaign_complete": false,
+        "combat_haste": 0.0,
+        "combat_qi_max": 54.0,
+        "combat_qi_regen": 2.4,
+        "combat_tactic": "balanced",
+        "counter_bonus": 0.0,
+        "defense": 7.0,
+        "dew_progress": 0.0,
+        "dodge_bonus": 0.0,
+        "ending_complete": false,
+        "evasion_chance": 0.05,
+        "evasion_sources": {
+          "base": 0.05,
+          "cap": 0.72,
+          "chance": 0.05,
+          "committed_chance": 0.0075,
+          "equipment": 0.0,
+          "meridian": 0.0,
+          "movement": 0.0,
+          "movement_level": 0.0,
+          "raw": 0.05
+        },
+        "gather_multiplier": 1.04,
+        "guard_bonus": 0.0,
+        "heart_method": {
+          "active": true,
+          "category": "heart",
+          "category_name": "心法",
+          "combat_qi_max": 8.0,
+          "combat_qi_regen": 0.4,
+          "compatible": true,
+          "cooldown": 0.0,
+          "description": "入门行气法，首重增加真气上限 6 点、恢复 0.35/秒；每重再加上限 2 点、恢复 0.05/秒。真气只用于历练技能，与突破用的灵气分开。",
+          "dodge_chance": 0.05,
+          "effect": "被动养气 · 真气上限 +8 · 恢复 +0.40/秒",
+          "effect_style": "breath",
+          "guard_chance": 0.12,
+          "guard_multiplier": 0.55,
+          "id": "breath",
+          "inactive_reason": "",
+          "level": 2.0,
+          "max_level": 4.0,
+          "move": "",
+          "name": "归息心法",
+          "power_scale": 1.05,
+          "prerequisites": {},
+          "qi_cost": 0.0,
+          "rank_realms": [
+            0.0,
+            1.0,
+            3.0,
+            6.0
+          ],
+          "slot": "heart",
+          "slots": [
+            "heart"
+          ],
+          "switch_style": "flow",
+          "switch_tier": 1.0,
+          "tags": [
+            "心法",
+            "辅助功能"
+          ],
+          "training_seconds": 8.0,
+          "unlock_realm": 0.0
+        },
+        "herb_progress": 0.0,
+        "hp": 125.0,
+        "max_hp": 132.0,
+        "max_realm": false,
+        "merit": 0.0,
+        "need_herbs": 22.0,
+        "need_qi": 1620.0,
+        "passive_methods": [
+          {
+            "active": true,
+            "category": "body",
+            "category_name": "炼体",
+            "compatible": true,
+            "cooldown": 0.0,
+            "description": "被动温养筋骨；第一重气血上限 +20、定力 +4，此后每重再加气血 4、定力 1。筑基初期开启一个辅修位。",
+            "effect": "被动强身 · 气血 +20 · 定力 +4",
+            "effect_style": "body",
+            "id": "body",
+            "inactive_reason": "",
+            "level": 1.0,
+            "max_hp": 20.0,
+            "max_level": 7.0,
+            "move": "",
+            "name": "松骨诀",
+            "poise_bonus": 4.0,
+            "power_scale": 1.0,
+            "prerequisites": {
+              "breath": 1.0
+            },
+            "qi_cost": 0.0,
+            "rank_realms": [
+              3.0,
+              3.0,
+              6.0,
+              6.0,
+              9.0,
+              12.0,
+              15.0
+            ],
+            "slot": "passive",
+            "slots": [
+              "passive"
+            ],
+            "tags": [
+              "炼体",
+              "护体"
+            ],
+            "training_seconds": 14.0,
+            "unlock_realm": 3.0
+          }
+        ],
+        "pill_qi": 129.25,
+        "poise_bonus": 8.0,
+        "progress": 0.368346949151239,
+        "qi_rate": 2.409525,
+        "realm_attack": 6.0,
+        "realm_defense": 1.0,
+        "realm_name": "筑基初期",
+        "recovery_bonus": 0.0,
+        "skill_cooldown_reduction": 0.0,
+        "skill_cost_reduction": 0.0,
+        "speed": 100.0,
+        "spell": {},
+        "story_resolved": false,
+        "technique_level": 1.0,
+        "technique_name": "云岚剑诀",
+        "weapon_art": {
+          "active": true,
+          "attack_module_id": "technique.mist",
+          "attack_scale": 1.0,
+          "basic_moves": [
+            "mist_thrust",
+            "mist_lift"
+          ],
+          "category": "weapon_art",
+          "category_name": "兵器功法",
+          "compatible": true,
+          "cooldown": 6.0,
+          "description": "武式槽持剑时以云岚刺挑普攻；另装主动栏才会穿插云岚三叠。功法槽选用时每重攻击 +3；无剑保留修为加成，剑招暂不生效。",
+          "effect": "剑式普攻 · 三叠耗气12 / 冷却6秒 · 攻击 +3/重",
+          "id": "mist",
+          "inactive_reason": "",
+          "level": 1.0,
+          "max_level": 6.0,
+          "move": "mist_combo",
+          "name": "云岚剑诀",
+          "power_scale": 1.0,
+          "prerequisites": {},
+          "qi_cost": 12.0,
+          "rank_realms": [
+            0.0,
+            0.0,
+            1.0,
+            3.0,
+            6.0,
+            9.0
+          ],
+          "required_weapon": "weapon_sword",
+          "slot": "weapon_art",
+          "slots": [
+            "weapon_art",
+            "active"
+          ],
+          "tags": [
+            "武技"
+          ],
+          "training_seconds": 8.0,
+          "unlock_realm": 0.0
+        },
+        "weapon_skill": {
+          "active": true,
+          "attack_module_id": "weapon.sword",
+          "category": "weapon",
+          "cooldown": 9.0,
+          "id": "weapon_sword_pierce",
+          "move": "weapon_sword_pierce",
+          "name": "青锋 · 破风刺",
+          "qi_cost": 10.0,
+          "weapon_template_id": "weapon_sword"
+        }
+      },
+      "hero_whiffs": 1.0,
+      "index": 1.0,
+      "landed_melee_contacts": 13.0,
+      "measured_melee_contacts": 15.0,
+      "meridians": {
+        "guanyuan": true,
+        "lieque": true,
+        "qihai": true,
+        "shangyang": true
+      },
+      "poise_breaks": 4.0,
+      "qi_spent": 66.0,
+      "remaining_hp": 117.0,
+      "rng_seed": 61.0,
+      "route": "cloud_slope",
+      "saw_awakened": false,
+      "seconds": 15.787,
+      "skill_actions": {
+        "barrier": 2.0,
+        "mist": 2.0,
+        "weapon_sword_pierce": 1.0
+      },
+      "start_hp": 125.0,
+      "technique": "mist",
+      "technique_level": 1.0,
+      "victory": true
+    }
+  ]
+}

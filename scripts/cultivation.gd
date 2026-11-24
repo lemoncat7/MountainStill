@@ -1575,18 +1575,21 @@ func _present_duel_contact(event:Dictionary):
 	_push_combat_feedback(event)
 	if str(event.target)=="enemy":
 		duel_resolution=str(event.resolution);enemy_flash=1.0 if int(event.damage)>0 else 0.0
+		# A whiff has no new damage label. Let the previous contact expire normally.
+		if str(event.resolution)=="whiff":return
 		combat_number=("反击 −" if bool(event.get("counter",false)) and str(event.resolution)=="hit" and int(event.damage)>0 else ("闪避 " if event.resolution=="dodge" else ("格挡 " if event.resolution=="guard" else "")))+str(event.damage)
 		if bool(event.get("poise_broken",false)):combat_number="破势 −%d"%int(event.damage)
-		combat_number_time=0.0 if event.resolution=="whiff" else .8
+		combat_number_time=.8
 	elif str(event.get("actor",""))=="hero":
 		if int(event.get("heal",0))>0:
 			hero_support_text="+%d"%int(event.heal);hero_support_time=.9
 		elif int(event.get("shield_added",0))>0:
 			hero_support_text="护身 +%d"%int(event.shield_added);hero_support_time=.9
 	else:
+		if str(event.resolution)=="whiff":return
 		hero_poise_broken=bool(event.get("poise_broken",false))
 		hero_resolution="shield" if float(event.get("shield_absorbed",0.0))>0 and int(event.damage)==0 else str(event.resolution)
-		hero_hit=0.0 if str(event.resolution)=="whiff" else 1.0;hero_damage=int(event.damage)
+		hero_hit=1.0;hero_damage=int(event.damage)
 		if str(event.resolution)=="guard" and bool(event.get("counter_earned",false)) and not bool(event.get("poise_broken",false)):
 			hero_support_text="卸力 · 反击";hero_support_time=.9
 

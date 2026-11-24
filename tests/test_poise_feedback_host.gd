@@ -26,6 +26,7 @@ func run():
    for e in d.advance(.1):
     if e.type!="contact":continue
     var before:Dictionary=e.duplicate(true)
+    var label_before:Array=[scene.combat_number,scene.combat_number_time,scene.hero_damage,scene.hero_resolution,scene.hero_poise_broken,scene.hero_hit]
     scene._present_duel_contact(e)
     check(e==before,"presentation leaves resolved event unchanged")
     var broken:=bool(e.get("poise_broken",false))
@@ -37,15 +38,15 @@ func run():
      if int(e.get("shield_absorbed",0))>0 and int(e.damage)==0:
       shield_breaks+=1;check(label.contains("护盾"),"shield absorption and posture break both remain readable")
      else:check(label.contains(str(e.damage)),"break label retains actual damage")
-    elif e.target=="enemy":
+    elif e.target=="enemy" and e.resolution!="whiff":
      ordinary+=1
      var expected:String=("反击 −" if bool(e.get("counter",false)) and e.resolution=="hit" and int(e.damage)>0 else ("闪避 " if e.resolution=="dodge" else ("格挡 " if e.resolution=="guard" else "")))+str(e.damage)
      check(scene.combat_number==expected,"ordinary enemy label unchanged")
-    elif e.actor=="enemy" and scene.has_method("_hero_damage_text"):
+    elif e.actor=="enemy" and e.resolution!="whiff" and scene.has_method("_hero_damage_text"):
      var r:String="shield" if int(e.get("shield_absorbed",0))>0 and int(e.damage)==0 else str(e.resolution)
      var expected:String="闪避 0" if r=="dodge" else ("护盾" if r=="shield" else (("格挡 " if r=="guard" else "")+"−%d"%int(e.damage)))
      check(scene._hero_damage_text()==expected,"ordinary hero label resets after prior break")
-    if e.resolution=="whiff":check(scene.combat_number_time==0 if e.target=="enemy" else scene.hero_hit==0,"whiff remains hidden")
+    if e.resolution=="whiff":check([scene.combat_number,scene.combat_number_time,scene.hero_damage,scene.hero_resolution,scene.hero_poise_broken,scene.hero_hit]==label_before,"whiff creates no new label or lifetime and preserves prior feedback")
   check(d.victory and absf(d.elapsed-float(row.seconds))<.00011,"replayed outcome and duration match earned baseline")
   fights+=1
  check(fights==36 and broken_targets.size()==2 and broken_guards>0 and shield_breaks>0 and ordinary>0,"real two-sided guards, shields and ordinary contacts covered")
